@@ -249,7 +249,7 @@ test('claude plugin.json does NOT have explicit hooks declaration', () => {
 test('claude plugin.json exposes only supported durable hook preferences', () => {
   assert.deepStrictEqual(
     Object.keys(claudePlugin.userConfig || {}).sort(),
-    ['hook_profile', 'hooks_enabled']
+    ['hook_profile', 'hooks_enabled', 'main_git_ask']
   );
 
   const hooksEnabled = claudePlugin.userConfig.hooks_enabled;
@@ -272,6 +272,16 @@ test('claude plugin.json exposes only supported durable hook preferences', () =>
   assert.strictEqual(hookProfile.default, 'standard');
   assert.ok(typeof hookProfile.title === 'string' && hookProfile.title.trim());
   assert.ok(typeof hookProfile.description === 'string' && hookProfile.description.trim());
+
+  const mainGitAsk = claudePlugin.userConfig.main_git_ask;
+  assert.deepStrictEqual(
+    Object.keys(mainGitAsk).sort(),
+    ['default', 'description', 'title', 'type']
+  );
+  assert.strictEqual(mainGitAsk.type, 'boolean');
+  assert.strictEqual(mainGitAsk.default, true);
+  assert.ok(typeof mainGitAsk.title === 'string' && mainGitAsk.title.trim());
+  assert.ok(typeof mainGitAsk.description === 'string' && mainGitAsk.description.trim());
 });
 
 console.log('\n=== .claude-plugin/marketplace.json ===\n');

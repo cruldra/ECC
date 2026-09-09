@@ -47,7 +47,7 @@ idempotent updates and safe uninstall. On Windows, the Claude config root is
 | **Tmux reminder** | `Bash` | Suggests tmux for long-running commands (npm test, cargo build, docker) | 0 (warns) |
 | **Git push reminder** | `Bash` | Reminds to review changes before `git push` | 0 (warns) |
 | **Pre-commit quality check** | `Bash` | Runs quality checks before `git commit`: lints staged files, validates commit message format when provided via `-m/--message`, detects console.log/debugger/secrets | 2 (blocks critical) / 0 (warns) |
-| **Main git ask** | `Bash` | Asks you to approve `git commit` on `main`, and branch/worktree creation in the primary checkout. Does not auto-deny. | 0 (`permissionDecision: ask`) |
+| **Main git ask** | `Bash` | Asks you to approve `git commit` on `main`, and branch/worktree creation in the primary checkout. Does not auto-deny. Machine-wide: `/plugin configure ecc@ecc` → **Ask before git commit on main**. One repo off: `ECC_MAIN_GIT_ASK=off` in that repo `.claude/settings.json` `env`. Also `ECC_DISABLED_HOOKS=pre:bash:main-git-ask`. | 0 (`permissionDecision: ask`) |
 | **Doc file warning** | `Write` | Warns about non-standard `.md`/`.txt` files (allows README, CLAUDE, CONTRIBUTING, CHANGELOG, LICENSE, SKILL, docs/, skills/); cross-platform path handling | 0 (warns) |
 | **Strategic compact** | `Edit\|Write` | Suggests manual `/compact` at logical intervals (every ~50 tool calls) | 0 (warns) |
 

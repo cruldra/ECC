@@ -106,6 +106,35 @@ test('dispatcher surfaces ask for main commit', () => {
   assert.strictEqual(decision(result), 'ask');
 });
 
+test('plugin configure option CLAUDE_PLUGIN_OPTION_MAIN_GIT_ASK=false skips ask', () => {
+  const cwd = initRepo('main');
+  const prev = process.env.CLAUDE_PLUGIN_OPTION_MAIN_GIT_ASK;
+  delete process.env.ECC_MAIN_GIT_ASK;
+  process.env.CLAUDE_PLUGIN_OPTION_MAIN_GIT_ASK = 'false';
+  try {
+    const result = hook.run({ tool_input: { command: 'git commit -m "x"' }, cwd });
+    assert.ok(!result.stdout);
+    assert.strictEqual(result.exitCode, 0);
+  } finally {
+    if (prev === undefined) delete process.env.CLAUDE_PLUGIN_OPTION_MAIN_GIT_ASK;
+    else process.env.CLAUDE_PLUGIN_OPTION_MAIN_GIT_ASK = prev;
+  }
+});
+
+test('ECC_MAIN_GIT_ASK=off skips ask on main commit', () => {
+  const cwd = initRepo('main');
+  const prev = process.env.ECC_MAIN_GIT_ASK;
+  process.env.ECC_MAIN_GIT_ASK = 'off';
+  try {
+    const result = hook.run({ tool_input: { command: 'git commit -m "x"' }, cwd });
+    assert.ok(!result.stdout);
+    assert.strictEqual(result.exitCode, 0);
+  } finally {
+    if (prev === undefined) delete process.env.ECC_MAIN_GIT_ASK;
+    else process.env.ECC_MAIN_GIT_ASK = prev;
+  }
+});
+
 test('dispatcher skip when hook disabled', () => {
   const cwd = initRepo('main');
   const result = runDispatcher(

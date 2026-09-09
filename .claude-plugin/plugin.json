@@ -34,6 +34,12 @@
       "title": "ECC hook profile",
       "description": "Choose minimal, standard, or strict. Invalid values safely fall back to standard.",
       "default": "standard"
+    },
+    "main_git_ask": {
+      "type": "boolean",
+      "title": "Ask before git commit on main",
+      "description": "Prompt to approve git commit on main, and new branches or worktrees in the primary checkout. One machine-wide switch via /plugin configure ecc@ecc. A single repo can still set ECC_MAIN_GIT_ASK=off in that repo .claude/settings.json env.",
+      "default": true
     }
   },
   "mcpServers": {},

@@ -23,7 +23,7 @@
 | **开发服务器拦截器** | `Bash` | 在 tmux 外阻止 `npm run dev` 等命令 — 确保日志可访问 | 2 (拦截) |
 | **Tmux 提醒器** | `Bash` | 对长时间运行命令（npm test、cargo build、docker）建议使用 tmux | 0 (警告) |
 | **Git 推送提醒器** | `Bash` | 在 `git push` 前提醒检查变更 | 0 (警告) |
-| **main 上的 git 询问** | `Bash` | `main` 上 `git commit`，以及主工作区新建分支/worktree，弹出授权，不直接拒绝 | 0 (`permissionDecision: ask`) |
+| **main 上的 git 询问** | `Bash` | `main` 上 `git commit`，以及主工作区新建分支/worktree，弹出授权，不直接拒绝。本机关：`/plugin configure ecc@ecc` 里的 **Ask before git commit on main**。单个仓库关：该仓库 `.claude/settings.json` 的 `env` 设 `ECC_MAIN_GIT_ASK=off` | 0 (`permissionDecision: ask`) |
 | **文档文件警告器** | `Write` | 对非标准 `.md`/`.txt` 文件发出警告（允许 README、CLAUDE、CONTRIBUTING、CHANGELOG、LICENSE、SKILL、docs/、skills/）；跨平台路径处理 | 0 (警告) |
 | **策略性压缩提醒器** | `Edit\|Write` | 建议在逻辑间隔（约每 50 次工具调用）手动执行 `/compact` | 0 (警告) |
 

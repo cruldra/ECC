@@ -3,6 +3,7 @@
 
 const { spawnSync } = require('child_process');
 const path = require('path');
+const { parseBoolean } = require('../lib/hook-flags');
 
 const MAX_STDIN = 1024 * 1024;
 
@@ -84,7 +85,16 @@ function ask(reason) {
   };
 }
 
+function isMainGitAskEnabled(env = process.env) {
+  const raw = env.ECC_MAIN_GIT_ASK !== undefined
+    ? env.ECC_MAIN_GIT_ASK
+    : env.CLAUDE_PLUGIN_OPTION_MAIN_GIT_ASK;
+  if (raw === undefined) return true;
+  return parseBoolean(raw, true);
+}
+
 function run(rawInput) {
+  if (!isMainGitAskEnabled()) return { exitCode: 0 };
   const data = parseInput(rawInput);
   const command = extractCommand(data);
   if (!involvesGit(command)) return { exitCode: 0 };
@@ -104,6 +114,7 @@ module.exports = {
   isGitCommit,
   isBranchCreate,
   involvesGit,
+  isMainGitAskEnabled,
   COMMIT_REASON,
   BRANCH_REASON,
 };
