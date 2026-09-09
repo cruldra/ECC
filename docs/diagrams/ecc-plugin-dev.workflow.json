@@ -1,0 +1,68 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "ECC 插件开发技能流",
+    "locale": "zh-CN",
+    "animation": "trace",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    { "id": "talk", "label": "需求讨论" },
+    { "id": "spec", "label": "规格产出" },
+    { "id": "build", "label": "实现审查" }
+  ],
+  "phases": [
+    { "id": "discover", "label": "谈清", "fromCol": 0, "toCol": 1 },
+    { "id": "specify", "label": "落规格", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "ship", "label": "做出来", "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "mainPath": ["ask", "grilling", "prd", "plan", "tdd", "review"],
+  "nodes": [
+    { "id": "ask", "lane": "talk", "col": 0, "type": "external", "label": "未定需求", "sublabel": "想法 / 拍板" },
+    { "id": "grilling", "lane": "talk", "col": 1, "type": "frontend", "label": "grilling", "sublabel": "口头共识", "tag": "前门" },
+    { "id": "council", "lane": "talk", "col": 2, "type": "security", "label": "council", "sublabel": "分叉记录" },
+    { "id": "lens", "lane": "spec", "col": 1, "type": "backend", "label": "product-lens", "sublabel": "PRODUCT-BRIEF.md" },
+    { "id": "prd", "lane": "spec", "col": 2, "type": "database", "label": "/plan-prd", "sublabel": "prds/*.prd.md" },
+    { "id": "ac", "lane": "spec", "col": 3, "type": "database", "label": "intent-driven-development", "sublabel": "AC-NNN", "width": 188 },
+    { "id": "plan", "lane": "build", "col": 3, "type": "backend", "label": "/plan", "sublabel": "plans/*.plan.md" },
+    { "id": "tdd", "lane": "build", "col": 4, "type": "backend", "label": "tdd-workflow", "sublabel": "测试 + 实现" },
+    { "id": "review", "lane": "build", "col": 5, "type": "security", "label": "code-review", "sublabel": "审查意见", "tag": "合并前" }
+  ],
+  "edges": [
+    { "id": "e-ask-grill", "from": "ask", "to": "grilling" },
+    { "id": "e-grill-prd", "from": "grilling", "to": "prd", "label": "共识后写 PRD", "variant": "emphasis" },
+    { "id": "e-grill-lens", "from": "grilling", "to": "lens", "label": "为什么做", "role": "branch", "variant": "dashed" },
+    { "id": "e-grill-council", "from": "grilling", "to": "council", "label": "多路径", "role": "branch", "variant": "security" },
+    { "id": "e-council-prd", "from": "council", "to": "prd", "label": "选定后", "role": "return", "variant": "dashed" },
+    { "id": "e-prd-plan", "from": "prd", "to": "plan", "label": "拆实现" },
+    { "id": "e-prd-ac", "from": "prd", "to": "ac", "label": "写验收", "role": "branch", "variant": "dashed" },
+    { "id": "e-plan-tdd", "from": "plan", "to": "tdd", "label": "按计划写测试" },
+    { "id": "e-tdd-review", "from": "tdd", "to": "review", "label": "改完再审" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "主路径",
+      "items": [
+        "未定需求先 grilling，共识前不写文档、不写代码",
+        "然后 /plan-prd → /plan → tdd-workflow → code-review"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "产出",
+      "items": [
+        "grilling：口头共识；product-lens：PRODUCT-BRIEF.md；/plan-prd：PRD",
+        "intent-driven-development：AC-NNN；/plan：实现计划；tdd：代码；code-review：审查意见"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "分叉",
+      "items": [
+        "多路径用 council；product-lens 只回答为什么做；验收挂在 PRD 之后"
+      ]
+    }
+  ]
+}

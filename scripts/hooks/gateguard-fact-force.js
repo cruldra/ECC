@@ -50,7 +50,6 @@ const ROUTINE_BASH_NARROW_RECOVERY_HINT =
   'Narrow recovery: set `GATEGUARD_BASH_ROUTINE_DISABLED=1`; destructive Bash checks remain active.';
 const ROUTINE_POWERSHELL_NARROW_RECOVERY_HINT =
   'Narrow recovery: set `GATEGUARD_BASH_ROUTINE_DISABLED=1`; destructive Bash and PowerShell checks remain active.';
-const ECC_DISABLE_VALUES = new Set(['0', 'false', 'off', 'disabled', 'disable']);
 const ECC_ENABLE_VALUES = new Set(['1', 'true', 'on', 'enabled', 'enable', 'yes']);
 
 // SQL-keyword + dd patterns stay as a single regex — they are stable
@@ -775,7 +774,8 @@ function isGateGuardDisabled() {
     return true;
   }
 
-  return ECC_DISABLE_VALUES.has(normalizeEnvValue(process.env.ECC_GATEGUARD));
+  // Unset and any non-enable spelling keep the gate off (opt-in).
+  return !ECC_ENABLE_VALUES.has(normalizeEnvValue(process.env.ECC_GATEGUARD));
 }
 
 function sanitizeSessionKey(value) {

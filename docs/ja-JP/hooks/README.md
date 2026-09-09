@@ -102,8 +102,8 @@ export ECC_HOOK_PROFILE=standard
 # 特定のフックIDを無効化（カンマ区切り）
 export ECC_DISABLED_HOOKS="pre:bash:tmux-reminder,post:edit:typecheck"
 
-# セットアップまたは復旧中にGateGuardのみを無効化
-export ECC_GATEGUARD=off
+# GateGuard はオプトイン（デフォルトオフ）
+export ECC_GATEGUARD=on
 
 # SessionStart追加コンテキストを制限（デフォルト: 8000文字）
 export ECC_SESSION_START_MAX_CHARS=4000

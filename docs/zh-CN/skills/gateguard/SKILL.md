@@ -90,11 +90,9 @@ LLM 的自我评估不起作用。问"你是否违反了任何策略？"答案�
 
 ### 选项 A：使用 ECC 钩子（零安装）
 
-`scripts/hooks/gateguard-fact-force.js` 处的钩子已包含在此插件中。通过 hooks.json 启用它。
+`scripts/hooks/gateguard-fact-force.js` 处的钩子已包含在此插件中，并写进 hooks.json。**默认关闭。** 要启用，设置 `ECC_GATEGUARD=on`（或 `1` / `true` / `enabled` / `yes`）。`GATEGUARD_DISABLED=1` 仍可强制关闭。
 
-如果 GateGuard 阻止了设置或修复工作，请使用
-`ECC_GATEGUARD=off` 启动会话。如需钩子级别的控制，请继续使用
-`ECC_DISABLED_HOOKS` 配合 GateGuard 钩子 ID。
+如需钩子级别的控制，继续使用 `ECC_DISABLED_HOOKS` 配合 GateGuard 钩子 ID。
 
 ### 选项 B：带配置的完整包
 

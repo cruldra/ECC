@@ -1,0 +1,21 @@
+[project]
+name = "ecc-plugin-console"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "cruldra", email = "cruldra@gmail.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.141.1",
+    "jinja2>=3.1.6",
+    "uvicorn>=0.52.4",
+]
+
+[project.scripts]
+ecc-plugin-console = "ecc_plugin_console:main"
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"

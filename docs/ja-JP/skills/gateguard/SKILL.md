@@ -92,11 +92,9 @@ Triggers on: `rm -rf`, `git reset --hard`, `git push --force`, `drop table`, etc
 
 ### Option A: Use the ECC hook (zero install)
 
-The hook at `scripts/hooks/gateguard-fact-force.js` is included in this plugin. Enable it via hooks.json.
+The hook at `scripts/hooks/gateguard-fact-force.js` is included in this plugin and wired in hooks.json. **Default is off.** Set `ECC_GATEGUARD=on` (or `1` / `true` / `enabled` / `enable` / `yes`) to turn it on. `GATEGUARD_DISABLED=1` still forces it off.
 
-If GateGuard blocks setup or repair work, start the session with
-`ECC_GATEGUARD=off`. For hook-level control, keep using
-`ECC_DISABLED_HOOKS` with the GateGuard hook ID.
+For hook-level control, keep using `ECC_DISABLED_HOOKS` with the GateGuard hook ID.
 
 ### Option B: Full package with config
 

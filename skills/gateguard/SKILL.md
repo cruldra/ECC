@@ -93,11 +93,9 @@ Triggers on: `rm -rf`, `git reset --hard`, `git push --force`, `drop table`, etc
 
 ### Option A: Use the ECC hook (zero install)
 
-The hook at `scripts/hooks/gateguard-fact-force.js` is included in this plugin. Enable it via hooks.json.
+The hook at `scripts/hooks/gateguard-fact-force.js` is included in this plugin and wired in hooks.json. **Default is off.** Set `ECC_GATEGUARD=on` (or `1` / `true` / `enabled` / `enable` / `yes`) to turn it on. `GATEGUARD_DISABLED=1` still forces it off.
 
-If GateGuard blocks setup or repair work, start the session with
-`ECC_GATEGUARD=off`. For hook-level control, keep using
-`ECC_DISABLED_HOOKS` with the GateGuard hook ID.
+For hook-level control, keep using `ECC_DISABLED_HOOKS` with the GateGuard hook ID.
 
 In long sessions, only the first `GATEGUARD_FACT_FORCE_FULL_DENIALS`
 fact-force denials (default 3) emit the full four-fact block; later
@@ -108,9 +106,9 @@ command after presenting facts never re-triggers the gate.
 
 #### Graduated controls
 
-`ECC_GATEGUARD=off` (or `GATEGUARD_DISABLED=1`) turns the gate off entirely.
-The variables in this table do **not** — each narrows one behaviour while the
-load-bearing destructive-Bash checks keep running:
+The gate is off unless `ECC_GATEGUARD` is an enable spelling. Once it is on,
+the variables in this table do **not** turn it off — each narrows one behaviour
+while the load-bearing destructive-Bash checks keep running:
 
 | Variable | Default | Effect |
 |---|---|---|
@@ -124,12 +122,12 @@ load-bearing destructive-Bash checks keep running:
 `enable`, or `yes` (case- and whitespace-insensitive); any other value
 leaves the gate on.
 
-#### Turning the gate off completely
+#### Turning the gate on
 
 | Variable | Effect |
 |---|---|
-| `ECC_GATEGUARD=off` | Disables GateGuard for the session. Accepts `0`, `false`, `off`, `disabled`, or `disable`. |
-| `GATEGUARD_DISABLED=1` | Same effect. Recognises `1` only — the spellings above do **not** apply here. |
+| `ECC_GATEGUARD` | Default off. Enable with `1`, `true`, `on`, `enabled`, `enable`, or `yes`. Unset or any other value leaves the gate off. |
+| `GATEGUARD_DISABLED=1` | Force off even when `ECC_GATEGUARD` is on. Recognises `1` only. |
 
 For hook-level control, keep using `ECC_DISABLED_HOOKS` with the GateGuard hook ID.
 

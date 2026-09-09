@@ -1,0 +1,136 @@
+from __future__ import annotations
+
+import json
+import re
+from pathlib import Path
+
+ECC_ROOT = Path(__file__).resolve().parents[3]
+
+
+def _frontmatter(text: str) -> dict[str, str]:
+    if not text.startswith("---"):
+        return {}
+    end = text.find("\n---", 3)
+    if end < 0:
+        return {}
+    data: dict[str, str] = {}
+    key: str | None = None
+    acc: list[str] = []
+    for line in text[3:end].splitlines():
+        match = re.match(r"^([A-Za-z0-9_-]+):\s*(.*)$", line)
+        if match and not line.startswith(" "):
+            if key is not None:
+                data[key] = "\n".join(acc).strip().strip("\"'")
+            key = match.group(1)
+            rest = match.group(2).strip()
+            acc = [] if rest in {">", "|", ">-", "|-"} else [rest]
+        elif key is not None:
+            acc.append(line.strip())
+    if key is not None:
+        data[key] = "\n".join(acc).strip().strip("\"'")
+    return data
+
+
+def _module_index() -> dict[str, str]:
+    manifest = json.loads((ECC_ROOT / "manifests" / "install-modules.json").read_text(encoding="utf-8"))
+    index: dict[str, str] = {}
+    for module in manifest.get("modules") or []:
+        module_id = module.get("id") or ""
+        for raw in module.get("paths") or []:
+            path = str(raw).replace("\\", "/").rstrip("/")
+            index[path] = module_id
+            if path.startswith("./"):
+                index[path[2:]] = module_id
+    return index
+
+
+def _lookup_module(index: dict[str, str], rel: str) -> str:
+    rel = rel.replace("\\", "/")
+    if rel in index:
+        return index[rel]
+    parent = str(Path(rel).parent).replace("\\", "/")
+    if parent in index:
+        return index[parent]
+    top = rel.split("/", 1)[0]
+    return index.get(top, "")
+
+
+def _read(path: Path) -> str:
+    try:
+        return path.read_text(encoding="utf-8")
+    except OSError:
+        return ""
+
+
+def load_catalog() -> dict:
+    index = _module_index()
+    skills: list[dict] = []
+    skills_dir = ECC_ROOT / "skills"
+    if skills_dir.is_dir():
+        for folder in sorted(p for p in skills_dir.iterdir() if p.is_dir()):
+            skill_md = folder / "SKILL.md"
+            if not skill_md.is_file():
+                continue
+            meta = _frontmatter(_read(skill_md))
+            rel = f"skills/{folder.name}"
+            skills.append(
+                {
+                    "id": meta.get("name") or folder.name,
+                    "kind": "skill",
+                    "module": _lookup_module(index, rel),
+                    "blurb": (meta.get("description") or "").split("\n", 1)[0],
+                    "path": rel + "/SKILL.md",
+                }
+            )
+
+    commands: list[dict] = []
+    commands_dir = ECC_ROOT / "commands"
+    if commands_dir.is_dir():
+        for file in sorted(commands_dir.glob("*.md")):
+            meta = _frontmatter(_read(file))
+            stem = file.stem
+            commands.append(
+                {
+                    "id": stem,
+                    "kind": "command",
+                    "module": _lookup_module(index, f"commands/{file.name}") or "commands-core",
+                    "blurb": (meta.get("description") or "").split("\n", 1)[0],
+                    "path": f"commands/{file.name}",
+                }
+            )
+
+    hooks: list[dict] = []
+    hooks_file = ECC_ROOT / "hooks" / "hooks.json"
+    if hooks_file.is_file():
+        payload = json.loads(_read(hooks_file) or "{}")
+        events = payload.get("hooks") or {}
+        for event, groups in events.items():
+            if not isinstance(groups, list):
+                continue
+            for group in groups:
+                if not isinstance(group, dict):
+                    continue
+                hook_id = group.get("id") or event
+                hooks.append(
+                    {
+                        "id": hook_id,
+                        "kind": "hook",
+                        "module": "hooks-runtime",
+                        "blurb": (group.get("description") or event).split("\n", 1)[0],
+                        "path": f"hooks/hooks.json · {event}",
+                        "event": event,
+                    }
+                )
+
+    latest = (ECC_ROOT / "VERSION").read_text(encoding="utf-8").strip()
+    return {
+        "latest": latest,
+        "skills": skills,
+        "hooks": hooks,
+        "commands": commands,
+        "counts": {
+            "skill": len(skills),
+            "hook": len(hooks),
+            "command": len(commands),
+        },
+    }

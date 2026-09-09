@@ -2657,9 +2657,10 @@ async function runTests() {
         GATEGUARD_STATE_DIR: stateDir,
         CLAUDE_SESSION_ID: 'ecc039-configured-route-test'
       };
-      for (const key of ['ECC_GATEGUARD', 'GATEGUARD_DISABLED', 'GATEGUARD_BASH_ROUTINE_DISABLED', 'ECC_DISABLED_HOOKS']) {
+      for (const key of ['GATEGUARD_DISABLED', 'GATEGUARD_BASH_ROUTINE_DISABLED', 'ECC_DISABLED_HOOKS']) {
         delete env[key];
       }
+      env.ECC_GATEGUARD = 'on';
 
       try {
         const gated = spawnSync(gateRoute.hooks[0].command, {

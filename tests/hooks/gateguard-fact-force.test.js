@@ -69,6 +69,7 @@ function runHook(input, env = {}) {
       ECC_HOOK_PROFILE: 'standard',
       GATEGUARD_STATE_DIR: stateDir,
       CLAUDE_SESSION_ID: TEST_SESSION_ID,
+      ECC_GATEGUARD: 'on',
       ...env
     },
     timeout: 15000,
@@ -92,6 +93,7 @@ function runBashHook(input, env = {}) {
       ECC_HOOK_PROFILE: 'standard',
       GATEGUARD_STATE_DIR: stateDir,
       CLAUDE_SESSION_ID: TEST_SESSION_ID,
+      ECC_GATEGUARD: 'on',
       ...env
     },
     timeout: 15000,
@@ -123,6 +125,7 @@ function runPowerShellHook(input, env = {}) {
         ECC_HOOK_PROFILE: 'standard',
         GATEGUARD_STATE_DIR: stateDir,
         CLAUDE_SESSION_ID: TEST_SESSION_ID,
+        ECC_GATEGUARD: 'on',
         ...env
       },
       timeout: 15000,
@@ -150,6 +153,7 @@ function loadDirectHook(env = {}) {
   Object.assign(process.env, {
     GATEGUARD_STATE_DIR: stateDir,
     CLAUDE_SESSION_ID: TEST_SESSION_ID,
+    ECC_GATEGUARD: 'on',
     ...env
   });
   return require(hookScript);
@@ -515,6 +519,25 @@ function runTests() {
       assert.strictEqual(output.tool_name, 'Write', 'disabled gate should pass through raw input');
       assert.ok(!output.hookSpecificOutput, 'disabled gate should not deny the operation');
       assert.ok(!fs.existsSync(stateFile), 'disabled gate should not create or mutate gate state');
+    })
+  )
+    passed++;
+  else failed++;
+
+  clearState();
+  if (
+    test('defaults off when ECC_GATEGUARD is unset', () => {
+      const input = {
+        tool_name: 'Write',
+        tool_input: { file_path: '/src/default-off.js', content: 'export const ok = true;' }
+      };
+      const result = runHook(input, { ECC_GATEGUARD: '' });
+      const output = parseOutput(result.stdout);
+
+      assert.ok(output, 'should produce valid JSON output');
+      assert.strictEqual(output.tool_name, 'Write', 'unset ECC_GATEGUARD should pass through raw input');
+      assert.ok(!output.hookSpecificOutput, 'default-off gate should not deny the operation');
+      assert.ok(!fs.existsSync(stateFile), 'default-off gate should not create or mutate gate state');
     })
   )
     passed++;
