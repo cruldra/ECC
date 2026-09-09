@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ECC 插件控制台</title>
   <link rel="stylesheet" href="/static/console.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vditor@3.11.3/dist/index.css">
+  <script src="https://cdn.jsdelivr.net/npm/vditor@3.11.3/dist/index.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
 </head>
 <body>
@@ -64,6 +66,7 @@
                 <span class="name" x-text="item.id"></span>
                 <span class="module" x-text="item.module"></span>
               </span>
+              <span class="badge" x-show="kind === 'skill' && item.locales && item.locales.length" :class="item.locales && item.locales.some(l => l.stale) ? 'warn' : ''" x-text="item.locales && item.locales.some(l => l.stale) ? '译本过时' : '有译本'"></span>
             </button>
           </template>
         </div>
@@ -76,10 +79,46 @@
         <p x-text="selected() && selected().blurb"></p>
         <div class="path" x-text="selected() && selected().path"></div>
         <div class="note">随整份插件安装。此行不能单独装卸。</div>
+        <template x-if="kind === 'skill' && selected() && selected().locales && selected().locales.length">
+          <div class="note" x-text="selected().locales.some(l => l.stale) ? '有译本，已过时' : '有译本'"></div>
+        </template>
+        <button class="btn primary" x-show="kind === 'skill'" :disabled="busy" @click="openEditor()">编辑</button>
       </aside>
     </div>
 
     <div class="toast" x-show="toast" x-text="toast" @click="toast = ''"></div>
+
+    <template x-if="editor">
+      <div class="editor-page">
+        <header class="editor-bar">
+          <div>
+            <div class="kicker" x-text="editor.locale === 'zh-CN' ? '阅读译本' : '编辑原版 skill'"></div>
+            <h2 x-text="editor.id"></h2>
+            <div class="path" x-text="editor.locale === 'zh-CN' ? 'skills/' + editor.id + '/i18n/zh-CN.md' : editor.path"></div>
+          </div>
+          <div class="actions">
+            <button class="btn outline" @click="closeEditor()" :disabled="busy" x-text="editor.locale === 'zh-CN' ? '返回' : '取消'"></button>
+            <button class="btn primary" x-show="editor.locale === 'en'" :disabled="busy" @click="saveEditor()">保存</button>
+          </div>
+        </header>
+        <div class="editor-body">
+          <div class="stale" x-show="editor.locale === 'zh-CN' && zhStale()">译本已过时。原版 SKILL.md 改过，哈希对不上。</div>
+          <div class="chips">
+            <button class="chip" :class="{ on: editor.locale === 'en' }" @click="setLocale('en')">English（原版）</button>
+            <button class="chip" x-show="hasZh()" :class="{ on: editor.locale === 'zh-CN' }" @click="setLocale('zh-CN')" x-text="zhStale() ? '简体中文（过时）' : '简体中文'"></button>
+            <button class="btn primary" x-show="editor.locale === 'en' && !hasZh()" :disabled="busy" @click="translate(false)" x-text="busy ? '翻译中' : '翻译成简体中文'"></button>
+            <button class="btn primary" x-show="editor.locale === 'zh-CN' && zhStale()" :disabled="busy" @click="translate(true)" x-text="busy ? '翻译中' : '重新翻译'"></button>
+          </div>
+          <p class="note" x-show="editor.locale === 'zh-CN'">译本只供阅读。安装和保存永远对着原版 SKILL.md。</p>
+          <details class="fm">
+            <summary>YAML 头</summary>
+            <textarea x-show="editor.locale === 'en'" x-model="editor.frontmatter" @input="syncDraftFromParts()" spellcheck="false"></textarea>
+            <pre x-show="editor.locale === 'zh-CN'" x-text="editor.frontmatter"></pre>
+          </details>
+          <div id="skill-md-wrap" class="md-wrap"></div>
+        </div>
+      </div>
+    </template>
 
     <div class="mask" x-show="dialog" @click.self="closeDialog()">
       <div class="dialog" x-show="dialog">

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -62,6 +63,28 @@ def _read(path: Path) -> str:
         return ""
 
 
+def source_hash(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _skill_locales(folder: Path, digest: str) -> list[dict]:
+    i18n = folder / "i18n"
+    if not i18n.is_dir():
+        return []
+    locales: list[dict] = []
+    for file in sorted(i18n.glob("*.md")):
+        meta = _frontmatter(_read(file))
+        stored = meta.get("source_hash") or ""
+        locales.append(
+            {
+                "locale": file.stem,
+                "stale": stored != digest,
+                "path": f"skills/{folder.name}/i18n/{file.name}",
+            }
+        )
+    return locales
+
+
 def load_catalog() -> dict:
     index = _module_index()
     skills: list[dict] = []
@@ -71,15 +94,19 @@ def load_catalog() -> dict:
             skill_md = folder / "SKILL.md"
             if not skill_md.is_file():
                 continue
-            meta = _frontmatter(_read(skill_md))
+            original = _read(skill_md)
+            meta = _frontmatter(original)
+            digest = source_hash(original)
             rel = f"skills/{folder.name}"
             skills.append(
                 {
-                    "id": meta.get("name") or folder.name,
+                    "id": folder.name,
                     "kind": "skill",
                     "module": _lookup_module(index, rel),
                     "blurb": (meta.get("description") or "").split("\n", 1)[0],
                     "path": rel + "/SKILL.md",
+                    "hash": digest,
+                    "locales": _skill_locales(folder, digest),
                 }
             )
 

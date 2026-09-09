@@ -79,6 +79,10 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ## O Que Há de Novo
 
+### v2.2.3 — skill editor and zh-CN reading translations (Sep 2026)
+
+Console can edit original SKILL.md files and store a Simplified Chinese reading copy under `skills/<id>/i18n/zh-CN.md`.
+
 ### v2.2.2 — grilling as requirements front door (Sep 2026)
 
 Adds grilling as the front door for unsettled requirements, then hands off to PRD/plan skills.

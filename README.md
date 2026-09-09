@@ -162,7 +162,7 @@ Instead of rebuilding that process in every prompt, you install it once and make
 
 ECC is MIT-licensed open source. It works best with Claude Code today, has a supported Codex sync path, and provides capability-limited adapters for Cursor, OpenCode, Gemini, Zed, GitHub Copilot, Antigravity, Qwen, and other harnesses. See the [support status matrix](#platform-support) before assuming feature parity.
 
-Access to 68 agents, 286 skills, and 94 legacy command shims, plus hooks, rules, memory, continuous learning, and AgentShield security scanning. The agents are specialized for planning, review, build repair, security, architecture, and domain work.
+Access to 68 agents, 288 skills, and 96 legacy command shims, plus hooks, rules, memory, continuous learning, and AgentShield security scanning. The agents are specialized for planning, review, build repair, security, architecture, and domain work.
 
 | Included         |       Count | What it gives you                                                                    |
 | ---------------- | ----------: | ------------------------------------------------------------------------------------ |

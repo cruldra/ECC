@@ -81,6 +81,10 @@
 
 ## 最新动态
 
+### v2.2.3 — 技能编辑器与简体中文阅读译本（2026年9月）
+
+控制台可编辑原版 SKILL.md，并把阅读用简体中文写到 `skills/<id>/i18n/zh-CN.md`。
+
 ### v2.2.2 — grilling 作为需求讨论前门（2026年9月）
 
 未定需求先 grilling，共识后再交给 PRD / 计划技能。
@@ -1296,7 +1300,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 | **上下文文件** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
 | **秘密检测** | 基于钩子                  | beforeSubmitPrompt 钩子 | 基于沙箱 | 基于钩子 |
 | **自动格式化** | PostToolUse 钩子        | afterFileEdit 钩子 | N/A | file.edited 钩子 |
-| **版本** | 插件 | 插件 | 参考配置 | 2.2.2 |
+| **版本** | 插件 | 插件 | 参考配置 | 2.2.3 |
 
 **关键架构决策：**
 

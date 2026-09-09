@@ -1,3 +1,63 @@
+const VDITOR_CDN = "https://cdn.jsdelivr.net/npm/vditor@3.11.3";
+const VDITOR_TOOLBAR = [
+  "headings", "bold", "italic", "strike", "|",
+  "list", "ordered-list", "check", "quote", "line", "|",
+  "link", "code", "inline-code", "table", "|",
+  "undo", "redo", "fullscreen",
+];
+
+let vditor = null;
+
+function splitFrontmatter(text) {
+  const src = text || "";
+  if (!src.startsWith("---")) return { frontmatter: "", body: src };
+  const end = src.indexOf("\n---", 3);
+  if (end < 0) return { frontmatter: "", body: src };
+  return {
+    frontmatter: src.slice(3, end).replace(/^\n/, "").replace(/\n$/, ""),
+    body: src.slice(end + 4).replace(/^\n+/, ""),
+  };
+}
+
+function joinFrontmatter(frontmatter, body) {
+  const fm = (frontmatter || "").replace(/^\n+|\n+$/g, "");
+  const rest = (body || "").replace(/^\n+/, "");
+  if (!fm) return rest;
+  return `---\n${fm}\n---\n\n${rest}`;
+}
+
+function markdownSource(editor) {
+  if (!editor) return "";
+  if (editor.locale === "zh-CN") {
+    const meta = editor.locales && editor.locales["zh-CN"];
+    return meta ? meta.text : "";
+  }
+  return editor.draft || "";
+}
+
+function destroyMarkdown() {
+  if (vditor) {
+    vditor.destroy();
+    vditor = null;
+  }
+  const wrap = document.getElementById("skill-md-wrap");
+  if (wrap) wrap.innerHTML = "";
+}
+
+function resetMarkdownHost() {
+  const wrap = document.getElementById("skill-md-wrap");
+  if (!wrap) return null;
+  wrap.innerHTML = "";
+  const host = document.createElement("div");
+  host.id = "skill-md";
+  wrap.appendChild(host);
+  return host;
+}
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { splitFrontmatter, joinFrontmatter };
+}
+
 function consoleApp() {
   const dialogs = {
     install: { title: "安装 ECC", body: "把整份插件装到所选 harness。不按条开关。", confirm: "安装", danger: false },
@@ -18,6 +78,7 @@ function consoleApp() {
     busy: false,
     toast: "",
     dialog: null,
+    editor: null,
     kinds: [
       { key: "skill", label: "Skill" },
       { key: "hook", label: "Hook" },
@@ -95,6 +156,146 @@ function consoleApp() {
     },
     async refreshStatus() {
       this.status = await (await fetch("/api/status")).json();
+    },
+    localeMeta(locale) {
+      if (!this.editor) return null;
+      return this.editor.locales[locale] || null;
+    },
+    hasZh() {
+      return Boolean(this.localeMeta("zh-CN"));
+    },
+    zhStale() {
+      const meta = this.localeMeta("zh-CN");
+      return Boolean(meta && meta.stale);
+    },
+    applySource(editor, locale, text) {
+      const parts = splitFrontmatter(text || "");
+      return { ...editor, locale, frontmatter: parts.frontmatter, draft: locale === "en" ? (text || "") : editor.draft };
+    },
+    syncDraftFromParts() {
+      if (!this.editor || this.editor.locale !== "en") return;
+      const body = vditor ? vditor.getValue() : splitFrontmatter(this.editor.draft).body;
+      this.editor.draft = joinFrontmatter(this.editor.frontmatter, body);
+    },
+    mountMarkdown() {
+      destroyMarkdown();
+      if (!this.editor || typeof Vditor === "undefined") return;
+      const host = resetMarkdownHost();
+      if (!host) return;
+      const parts = splitFrontmatter(markdownSource(this.editor));
+      this.editor.frontmatter = parts.frontmatter;
+      if (this.editor.locale === "zh-CN") {
+        host.className = "md-preview vditor-reset";
+        Vditor.preview(host, parts.body, { cdn: VDITOR_CDN, mode: "light" });
+        return;
+      }
+      const app = this;
+      vditor = new Vditor(host, {
+        cdn: VDITOR_CDN,
+        mode: "wysiwyg",
+        theme: "classic",
+        lang: "zh_CN",
+        height: "100%",
+        cache: { enable: false },
+        toolbar: VDITOR_TOOLBAR,
+        toolbarConfig: { pin: true },
+        placeholder: "正文",
+        after: () => {
+          if (vditor) vditor.setValue(parts.body, true);
+        },
+        input: (value) => {
+          if (!app.editor || app.editor.locale !== "en") return;
+          app.editor.draft = joinFrontmatter(app.editor.frontmatter, value);
+        },
+      });
+    },
+    async openEditor() {
+      const item = this.selected();
+      if (!item || this.kind !== "skill") return;
+      this.busy = true;
+      this.toast = "";
+      try {
+        const res = await fetch(`/api/skills/${item.id}`);
+        const data = await res.json();
+        if (!res.ok) {
+          this.toast = data.detail || "打不开";
+          return;
+        }
+        this.editor = this.applySource({ ...data, locales: data.locales || {} }, "en", data.original);
+        await this.$nextTick();
+        this.mountMarkdown();
+      } catch (err) {
+        this.toast = String(err);
+      } finally {
+        this.busy = false;
+      }
+    },
+    closeEditor() {
+      destroyMarkdown();
+      this.editor = null;
+    },
+    async setLocale(locale) {
+      if (!this.editor) return;
+      if (locale === "zh-CN" && !this.hasZh()) return;
+      if (this.editor.locale === "en") this.syncDraftFromParts();
+      this.editor = this.applySource(this.editor, locale, markdownSource({ ...this.editor, locale }));
+      await this.$nextTick();
+      this.mountMarkdown();
+    },
+    async saveEditor() {
+      if (!this.editor || this.editor.locale !== "en" || this.busy) return;
+      this.syncDraftFromParts();
+      this.busy = true;
+      this.toast = "";
+      try {
+        const res = await fetch(`/api/skills/${this.editor.id}`, {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ text: this.editor.draft }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          this.toast = data.detail || "保存失败";
+          return;
+        }
+        this.editor = this.applySource({ ...this.editor, ...data }, "en", data.original);
+        await this.refreshCatalog();
+        await this.$nextTick();
+        this.mountMarkdown();
+        this.toast = "已保存原版";
+      } catch (err) {
+        this.toast = String(err);
+      } finally {
+        this.busy = false;
+      }
+    },
+    async translate(force) {
+      if (!this.editor || this.busy) return;
+      if (this.editor.locale === "en") this.syncDraftFromParts();
+      this.busy = true;
+      this.toast = "";
+      try {
+        const res = await fetch(`/api/skills/${this.editor.id}/translate`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ locale: "zh-CN", force: Boolean(force) }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          this.toast = data.detail || "翻译失败";
+          return;
+        }
+        const skill = data.skill;
+        this.editor = this.applySource({ ...this.editor, ...skill }, "zh-CN", skill.locales["zh-CN"] ? skill.locales["zh-CN"].text : "");
+        await this.refreshCatalog();
+        await this.$nextTick();
+        this.mountMarkdown();
+        this.toast = data.skipped ? "已有最新译文" : "已写入 i18n/zh-CN.md";
+      } catch (err) {
+        this.toast = String(err);
+      } finally {
+        this.busy = false;
+      }
     },
   };
 }
