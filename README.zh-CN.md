@@ -80,6 +80,10 @@
 
 ## 最新动态
 
+### v2.2.2 — grilling 作为需求讨论前门（2026年9月）
+
+未定需求先 grilling，共识后再交给 PRD / 计划技能。
+
 ### v2.2.1 — 引导式多 Harness 安装（2026年8月）
 
 新增可审查的 Claude Code、Codex 与 Kimi Code 多 Harness 安装流程，并提供同步的 npm 命令入口。

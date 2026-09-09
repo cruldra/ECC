@@ -1,5 +1,5 @@
 ---
-description: "Generate a lean, problem-first PRD and hand off to /plan for implementation planning."
+description: "Generate a lean, problem-first PRD after grilling has settled the idea, then hand off to /plan. If the idea is still unsettled, run grilling first."
 argument-hint: "[product/feature idea] (blank = start with questions)"
 ---
 
@@ -8,6 +8,10 @@ argument-hint: "[product/feature idea] (blank = start with questions)"
 Produces a **Product Requirements Document** — the requirements-phase artifact of the SDLC. Captures *what* must be true for success and *why*, and stops before *how*. Implementation decomposition is delegated to `/plan`.
 
 **Input**: `$ARGUMENTS`
+
+If this session already has confirmed shared understanding from `grilling`, do not re-interview. Use that consensus as input and skip to GENERATE.
+
+If the idea is still unsettled, stop and follow `grilling` instead.
 
 ## Scope of this command
 

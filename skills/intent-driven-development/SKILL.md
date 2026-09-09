@@ -1,6 +1,6 @@
 ---
 name: intent-driven-development
-description: Turn ambiguous or high-impact product and engineering changes into scoped, verifiable acceptance criteria before or alongside implementation. Use when a user asks to clarify a feature, define acceptance criteria, de-risk a security/data/migration/integration change, prepare implementation requirements for another agent, or make a complex request testable. Do not trigger for trivial edits, straightforward fixes, active debugging, code review, or implementation requests whose acceptance conditions are already clear unless the user explicitly invokes this skill.
+description: Turn settled product and engineering changes into scoped, verifiable acceptance criteria before or alongside implementation. Use after grilling has produced shared understanding, or when a user explicitly asks to define acceptance criteria, de-risk a security/data/migration/integration change, prepare implementation requirements for another agent, or make a complex request testable. Do not trigger as the first conversation about an unsettled idea — run grilling first. Do not trigger for trivial edits, straightforward fixes, active debugging, code review, or implementation requests whose acceptance conditions are already clear unless the user explicitly invokes this skill.
 ---
 
 # Intent-Driven Development
@@ -11,7 +11,8 @@ the work and its risk.
 
 ## When to Activate
 
-- User asks to clarify a feature, define acceptance criteria, or de-risk a change before implementation
+- Shared understanding already exists (grilling confirmed this session, or the user invoked this skill explicitly)
+- User asks to define acceptance criteria, or de-risk a change before implementation
 - Request touches security, authentication, persistent data, migrations, external APIs, or compliance
 - User wants to prepare a handoff artifact for another agent or team
 - Request is ambiguous enough that the expected outcome is not yet observable or testable

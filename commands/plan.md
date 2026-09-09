@@ -1,5 +1,5 @@
 ---
-description: Restate requirements, assess risks, and create step-by-step implementation plan. WAIT for user CONFIRM before touching any code.
+description: Restate requirements, assess risks, and create step-by-step implementation plan after requirements are settled. WAIT for user CONFIRM before touching any code. If the idea is still unsettled, run grilling first.
 argument-hint: "[feature description | path/to/*.prd.md]"
 ---
 
@@ -19,11 +19,13 @@ Run inline by default. Do not call the Task tool or any subagent by default. Thi
 ## When to Use
 
 Use `/plan` when:
-- Starting a new feature
+- Starting a new feature whose requirements are already settled
 - Making significant architectural changes
 - Working on complex refactoring
 - Multiple files/components will be affected
-- Requirements are unclear or ambiguous
+- A PRD or confirmed grilling consensus exists
+
+If requirements are still open, follow `grilling` first. Do not invent decisions here.
 
 ## How It Works
 

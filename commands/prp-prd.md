@@ -1,5 +1,5 @@
 ---
-description: "Interactive PRD generator - problem-first, hypothesis-driven product spec with back-and-forth questioning"
+description: "PRD generator after grilling — problem-first, hypothesis-driven product spec. If the idea is still unsettled, run grilling first instead of starting a second interview."
 argument-hint: "[feature/product idea] (blank = start with questions)"
 ---
 
@@ -8,6 +8,10 @@ argument-hint: "[feature/product idea] (blank = start with questions)"
 > Adapted from PRPs-agentic-eng by Wirasm. Part of the PRP workflow series.
 
 **Input**: $ARGUMENTS
+
+If this session already has confirmed shared understanding from `grilling`, do not re-interview. Use that consensus as input and skip to GENERATE.
+
+If the idea is still unsettled, stop and follow `grilling` instead.
 
 ---
 

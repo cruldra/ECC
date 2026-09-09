@@ -79,6 +79,10 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ## Yenilikler
 
+### v2.2.2 — grilling as requirements front door (Sep 2026)
+
+Adds grilling as the front door for unsettled requirements, then hands off to PRD/plan skills.
+
 ### v2.2.1 — Rehberli Çoklu Harness Kurulumu (Ağu 2026)
 
 Claude Code, Codex ve Kimi Code için incelenebilir çoklu harness kurulumu ve eşitlenmiş npm komut girişi eklendi.

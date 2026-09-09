@@ -79,6 +79,10 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ## O Que Há de Novo
 
+### v2.2.2 — grilling as requirements front door (Sep 2026)
+
+Adds grilling as the front door for unsettled requirements, then hands off to PRD/plan skills.
+
 ### v2.2.1 — Instalação Guiada para Múltiplos Harnesses (Ago 2026)
 
 Adiciona uma instalação revisável para Claude Code, Codex e Kimi Code, com uma entrada de comando npm sincronizada.

@@ -1,6 +1,6 @@
 ---
 name: product-capability
-description: Translate PRD intent, roadmap asks, or product discussions into an implementation-ready capability plan that exposes constraints, invariants, interfaces, and unresolved decisions before multi-service work starts. Use when the user needs an ECC-native PRD-to-SRS lane instead of vague planning prose.
+description: Translate PRD intent, roadmap asks, or product discussions into an implementation-ready capability plan that exposes constraints, invariants, interfaces, and unresolved decisions before multi-service work starts. Use after grilling has settled product intent, or when the user explicitly wants a capability contract. Do not use as the first conversation about an unsettled idea — run grilling first.
 metadata:
   origin: ECC
 ---
@@ -10,6 +10,8 @@ metadata:
 This skill turns product intent into explicit engineering constraints.
 
 Use it when the gap is not "what should we build?" but "what exactly must be true before implementation starts?"
+
+If the idea is still unsettled, follow `grilling` first. Do not start a second interview.
 
 ## When to Use
 

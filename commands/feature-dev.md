@@ -9,8 +9,9 @@ A structured feature-development workflow that emphasizes understanding existing
 ### 1. Discovery
 
 - read the feature request carefully
-- identify requirements, constraints, and acceptance criteria
-- ask clarifying questions if the request is ambiguous
+- if requirements are still open, follow `grilling` and wait for confirmed shared understanding before continuing
+- identify requirements, constraints, and acceptance criteria from that consensus
+- do not start a second interview here if grilling already ran this session
 
 ### 2. Codebase Exploration
 

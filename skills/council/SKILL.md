@@ -15,6 +15,8 @@ Convene four advisors for ambiguous decisions:
 
 This is for **decision-making under ambiguity**, not code review, implementation planning, or architecture design.
 
+If the decision itself is still unframed, follow `grilling` first. Council debates remaining paths; it does not interview the user.
+
 ## When to Use
 
 Use council when:

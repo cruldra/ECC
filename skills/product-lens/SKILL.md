@@ -1,6 +1,6 @@
 ---
 name: product-lens
-description: Use this skill to validate the "why" before building, run product diagnostics, and pressure-test product direction before the request becomes an implementation contract.
+description: Use this skill to validate the "why" before building, run product diagnostics, and pressure-test product direction after grilling has produced shared understanding, or when the user explicitly wants a product brief. Do not use as the first conversation about an unsettled idea — run grilling first.
 metadata:
   origin: ECC
 ---
@@ -9,11 +9,13 @@ metadata:
 
 This lane owns product diagnosis, not implementation-ready specification writing.
 
+If the idea is still unsettled, follow `grilling` first. Do not start a second interview.
+
 If the user needs a durable PRD-to-SRS or capability-contract artifact, hand off to `product-capability`.
 
 ## When to Use
 
-- Before starting any feature — validate the "why"
+- After grilling, or when the user explicitly wants a product brief — validate the "why"
 - Weekly product review — are we building the right thing?
 - When stuck choosing between features
 - Before a launch — sanity check the user journey
