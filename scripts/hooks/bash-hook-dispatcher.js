@@ -12,6 +12,7 @@ const { run: runAutoTmuxDev } = require('./auto-tmux-dev');
 const { run: runTmuxReminder } = require('./pre-bash-tmux-reminder');
 const { run: runGitPushReminder } = require('./pre-bash-git-push-reminder');
 const { run: runCommitQuality } = require('./pre-bash-commit-quality');
+const { run: runMainGitAsk } = require('./pre-bash-main-git-ask');
 const { run: runGateGuard } = require('./gateguard-fact-force');
 const { run: runCommandLog } = require('./post-bash-command-log');
 const { run: runPrCreated } = require('./post-bash-pr-created');
@@ -43,6 +44,11 @@ const PRE_BASH_HOOKS = [
     id: 'pre:bash:commit-quality',
     profiles: 'strict',
     run: rawInput => runCommitQuality(rawInput),
+  },
+  {
+    id: 'pre:bash:main-git-ask',
+    profiles: 'minimal,standard,strict',
+    run: rawInput => runMainGitAsk(rawInput),
   },
   {
     id: 'pre:bash:gateguard-fact-force',
@@ -120,6 +126,17 @@ function normalizeHookResult(previousRaw, output) {
   };
 }
 
+function permissionDecisionOf(raw) {
+  if (!raw || typeof raw !== 'string') return '';
+  const trimmed = raw.trim();
+  if (!trimmed.startsWith('{')) return '';
+  try {
+    return JSON.parse(trimmed)?.hookSpecificOutput?.permissionDecision || '';
+  } catch {
+    return '';
+  }
+}
+
 function runHooks(rawInput, hooks) {
   let currentRaw = rawInput;
   // Track whether a sub-hook deliberately produced stdout (a string or
@@ -154,6 +171,15 @@ function runHooks(rawInput, hooks) {
           stderr,
           additionalContext,
           exitCode: result.exitCode,
+        };
+      }
+      const decision = permissionDecisionOf(result.raw);
+      if (decision === 'deny' || decision === 'ask' || decision === 'defer') {
+        return {
+          output: result.raw,
+          stderr,
+          additionalContext,
+          exitCode: 0,
         };
       }
     } catch (error) {

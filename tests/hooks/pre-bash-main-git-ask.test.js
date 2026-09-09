@@ -1,0 +1,121 @@
+'use strict';
+
+const assert = require('assert');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const { spawnSync } = require('child_process');
+
+const hook = require('../../scripts/hooks/pre-bash-main-git-ask');
+const dispatcher = path.join(__dirname, '..', '..', 'scripts', 'hooks', 'pre-bash-dispatcher.js');
+
+let passed = 0;
+let failed = 0;
+
+function test(name, fn) {
+  try {
+    fn();
+    console.log(`  ✓ ${name}`);
+    passed++;
+  } catch (err) {
+    console.log(`  ✗ ${name}`);
+    console.log(`    Error: ${err.message}`);
+    failed++;
+  }
+}
+
+function initRepo(branch) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'main-git-ask-'));
+  const init = spawnSync('git', ['init', '-b', branch], { cwd: dir, encoding: 'utf8' });
+  if (init.status !== 0) {
+    spawnSync('git', ['init'], { cwd: dir, encoding: 'utf8' });
+    spawnSync('git', ['checkout', '-b', branch], { cwd: dir, encoding: 'utf8' });
+  }
+  spawnSync('git', ['config', 'user.email', 't@t.t'], { cwd: dir });
+  spawnSync('git', ['config', 'user.name', 't'], { cwd: dir });
+  return dir;
+}
+
+function decision(result) {
+  if (!result.stdout) return '';
+  return JSON.parse(result.stdout).hookSpecificOutput.permissionDecision;
+}
+
+function runDispatcher(input, env = {}) {
+  return spawnSync(process.execPath, [dispatcher], {
+    input: JSON.stringify(input),
+    encoding: 'utf8',
+    env: { ...process.env, ECC_HOOK_PROFILE: 'standard', ...env },
+    timeout: 10000,
+  });
+}
+
+console.log('\n=== pre-bash-main-git-ask ===\n');
+
+test('detects git commit', () => {
+  assert.strictEqual(hook.isGitCommit('git commit -m "x"'), true);
+  assert.strictEqual(hook.isGitCommit('cd foo && git commit'), true);
+  assert.strictEqual(hook.isGitCommit('git status'), false);
+});
+
+test('detects branch create', () => {
+  assert.strictEqual(hook.isBranchCreate('git checkout -b feat'), true);
+  assert.strictEqual(hook.isBranchCreate('git switch -c feat'), true);
+  assert.strictEqual(hook.isBranchCreate('git branch feat'), true);
+  assert.strictEqual(hook.isBranchCreate('git worktree add ../wt feat'), true);
+  assert.strictEqual(hook.isBranchCreate('git checkout main'), false);
+  assert.strictEqual(hook.isBranchCreate('git branch -d feat'), false);
+});
+
+test('asks before commit on main', () => {
+  const cwd = initRepo('main');
+  const result = hook.run({ tool_input: { command: 'git commit -m "x"' }, cwd });
+  assert.strictEqual(JSON.parse(result.stdout).hookSpecificOutput.permissionDecision, 'ask');
+  assert.ok(result.stdout.includes(hook.COMMIT_REASON));
+});
+
+test('allows commit on other branches', () => {
+  const cwd = initRepo('feat');
+  const result = hook.run({ tool_input: { command: 'git commit -m "x"' }, cwd });
+  assert.ok(!result.stdout);
+  assert.strictEqual(result.exitCode, 0);
+});
+
+test('asks before creating a branch in the primary worktree', () => {
+  const cwd = initRepo('main');
+  const result = hook.run({ tool_input: { command: 'git checkout -b feat' }, cwd });
+  assert.strictEqual(JSON.parse(result.stdout).hookSpecificOutput.permissionDecision, 'ask');
+  assert.ok(result.stdout.includes(hook.BRANCH_REASON));
+});
+
+test('allows branch create inside a linked worktree', () => {
+  const root = initRepo('main');
+  fs.writeFileSync(path.join(root, 'README'), 'x');
+  spawnSync('git', ['add', 'README'], { cwd: root });
+  spawnSync('git', ['commit', '-m', 'init'], { cwd: root });
+  const wt = path.join(os.tmpdir(), `main-git-ask-wt-${process.pid}`);
+  spawnSync('git', ['worktree', 'add', '-b', 'feat', wt], { cwd: root, encoding: 'utf8' });
+  const result = hook.run({ tool_input: { command: 'git checkout -b other' }, cwd: wt });
+  assert.ok(!result.stdout, `linked worktree should pass, got: ${result.stdout}`);
+});
+
+test('dispatcher surfaces ask for main commit', () => {
+  const cwd = initRepo('main');
+  const result = runDispatcher({ tool_input: { command: 'git commit -m "x"' }, cwd });
+  assert.strictEqual(result.status, 0);
+  assert.strictEqual(decision(result), 'ask');
+});
+
+test('dispatcher skip when hook disabled', () => {
+  const cwd = initRepo('main');
+  const result = runDispatcher(
+    { tool_input: { command: 'git commit -m "x"' }, cwd },
+    { ECC_DISABLED_HOOKS: 'pre:bash:main-git-ask' }
+  );
+  assert.strictEqual(result.status, 0);
+  assert.strictEqual(result.stdout, '');
+});
+
+console.log(`\nPassed: ${passed}`);
+console.log(`Failed: ${failed}`);
+process.exit(failed ? 1 : 0);
