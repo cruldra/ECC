@@ -254,7 +254,8 @@ function runTests() {
       const mcpConfig = readJson(path.join(projectDir, '.cursor', 'mcp.json'));
       assert.strictEqual(hooksConfig.version, 1);
       assert.ok(hooksConfig.hooks.sessionStart, 'Should keep Cursor sessionStart hooks');
-      assert.ok(mcpConfig.mcpServers['chrome-devtools'], 'Should install shared MCP servers into Cursor');
+      assert.ok(mcpConfig.mcpServers, 'Should write Cursor mcp.json');
+      assert.ok(!mcpConfig.mcpServers['chrome-devtools'], 'Default MCP set is empty; browser work is opencli browser');
 
       const statePath = path.join(projectDir, '.cursor', 'ecc-install-state.json');
       const state = readJson(statePath);
@@ -297,7 +298,7 @@ function runTests() {
 
       const mcpConfig = readJson(path.join(projectDir, '.cursor', 'mcp.json'));
       assert.ok(mcpConfig.mcpServers.custom, 'Should preserve existing custom Cursor MCP servers');
-      assert.ok(mcpConfig.mcpServers['chrome-devtools'], 'Should merge the bundled chrome-devtools MCP server');
+      assert.ok(!mcpConfig.mcpServers['chrome-devtools'], 'Should not merge chrome-devtools; browser work is opencli browser');
     } finally {
       cleanup(homeDir);
       cleanup(projectDir);

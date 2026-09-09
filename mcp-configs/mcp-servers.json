@@ -20,6 +20,11 @@
       },
       "description": "Jira issue tracking — search, create, update, comment, transition issues"
     },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"],
+      "description": "Opt-in Chrome DevTools MCP. Default browser path is `opencli browser` via the opencli-browser skill."
+    },
     "github": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-github"],

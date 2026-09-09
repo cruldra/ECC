@@ -342,6 +342,7 @@
         "skills/agent-self-evaluation",
         "skills/architecture-decision-records",
         "skills/browser-qa",
+        "skills/opencli-browser",
         "skills/ck",
         "skills/click-path-audit",
         "skills/codebase-onboarding",

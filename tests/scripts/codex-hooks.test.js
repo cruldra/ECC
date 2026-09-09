@@ -635,11 +635,10 @@ if (
 
       assert.strictEqual(result.status, 0, `${result.stdout}\n${result.stderr}`);
       assert.match(result.stdout, /Package manager: npm \(exec: npx\)/);
-      assert.match(result.stdout, /\[add\] mcp_servers\.chrome-devtools/);
-      assert.match(result.stdout, /\[mcp_servers\.chrome-devtools\]/);
-      assert.match(result.stdout, /Dry run/);
-      // Retired defaults (June 2026 connector policy) must not be emitted.
-      assert.doesNotMatch(result.stdout, /mcp_servers\.(supabase|playwright|context7|exa|github|memory|sequential-thinking)\b/);
+      assert.match(result.stdout, /All ECC MCP servers already present/);
+      assert.doesNotMatch(result.stdout, /\[add\]/);
+      // Retired defaults must not be emitted.
+      assert.doesNotMatch(result.stdout, /mcp_servers\.(chrome-devtools|supabase|playwright|context7|exa|github|memory|sequential-thinking)\b/);
       assert.doesNotMatch(result.stdout, /url = /);
       assert.strictEqual(fs.readFileSync(configPath, 'utf8'), original);
     } finally {
@@ -661,18 +660,12 @@ if (
       assert.strictEqual(first.status, 0, `${first.stdout}\n${first.stderr}`);
 
       const merged = fs.readFileSync(configPath, 'utf8');
-      const parsed = TOML.parse(merged);
-      assert.strictEqual(parsed.mcp_servers['chrome-devtools'].command, 'npx');
-      assert.deepStrictEqual(parsed.mcp_servers['chrome-devtools'].args, ['chrome-devtools-mcp@latest']);
-      assert.strictEqual(parsed.mcp_servers['chrome-devtools'].startup_timeout_sec, 30);
-      // No retired server may be (re-)emitted — exa's url form broke Codex (#2224).
-      assert.strictEqual(parsed.mcp_servers.exa, undefined);
-      assert.strictEqual(parsed.mcp_servers.github, undefined);
-      assert.strictEqual(parsed.mcp_servers.supabase, undefined);
+      assert.strictEqual(merged, '');
+      assert.doesNotMatch(merged, /chrome-devtools/);
+      assert.doesNotMatch(merged, /mcp_servers/);
 
       const second = runNode(mergeMcpConfigScript, [configPath], deterministicPackageEnv);
       assert.strictEqual(second.status, 0, `${second.stdout}\n${second.stderr}`);
-      assert.match(second.stdout, /\[ok\] mcp_servers\.chrome-devtools/);
       assert.match(second.stdout, /All ECC MCP servers already present/);
       assert.strictEqual(fs.readFileSync(configPath, 'utf8'), merged);
     } finally {
@@ -708,9 +701,9 @@ if (
       const parsed = TOML.parse(updated);
       assert.strictEqual(parsed.mcp_servers.exa, undefined, 'invalid exa url entry must be removed');
       assert.doesNotMatch(updated, /url = "https:\/\/mcp\.exa\.ai\/mcp"/);
-      // User-managed servers are untouched; current default is added.
+      // User-managed servers are untouched; no default connector is added.
       assert.strictEqual(parsed.mcp_servers.github.command, 'npx');
-      assert.strictEqual(parsed.mcp_servers['chrome-devtools'].command, 'npx');
+      assert.strictEqual(parsed.mcp_servers['chrome-devtools'], undefined);
 
       // Re-running must not re-introduce the invalid entry.
       const second = runNode(mergeMcpConfigScript, [configPath], deterministicPackageEnv);
@@ -774,8 +767,8 @@ if (
       const result = runNode(mergeMcpConfigScript, [configPath, '--update-mcp', '--dry-run'], deterministicPackageEnv);
 
       assert.strictEqual(result.status, 0, `${result.stdout}\n${result.stderr}`);
-      assert.match(result.stdout, /\[remove\] mcp_servers\.chrome-devtools/);
-      assert.match(result.stdout, /\[mcp_servers\.chrome-devtools\]/);
+      assert.match(result.stdout, /All ECC MCP servers already present/);
+      assert.doesNotMatch(result.stdout, /\[remove\] mcp_servers\.chrome-devtools/);
       // Retired servers are no longer ECC-managed: never removed or re-added.
       assert.doesNotMatch(result.stdout, /\[remove\] mcp_servers\.context7/);
       assert.strictEqual(fs.readFileSync(configPath, 'utf8'), original);
@@ -807,12 +800,9 @@ if (
 
       assert.strictEqual(result.status, 0, `${result.stdout}\n${result.stderr}`);
       assert.match(result.stdout, /Disabled via ECC_DISABLED_MCPS/);
-      assert.match(result.stdout, /\[skip\] mcp_servers\.chrome-devtools \(disabled\)/);
-      assert.match(result.stdout, /\[update\] mcp_servers\.chrome-devtools \(disabled\)/);
-      assert.match(result.stdout, /Done\. Removed 1 server section\(s\)\./);
-
-      const updated = fs.readFileSync(configPath, 'utf8');
-      assert.doesNotMatch(updated, /chrome-devtools/);
+      assert.match(result.stdout, /All ECC MCP servers already present/);
+      // chrome-devtools is no longer ECC-managed, so disable does not strip a leftover.
+      assert.match(fs.readFileSync(configPath, 'utf8'), /chrome-devtools/);
     } finally {
       cleanup(tempDir);
     }
@@ -882,9 +872,9 @@ if (
       assert.strictEqual(parsedConfig.agents.explorer.config_file, 'agents/explorer.toml');
       assert.strictEqual(parsedConfig.agents.reviewer.config_file, 'agents/reviewer.toml');
       assert.strictEqual(parsedConfig.agents.docs_researcher.config_file, 'agents/docs-researcher.toml');
-      // Current default connector is added; retired servers are not emitted,
+      // No default connector is added; retired servers are not emitted,
       // and pre-existing user-managed entries are preserved untouched.
-      assert.ok(parsedConfig.mcp_servers['chrome-devtools']);
+      assert.strictEqual(parsedConfig.mcp_servers['chrome-devtools'], undefined);
       assert.strictEqual(parsedConfig.mcp_servers.exa, undefined);
       assert.ok(parsedConfig.mcp_servers.github);
       assert.ok(parsedConfig.mcp_servers.memory);

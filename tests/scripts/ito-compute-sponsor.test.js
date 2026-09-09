@@ -331,7 +331,7 @@ function main() {
           fs.readFileSync(path.join(projectDir, '.kimi-code', 'mcp.json'), 'utf8')
         );
         assert.strictEqual(mcpConfig.mcpServers.existing.command, 'keep-me');
-        assert.ok(mcpConfig.mcpServers['chrome-devtools']);
+        assert.ok(!mcpConfig.mcpServers['chrome-devtools']);
         assert.ok(!fs.existsSync(path.join(projectDir, '.kimi')));
         assert.ok(!fs.existsSync(path.join(homeDir, '.kimi-code', 'config.toml')));
 

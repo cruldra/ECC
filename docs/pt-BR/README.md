@@ -79,6 +79,10 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ## O Que Há de Novo
 
+### v2.2.4 — opencli browser replaces chrome-devtools MCP (Sep 2026)
+
+Default MCP set is empty. Live browser work uses `opencli browser`.
+
 ### v2.2.3 — skill editor and zh-CN reading translations (Sep 2026)
 
 Console can edit original SKILL.md files and store a Simplified Chinese reading copy under `skills/<id>/i18n/zh-CN.md`.

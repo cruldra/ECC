@@ -80,6 +80,10 @@
 
 ## 最新动态
 
+### v2.2.4 — opencli browser 取代 chrome-devtools MCP（2026年9月）
+
+默认 MCP 为空。浏览页面用 `opencli browser`。
+
 ### v2.2.3 — 技能编辑器与简体中文阅读译本（2026年9月）
 
 控制台可编辑原版 SKILL.md，并把阅读用简体中文写到 `skills/<id>/i18n/zh-CN.md`。

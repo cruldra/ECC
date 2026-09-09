@@ -87,15 +87,12 @@ function dlxServer(name, pkg, extraFields, extraToml) {
 const DEFAULT_MCP_STARTUP_TIMEOUT_SEC = 30;
 const DEFAULT_MCP_STARTUP_TIMEOUT_TOML = `startup_timeout_sec = ${DEFAULT_MCP_STARTUP_TIMEOUT_SEC}`;
 
-// Current default connector set (docs/MCP-CONNECTOR-POLICY.md): exactly one
-// connector. The former defaults (supabase, playwright, context7, exa,
-// github, memory, sequential-thinking) were retired in the June 2026 audit
-// and must not be re-emitted; they remain opt-in via
+// Current default connector set (docs/MCP-CONNECTOR-POLICY.md): none.
+// Browser work is `opencli browser` via the opencli-browser skill.
+// chrome-devtools and the June 2026 retirees stay opt-in in
 // mcp-configs/mcp-servers.json. Existing user-managed entries are never
 // touched by the merge (add-only), except the known-invalid repair below.
-const ECC_SERVERS = {
-  'chrome-devtools': dlxServer('chrome-devtools', 'chrome-devtools-mcp@latest', { startup_timeout_sec: DEFAULT_MCP_STARTUP_TIMEOUT_SEC }, DEFAULT_MCP_STARTUP_TIMEOUT_TOML)
-};
+const ECC_SERVERS = {};
 
 // ECC <= 2.0.0 emitted [mcp_servers.exa] with a `url` key. Codex rejects
 // `url` for stdio servers, which makes the *entire* config.toml fail to

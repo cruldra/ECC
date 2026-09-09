@@ -107,18 +107,8 @@ if [[ -f "$CONFIG_FILE" ]]; then
   check_config_pattern '^\[profiles\.strict\]' "profiles.strict exists"
   check_config_pattern '^\[profiles\.yolo\]' "profiles.yolo exists"
 
-  # Current default connector set (docs/MCP-CONNECTOR-POLICY.md): exactly
-  # one connector. Former defaults (github, memory, sequential-thinking,
-  # context7, exa, ...) are opt-in user choices, so they are not required.
-  for section in \
-    'mcp_servers.chrome-devtools'
-  do
-    if search_file "^\[$section\]" "$CONFIG_FILE"; then
-      ok "MCP section [$section] exists"
-    else
-      fail "MCP section [$section] missing"
-    fi
-  done
+  # Current default connector set is empty (docs/MCP-CONNECTOR-POLICY.md).
+  # Browser work is opencli browser. Do not require any mcp_servers.* section.
 
   # ECC <= 2.0.0 emitted a url-only exa entry that Codex's stdio-only
   # schema rejects, breaking the whole config (#2224). Flag it so users

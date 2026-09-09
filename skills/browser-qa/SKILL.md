@@ -17,7 +17,7 @@ metadata:
 
 ## How It Works
 
-Uses the browser automation MCP (claude-in-chrome, Playwright, or Puppeteer) to interact with live pages like a real user.
+Uses `opencli browser <session> …` to interact with live pages like a real user. Do not start chrome-devtools MCP.
 
 ### Safety first — blast radius (run read-only by default)
 
