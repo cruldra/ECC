@@ -57,8 +57,6 @@ test('auto-update command probes for the script it runs, not just scripts/lib', 
   // executes so such roots don't shadow the complete plugin root.
   const autoUpdateDocs = [
     path.join(__dirname, '..', '..', 'commands', 'auto-update.md'),
-    path.join(__dirname, '..', '..', 'docs', 'ja-JP', 'commands', 'auto-update.md'),
-    path.join(__dirname, '..', '..', 'docs', 'zh-CN', 'commands', 'auto-update.md'),
   ];
   for (const docPath of autoUpdateDocs) {
     const doc = fs.readFileSync(docPath, 'utf8');

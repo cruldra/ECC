@@ -341,7 +341,7 @@ function parseCatalogDescriptionExpectations(content, source, getDescription) {
     throw new Error(`${source} is missing the catalog count description`);
   }
 
-  const match = description.match(/(\d+)\s+agents,\s+(\d+)\s+skills,\s+(\d+)\s+legacy command shims?/i);
+  const match = description.match(/(\d+)\s+agents,\s+(\d+)\s+skills,\s+(\d+)\s+(?:commands?|legacy command shims?)/i);
   if (!match) {
     throw new Error(`${source} is missing the catalog count description`);
   }
@@ -379,8 +379,8 @@ function syncEnglishReadme(content, catalog) {
   nextContent = replaceOrThrow(
     nextContent,
     /(access to\s+)(\d+)(\s+agents,\s+)(\d+)(\s+skills,\s+and\s+)(\d+)(\s+(?:commands|legacy command shims?))/i,
-    (_, prefix, __, agentsSuffix, ___, skillsSuffix) =>
-      `${prefix}${catalog.agents.count}${agentsSuffix}${catalog.skills.count}${skillsSuffix}${catalog.commands.count} legacy command shims`,
+    (_, prefix, __, agentsSuffix, ___, skillsSuffix, ____, commandsSuffix) =>
+      `${prefix}${catalog.agents.count}${agentsSuffix}${catalog.skills.count}${skillsSuffix}${catalog.commands.count}${commandsSuffix}`,
     'README.md quick-start summary'
   );
   nextContent = replaceOrThrow(
@@ -549,7 +549,7 @@ function syncCatalogDescription(content, catalog, source, getDescription, setDes
 
   const nextDescription = replaceOrThrow(
     description,
-    /(\d+)(\s+agents,\s+)(\d+)(\s+skills,\s+)(\d+)(\s+legacy command shims?)/i,
+    /(\d+)(\s+agents,\s+)(\d+)(\s+skills,\s+)(\d+)(\s+(?:commands?|legacy command shims?))/i,
     (_, __, agentsSuffix, ___, skillsSuffix, ____, commandsSuffix) =>
       `${catalog.agents.count}${agentsSuffix}${catalog.skills.count}${skillsSuffix}${catalog.commands.count}${commandsSuffix}`,
     source

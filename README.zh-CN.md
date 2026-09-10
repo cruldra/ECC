@@ -80,6 +80,8 @@
 
 ## 最新动态
 
+### v2.2.15 — 新增 bugsink skill + `/bugsink <url>` 命令，bugsink-cli 以 submodule 收进 `skills/bugsink/bugsink-cli`（2026年9月）
+
 ### v2.2.14 — 各处清单数字对齐实际：292 skill / 68 agent / 92 command（2026年9月）
 
 ### v2.2.13 — 删掉上游机器翻译的 command 镜像，改为按需翻译并记 source_hash（2026年9月）
@@ -228,7 +230,7 @@ Copy-Item -Recurse rules/typescript "$HOME/.claude/rules/"
 /plugin list ecc@ecc
 ```
 
-**完成！** 你现在可以使用 68 个代理、292 个技能和 92 个命令。
+**完成！** 你现在可以使用 68 个代理、293 个技能和 93 个命令。
 
 ### multi-* 命令需要额外配置
 

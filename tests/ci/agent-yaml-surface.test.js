@@ -25,7 +25,6 @@ const RETIRED_LEGACY_SHIMS = [
   'orchestrate',
   'prompt-optimize',
   'rules-distill',
-  'tdd',
   'verify',
 ];
 

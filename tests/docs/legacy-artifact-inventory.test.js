@@ -121,7 +121,7 @@ test('legacy command shim table tracks the current archive contents', () => {
     .filter(fileName => fileName.endsWith('.md'))
     .sort();
 
-  assert.strictEqual(shims.length, 12);
+  assert.strictEqual(shims.length, 11);
 
   for (const shim of shims) {
     assert.ok(source.includes(`\`${shim}\``), `Missing legacy shim ${shim}`);

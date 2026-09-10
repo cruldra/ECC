@@ -1,6 +1,6 @@
 spec_version: "0.1.0"
 name: ecc
-version: 2.2.14
+version: 2.2.15
 description: "Initial gitagent export surface for ECC's shared skill catalog, governance, and identity. Native agents, commands, and hooks remain authoritative in the repository while manifest coverage expands."
 author: affaan-m
 license: MIT
@@ -27,6 +27,7 @@ skills:
   - benchmark
   - blueprint
   - browser-qa
+  - bugsink
   - bun-runtime
   - canary-watch
   - carrier-relationship-management
@@ -162,6 +163,7 @@ skills:
 commands:
   - aside
   - auto-update
+  - bugsink
   - build-fix
   - checkpoint
   - code-review
@@ -189,6 +191,7 @@ commands:
   - go-review
   - go-test
   - gradle-build
+  - grilling
   - harness-audit
   - hookify
   - hookify-configure
@@ -247,6 +250,7 @@ commands:
   - skill-create
   - skill-health
   - test-coverage
+  - translate-skill
   - update-codemaps
   - update-docs
   - vue-review

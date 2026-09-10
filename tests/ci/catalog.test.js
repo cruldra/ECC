@@ -255,7 +255,7 @@ function runTests() {
       const pluginJson = fs.readFileSync(path.join(testDir, '.claude-plugin', 'plugin.json'), 'utf8');
       const marketplaceJson = fs.readFileSync(path.join(testDir, '.claude-plugin', 'marketplace.json'), 'utf8');
 
-      assert.ok(readme.includes('Access to 1 agents, 1 skills, and 1 legacy command shims'));
+      assert.ok(readme.includes('Access to 1 agents, 1 skills, and 1 commands'));
       assert.ok(readme.includes('actual OSS surface: 7 agents, 7 skills, and 7 legacy command shims'));
       assert.ok(readme.includes('|-- agents/           # 1 specialized subagents for delegation'));
       assert.ok(readme.includes('| Skills | 42 | .agents/skills/ |'));

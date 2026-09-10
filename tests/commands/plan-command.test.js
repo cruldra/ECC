@@ -28,45 +28,37 @@ function readPlanCommand() {
 
 console.log('\n=== Testing /plan command prompt ===\n');
 
-test('/plan runs inline by default without requiring planner agent installation', () => {
+test('/plan is a thin entry over the writing-plans skill', () => {
   const source = readPlanCommand();
 
   assert.ok(
-    source.includes('Do not call the Task tool or any subagent by default'),
-    'Expected /plan to avoid default subagent delegation',
+    source.includes('Thin entry over the `writing-plans` skill'),
+    'Expected /plan to defer to the writing-plans skill',
   );
   assert.ok(
-    source.includes('If the `planner` subagent is unavailable'),
-    'Expected /plan to define a planner-unavailable fallback',
+    source.includes('**Input**: `$ARGUMENTS`'),
+    'Expected /plan to forward its arguments',
   );
   assert.ok(
     !source.includes('This command invokes the **planner** agent'),
     'Expected /plan not to claim unconditional planner invocation',
   );
-  assert.ok(
-    !source.includes('The planner agent will:'),
-    'Expected /plan to describe inline behavior, not mandatory agent behavior',
-  );
-  assert.ok(
-    !source.includes('Agent (planner):'),
-    'Expected /plan examples not to imply the planner agent is required',
-  );
 });
 
-test('/plan preserves the explicit confirmation gate before code edits', () => {
+test('/plan keeps the no-code and no-PRD gates', () => {
   const source = readPlanCommand();
 
   assert.ok(
-    source.includes('WAIT for user CONFIRM before touching any code'),
+    source.includes('WAIT for confirmation before code'),
     'Expected frontmatter to preserve the no-code-before-confirmation rule',
   );
   assert.ok(
-    source.includes('WAITING FOR CONFIRMATION'),
-    'Expected example output to preserve the confirmation handoff',
+    source.includes('Do not write a PRD. Do not write code.'),
+    'Expected the body to forbid PRDs and code',
   );
   assert.ok(
-    source.includes('will **NOT** write any code until you explicitly confirm'),
-    'Expected important notes to preserve the confirmation contract',
+    source.includes('Save to `.claude/plans/<stem>.md`'),
+    'Expected the plan drop path to stay fixed',
   );
 });
 

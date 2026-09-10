@@ -1,3 +1,6 @@
 [submodule "skills/anything2explainer"]
 	path = skills/anything2explainer
 	url = https://github.com/Vincentwei1021/anything2explainer.git
+[submodule "skills/bugsink/bugsink-cli"]
+	path = skills/bugsink/bugsink-cli
+	url = https://github.com/cruldra/bugsink-cli.git

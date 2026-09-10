@@ -366,7 +366,8 @@
         "skills/repo-scan",
         "skills/rules-distill",
         "skills/santa-method",
-        "skills/git-workflow"
+        "skills/git-workflow",
+        "skills/bugsink"
       ],
       "targets": [
         "claude",
@@ -752,7 +753,8 @@
         "scripts/orchestrate-codex-worker.sh",
         "scripts/orchestrate-worktrees.js",
         "scripts/orchestration-status.js",
-        "skills/dmux-workflows"
+        "skills/dmux-workflows",
+        "workflows"
       ],
       "targets": [
         "claude",

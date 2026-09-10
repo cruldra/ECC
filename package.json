@@ -1,6 +1,6 @@
 {
   "name": "ecc-universal",
-  "version": "2.2.14",
+  "version": "2.2.15",
   "description": "Harness-native agent operating system for Codex, OpenCode, Cursor, Gemini, Claude Code, and terminal workflows - skills, hooks, rules, MCP conventions, and operator control-plane patterns",
   "publishConfig": {
     "access": "public"
@@ -67,7 +67,6 @@
     "assets/images/sponsors/",
     "agents/",
     "commands/",
-    "workflows/",
     "flows/",
     "docs/de-DE/",
     "docs/CODEX-NAVIGATION-GUIDE.md",
@@ -165,6 +164,7 @@
     "skills/blender-motion-state-inspection/",
     "skills/blueprint/",
     "skills/brand-voice/",
+    "skills/bugsink/",
     "skills/carrier-relationship-management/",
     "skills/claude-devfleet/",
     "skills/cisco-ios-patterns/",
@@ -433,6 +433,12 @@
     "skills/uncloud/",
     "skills/vite-patterns/",
     "the-security-guide.md",
+    "skills/grilling/",
+    "skills/opencli-browser/",
+    "skills/spec/",
+    "skills/translate-skill/",
+    "skills/writing-plans/",
+    "workflows/",
     "!**/__pycache__/**",
     "!**/*.pyc",
     "!**/*.pyo",

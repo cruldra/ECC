@@ -619,7 +619,7 @@ function runTests() {
     const pluginJson = fs.readFileSync(pluginJsonPath, 'utf8');
     const marketplaceJson = fs.readFileSync(marketplaceJsonPath, 'utf8');
 
-    assert.ok(readme.includes('Access to 1 agents, 1 skills, and 1 legacy command shims'), 'Should sync README quick-start summary');
+    assert.ok(readme.includes('Access to 1 agents, 1 skills, and 1 commands'), 'Should sync README quick-start summary');
     assert.ok(readme.includes('actual OSS surface: 9 agents, 9 skills, and 9 legacy command shims'), 'Should preserve historical README release-note summary');
     assert.ok(readme.includes('|-- agents/           # 1 specialized subagents for delegation'), 'Should sync README project tree agents count');
     assert.ok(readme.includes('| Agents | PASS: 1 agents |'), 'Should sync README comparison table');

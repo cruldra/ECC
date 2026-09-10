@@ -84,7 +84,7 @@ When mining workspace-level legacy repos:
 
 ## Legacy Command Shim Contents
 
-The compatibility archive currently contains 12 retired command shims:
+The compatibility archive currently contains 11 retired command shims:
 
 | Shim | Preferred current direction |
 | --- | --- |
@@ -98,7 +98,6 @@ The compatibility archive currently contains 12 retired command shims:
 | `orchestrate.md` | Use maintained orchestration status and worktree scripts. |
 | `prompt-optimize.md` | Use prompt-optimizer skill. |
 | `rules-distill.md` | Use current rules and skill extraction workflows. |
-| `tdd.md` | Use tdd-workflow and language-specific testing skills. |
 | `verify.md` | Use verification-loop and package-specific verification skills. |
 
 ## Release Rule
