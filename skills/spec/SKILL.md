@@ -33,7 +33,7 @@ Create `.claude/specs/` if needed. Do not commit unless the user asks. Stay in `
 
 Explore the repo first. Then one spec. YAGNI.
 
-```markdown
+````markdown
 # <Title>
 
 - Date: YYYY-MM-DD
@@ -60,7 +60,25 @@ Who hurts. What the code does today. Cost of leaving it.
 
 ## Architecture
 
-How the pieces fit. A small tree or diagram of the runtime path is fine. Do not list which files to edit — that belongs in the plan.
+How the pieces fit, as a **mermaid diagram**. Not ASCII art — arrows and boxes drawn with `─` `→` `|` do not render, do not survive editing, and misalign the moment a label changes. The console and most markdown viewers render mermaid.
+
+Pick the form that matches what you are showing:
+
+- `flowchart LR` / `TD` — components, data flow, who writes what
+- `sequenceDiagram` — an ordered interaction across processes or sessions
+- `stateDiagram-v2` — a lifecycle with states and transitions
+
+Node labels use the user's language. Paths, filenames, and identifiers stay verbatim.
+
+```mermaid
+flowchart LR
+  console[控制台] -->|写| list[".claude/ecc-skills.json"]
+  console -->|拷/删| landed[".claude/skills/&lt;id&gt;/"]
+  session[新会话 SessionStart] -->|读名单| list
+  session -->|拷/删| landed
+```
+
+Add a second diagram only when one genuinely cannot carry both concerns. Do not list which files to edit — that belongs in the plan.
 
 ## Data and interfaces
 
@@ -77,7 +95,7 @@ What a failing test looks like for the main behaviors. No task list.
 ## Open questions
 
 Must be empty before `/plan`. Decide with the user, or cut it from scope.
-```
+````
 
 No TBD, TODO, or "handle later". If unknown, decide or cut.
 

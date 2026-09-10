@@ -80,6 +80,8 @@
 
 ## 最新动态
 
+### v2.2.10 — spec 的架构章节改用 mermaid 图，不再画 ASCII（2026年9月）
+
 ### v2.2.9 — 以 submodule 集成 anything2explainer 讲解视频技能，可跟上游更新（2026年9月）
 
 ### v2.2.8 — spec / writing-plans 技能正文改回英文，输出文件仍跟用户语言（2026年9月）
