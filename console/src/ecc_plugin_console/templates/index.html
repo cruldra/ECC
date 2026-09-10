@@ -55,13 +55,14 @@
             <button class="chip" :class="{ on: chip === name }" @click="chip = name" x-text="name"></button>
           </template>
         </div>
-        <div class="list">
+        <div class="list" :class="{ compact: kind === 'workflow' }">
           <template x-if="items().length === 0">
             <div class="empty" x-text="emptyCopy()"></div>
           </template>
           <template x-for="item in items()" :key="item.id">
             <button class="row" :class="{ on: selected() && selected().id === item.id }" @click="selectedId = item.id">
-              <span class="badge miss" x-text="kindLabel()"></span>
+              <span class="badge miss" x-show="kind !== 'mcp'" x-text="kindLabel()"></span>
+              <span class="badge" x-show="kind === 'mcp'" :class="mcpBadge(item).cls" x-text="mcpBadge(item).text"></span>
               <span class="body-text">
                 <span class="name" x-text="item.id"></span>
                 <span class="module" x-text="item.module"></span>
@@ -70,6 +71,11 @@
             </button>
           </template>
         </div>
+        <template x-if="kind === 'workflow' && selected()">
+          <div class="flow-doc">
+            <div id="workflow-md" class="md-preview vditor-reset"></div>
+          </div>
+        </template>
       </section>
 
       <aside class="detail" x-show="kind === 'mcp' || selected()">
@@ -80,7 +86,22 @@
             <div class="module" x-text="selected().module"></div>
             <p x-text="selected().blurb"></p>
             <div class="path" x-text="selected().path"></div>
-            <div class="note" x-text="kind === 'mcp' ? '这是插件 .mcp.json 里的条目。更新 ecc@ecc 并新开会话才进 Claude。' : '随整份插件安装。此行不能单独装卸。'"></div>
+            <template x-if="kind === 'mcp'">
+              <div>
+                <div class="status-row">
+                  <span class="badge" :class="mcpBadge(selected()).cls" x-text="mcpBadge(selected()).text"></span>
+                </div>
+                <div class="note" x-text="mcpNote(selected())"></div>
+                <div class="error" x-show="selected().error" x-text="selected().error"></div>
+                <div class="actions">
+                  <template x-for="cta in mcpActions(selected())" :key="cta.action">
+                    <button class="btn" :class="cta.danger ? 'danger' : (cta.action === 'install' ? 'primary' : 'outline')" :disabled="busy" @click="askMcp(cta.action)" x-text="cta.label"></button>
+                  </template>
+                </div>
+              </div>
+            </template>
+            <div class="note" x-show="kind === 'workflow'">装插件就带上。这里只预览，不单独装卸。</div>
+            <div class="note" x-show="kind !== 'mcp' && kind !== 'workflow'">随整份插件安装。此行不能单独装卸。</div>
           </div>
         </template>
         <template x-if="kind === 'mcp' && !selected()">

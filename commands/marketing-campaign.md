@@ -120,8 +120,8 @@ This command invokes:
 
 ## Related Commands
 
-- `/plan` — Strategic planning before a campaign
-- `/plan-prd` — Product requirements document before briefing a campaign
+- `/spec` — design spec after grilling
+- `/plan` — implementation plan from the spec
 - `/code-review` — Review code behind a landing page implementation
 
 ---

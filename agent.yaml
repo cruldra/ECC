@@ -1,6 +1,6 @@
 spec_version: "0.1.0"
 name: ecc
-version: 2.2.5
+version: 2.2.6
 description: "Initial gitagent export surface for ECC's shared skill catalog, governance, and identity. Native agents, commands, and hooks remain authoritative in the repository while manifest coverage expands."
 author: affaan-m
 license: MIT
@@ -219,7 +219,8 @@ commands:
   - orch-review
   - plan
   - plan-canvas
-  - plan-prd
+  - spec
+  - tdd
   - pm2
   - projects
   - promote
@@ -227,9 +228,7 @@ commands:
   - pr
   - prp-commit
   - prp-implement
-  - prp-plan
   - prp-pr
-  - prp-prd
   - prune
   - python-review
   - quality-gate

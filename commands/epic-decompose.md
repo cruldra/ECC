@@ -20,4 +20,3 @@ What this does:
 Compatibility aliases:
 
 - `/plan`
-- `/prp-plan`

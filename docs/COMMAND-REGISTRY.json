@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "totalCommands": 94,
+  "totalCommands": 95,
   "commands": [
     {
       "command": "aside",
@@ -259,7 +259,9 @@
       "type": "orchestration",
       "primaryAgents": [],
       "allAgents": [],
-      "skills": [],
+      "skills": [
+        "spec"
+      ],
       "path": "commands/gan-build.md"
     },
     {
@@ -268,7 +270,9 @@
       "type": "planning",
       "primaryAgents": [],
       "allAgents": [],
-      "skills": [],
+      "skills": [
+        "spec"
+      ],
       "path": "commands/gan-design.md"
     },
     {
@@ -322,6 +326,17 @@
       "allAgents": [],
       "skills": [],
       "path": "commands/gradle-build.md"
+    },
+    {
+      "command": "grilling",
+      "description": "Front door for requirements, brainstorming, and design discussion — one AskUserQuestion per turn until shared understanding, then stop. Does not write code, specs, or implementation plans. Next is /spec.",
+      "type": "testing",
+      "primaryAgents": [],
+      "allAgents": [],
+      "skills": [
+        "spec"
+      ],
+      "path": "commands/grilling.md"
     },
     {
       "command": "harness-audit",
@@ -496,7 +511,8 @@
       "primaryAgents": [],
       "allAgents": [],
       "skills": [
-        "marketing-campaign"
+        "marketing-campaign",
+        "spec"
       ],
       "path": "commands/marketing-campaign.md"
     },
@@ -574,7 +590,8 @@
       "primaryAgents": [],
       "allAgents": [],
       "skills": [
-        "orch-build-mvp"
+        "orch-build-mvp",
+        "spec"
       ],
       "path": "commands/orch-build-mvp.md"
     },
@@ -638,26 +655,13 @@
       "path": "commands/plan-canvas.md"
     },
     {
-      "command": "plan-prd",
-      "description": "Generate a lean, problem-first PRD and hand off to /plan for implementation planning.",
+      "command": "plan",
+      "description": "Write a bite-sized TDD implementation plan from an approved spec. WAIT for confirmation before code. If the idea is open, grilling first. If there is no spec, /spec first.",
       "type": "testing",
       "primaryAgents": [],
       "allAgents": [],
-      "skills": [],
-      "path": "commands/plan-prd.md"
-    },
-    {
-      "command": "plan",
-      "description": "Restate requirements, assess risks, and create step-by-step implementation plan. WAIT for user CONFIRM before touching any code.",
-      "type": "testing",
-      "primaryAgents": [
-        "planner"
-      ],
-      "allAgents": [
-        "planner"
-      ],
       "skills": [
-        "plan-canvas"
+        "spec"
       ],
       "path": "commands/plan.md"
     },
@@ -676,7 +680,9 @@
       "type": "testing",
       "primaryAgents": [],
       "allAgents": [],
-      "skills": [],
+      "skills": [
+        "spec"
+      ],
       "path": "commands/pr.md"
     },
     {
@@ -727,17 +733,10 @@
       "type": "testing",
       "primaryAgents": [],
       "allAgents": [],
-      "skills": [],
+      "skills": [
+        "spec"
+      ],
       "path": "commands/prp-implement.md"
-    },
-    {
-      "command": "prp-plan",
-      "description": "Create comprehensive feature implementation plan with codebase analysis and pattern extraction",
-      "type": "testing",
-      "primaryAgents": [],
-      "allAgents": [],
-      "skills": [],
-      "path": "commands/prp-plan.md"
     },
     {
       "command": "prp-pr",
@@ -747,15 +746,6 @@
       "allAgents": [],
       "skills": [],
       "path": "commands/prp-pr.md"
-    },
-    {
-      "command": "prp-prd",
-      "description": "Interactive PRD generator - problem-first, hypothesis-driven product spec with back-and-forth questioning",
-      "type": "testing",
-      "primaryAgents": [],
-      "allAgents": [],
-      "skills": [],
-      "path": "commands/prp-prd.md"
     },
     {
       "command": "prune",
@@ -982,6 +972,24 @@
       "path": "commands/skill-health.md"
     },
     {
+      "command": "spec",
+      "description": "Write a design spec after grilling has settled the idea. Does not write a PRD or an implementation plan.",
+      "type": "planning",
+      "primaryAgents": [],
+      "allAgents": [],
+      "skills": [],
+      "path": "commands/spec.md"
+    },
+    {
+      "command": "tdd",
+      "description": "Implement test-first from an approved plan. Follow tdd-workflow. After tests pass, next is /code-review.",
+      "type": "testing",
+      "primaryAgents": [],
+      "allAgents": [],
+      "skills": [],
+      "path": "commands/tdd.md"
+    },
+    {
       "command": "test-coverage",
       "description": "Analyze coverage, identify gaps, and generate missing tests toward the target threshold.",
       "type": "testing",
@@ -989,6 +997,17 @@
       "allAgents": [],
       "skills": [],
       "path": "commands/test-coverage.md"
+    },
+    {
+      "command": "translate-skill",
+      "description": "Faithfully translate an ECC SKILL.md into skills/<id>/i18n/zh-CN.md for reading. Original remains the installed skill.",
+      "type": "general",
+      "primaryAgents": [],
+      "allAgents": [],
+      "skills": [
+        "translate-skill"
+      ],
+      "path": "commands/translate-skill.md"
     },
     {
       "command": "update-codemaps",
@@ -1029,12 +1048,12 @@
   "statistics": {
     "byType": {
       "build": 2,
-      "general": 10,
+      "general": 11,
       "orchestration": 11,
-      "planning": 2,
+      "planning": 3,
       "refactoring": 1,
       "review": 15,
-      "testing": 53
+      "testing": 52
     },
     "topAgents": [
       {
@@ -1074,11 +1093,15 @@
         "count": 1
       },
       {
-        "agent": "planner",
+        "agent": "python-reviewer",
         "count": 1
       }
     ],
     "topSkills": [
+      {
+        "skill": "spec",
+        "count": 8
+      },
       {
         "skill": "continuous-learning-v2",
         "count": 6
@@ -1113,10 +1136,6 @@
       },
       {
         "skill": "cpp-coding-standards",
-        "count": 2
-      },
-      {
-        "skill": "cpp-testing",
         "count": 2
       }
     ]

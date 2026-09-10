@@ -11,6 +11,7 @@ import uvicorn
 from .catalog import load_catalog
 from .editor import load_skill, save_original, translate_skill
 from .harness import load_status, mutate
+from . import mcpctl
 
 HERE = Path(__file__).resolve().parent
 app = FastAPI(title="ECC 插件控制台")
@@ -38,6 +39,19 @@ def harness_action(name: str, action: str):
     if name not in {"claude", "codex"} or action not in {"install", "uninstall", "update"}:
         raise HTTPException(status_code=400, detail="坏请求")
     return mutate(name, action)
+
+
+@app.get("/api/mcp")
+def mcp_snapshot():
+    return mcpctl.snapshot()
+
+
+@app.post("/api/mcp/{server_id}/{action}")
+def mcp_action(server_id: str, action: str):
+    try:
+        return mcpctl.mutate(server_id, action)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from None
 
 
 def _skill_or_http(skill_id: str) -> dict:

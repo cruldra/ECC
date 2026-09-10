@@ -2,49 +2,34 @@
 description: Guided feature development with codebase understanding and architecture focus
 ---
 
-A structured feature-development workflow that emphasizes understanding existing code before writing new code.
+Same chain as the rest of this plugin. Do not invent a second process.
+
+`grilling` → `spec` → `writing-plans` → `tdd-workflow` → `/code-review`
 
 ## Phases
 
 ### 1. Discovery
 
-- read the feature request carefully
-- if requirements are still open, follow `grilling` and wait for confirmed shared understanding before continuing
-- identify requirements, constraints, and acceptance criteria from that consensus
-- do not start a second interview here if grilling already ran this session
+Follow `grilling` if the idea is still open. Wait for confirmed shared understanding.
 
-### 2. Codebase Exploration
+### 2. Spec
 
-- use `code-explorer` to analyze the relevant existing code
-- trace execution paths and architecture layers
-- understand integration points and conventions
+Follow the `spec` skill. Write `.claude/specs/YYYY-MM-DD-<topic>.md`. Wait for approval.
 
-### 3. Clarifying Questions
+### 3. Plan
 
-- present findings from exploration
-- ask targeted design and edge-case questions
-- wait for user response before proceeding
+Follow `writing-plans`. Write `.claude/plans/YYYY-MM-DD-<feature>.md`. Wait for approval.
 
-### 4. Architecture Design
+### 4. TDD
 
-- use `code-architect` to design the feature
-- provide the implementation blueprint
-- wait for approval before implementing
+Follow `tdd-workflow` / `/tdd` with the plan path.
 
-### 5. Implementation
+### 5. Review
 
-- implement the feature following the approved design
-- prefer TDD where appropriate
-- keep commits small and focused
-
-### 6. Quality Review
-
+Follow `/code-review`.
 - use `code-reviewer` to review the implementation
 - address critical and important issues
 - verify test coverage
-
-### 7. Summary
-
 - summarize what was built
 - list follow-up items or limitations
 - provide testing instructions

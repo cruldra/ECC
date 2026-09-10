@@ -28,15 +28,15 @@
   - `Type / Nav`：`Kind=skill|hook|command|mcp` × `Selected=on|off`（8）
   - `Filter / Chip`：`Selected=on|off`（2）
   - `Catalog / Row`：`Kind=skill|hook|command|mcp` × `Selected=on|off`（8）
-  - `Dialog / Confirm`：`Kind=install|uninstall|update`（3）
-- **Prototype 画板**（16）：Skill 四态、Hook、Command、MCP 空态、四个确认弹窗、编辑原文（无译本 / 有译本）、简体中文、简体中文已过时。
+  - `Dialog / Confirm`：`Kind=install|uninstall|update|mcpInstall|mcpUninstall|mcpDisable`（6）
+- **Prototype 画板**（21）：Skill 四态、Hook、Command、MCP 空态 / 运行中 / 已禁用、确认弹窗、编辑原文与译本。
 
-列表样例是真实 ECC 名字（grilling、SessionStart、/plan-prd 等），不是 287 条全量。分类芯片用 `install-modules` 分组名。
+列表样例是真实 ECC 名字（grilling、SessionStart、/spec 等），不是 287 条全量。分类芯片用 `install-modules` 分组名。
 
 ## 原型交互
 
-- Skill / Hook / Command / MCP 导航在「双未装」与 MCP 空态之间跳转。
-- MCP 只列插件 `.mcp.json`。现在是空的。不管别人的 MCP。
+- Skill / Hook / Command / MCP 导航在「双未装」与 MCP 运行中之间跳转。
+- MCP 只列插件 `.mcp.json`。行上能看正常运行 / 连不上 / 已禁用。详情可安装、卸载、禁用。不管别人的 MCP。
 - Claude「安装」→ 确认 → Skill · Claude 已装。
 - 再点 Codex「安装」→ 确认 → 双已装。
 - Claude「卸载」→ 确认 → 双未装。

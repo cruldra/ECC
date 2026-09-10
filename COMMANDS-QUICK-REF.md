@@ -1,6 +1,6 @@
 # Commands Quick Reference
 
-> 94 slash commands installed globally. Type `/` in any Claude Code session to invoke.
+> 95 slash commands. Type `/` in any Claude Code session to invoke.
 
 ---
 
@@ -8,10 +8,12 @@
 
 | Command | What it does |
 |---------|-------------|
-| `/plan` | Restate requirements, assess risks, write step-by-step implementation plan — **waits for your confirm before touching code** |
+| `/grilling` | Front door — one question at a time until shared understanding |
+| `/spec` | Write a design spec after grilling. Saves `.claude/specs/<name>.md` |
+| `/plan` | TDD implementation plan from an approved spec. Saves `.claude/plans/<name>.plan.md`. Waits before code |
+| `/tdd` | Implement test-first from the plan |
 | `/plan-canvas` | Open a plan or HTML artifact in the browser Plan Canvas for annotate-and-approve review |
-| `/plan-prd` | Generate a lean, problem-first PRD and hand off to `/plan` for implementation planning |
-| `/feature-dev` | Guided feature development with codebase understanding and architecture focus |
+| `/feature-dev` | Same chain: grilling → spec → plan → tdd → code-review |
 | `/code-review` | Code review — local uncommitted changes or GitHub PR (pass PR number/URL for PR mode) |
 | `/review-pr` | Comprehensive PR review using specialized agents |
 | `/build-fix` | Detect and fix build errors — delegates to the right build-resolver agent automatically |
@@ -79,13 +81,11 @@
 
 ---
 
-## PRP Workflow
+## PRP leftovers
 
 | Command | What it does |
 |---------|-------------|
-| `/prp-prd` | Interactive PRD generator — problem-first, hypothesis-driven, back-and-forth questioning |
-| `/prp-plan` | Create a comprehensive feature implementation plan with codebase analysis and pattern extraction |
-| `/prp-implement` | Execute an implementation plan with rigorous validation loops |
+| `/prp-implement` | Execute an implementation plan with validation loops. Plan comes from `/plan` |
 | `/prp-commit` | Quick commit with natural language file targeting |
 | `/prp-pr` | Create a GitHub PR from the current branch with unpushed commits |
 

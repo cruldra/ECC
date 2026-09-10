@@ -1,7 +1,8 @@
 # ECC 插件控制台
 
-浏览器里看 skill / hook / command / MCP，并把整份 `ecc@ecc` 装到 Claude Code 或 Codex。
-MCP 只列插件自己的 `.mcp.json`，不管别人的。
+浏览器里看 skill / hook / command / MCP / 工作流，并把整份 `ecc@ecc` 装到 Claude Code 或 Codex。
+工作流来自仓库 `flows/*.md`，正文是 markdown，图用 mermaid。只预览装上插件会带哪些链。
+MCP 只列插件自己的 `.mcp.json`，不管别人的。每条能看当前连没连上，并能安装 / 卸载 / 禁用。禁用只停这台机器；卸载从插件拿走。新会话才生效。
 也能打开现有 skill 的原版编辑器，并把阅读用简体中文译本写到 `skills/<id>/i18n/zh-CN.md`。
 
 ```sh

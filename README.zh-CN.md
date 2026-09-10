@@ -80,6 +80,8 @@
 
 ## 最新动态
 
+### v2.2.6 — 开发链 grilling→spec→plan→tdd→review；控制台可预览工作流（2026年9月）
+
 ### v2.2.5 — 插件自带 context7、searxng、firecrawl（2026年9月）
 
 ### v2.2.4 — opencli browser 取代 chrome-devtools MCP（2026年9月）

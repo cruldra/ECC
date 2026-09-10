@@ -61,7 +61,7 @@ Extract these sections from the plan:
 If the file doesn't exist or isn't a valid plan:
 ```
 Error: Plan file not found or invalid.
-Run /prp-plan <feature-description> to create a plan first.
+Run /plan <path/to/spec.md> to create a plan first.
 ```
 
 **CHECKPOINT**: Plan loaded. All sections identified. Tasks extracted.
@@ -382,4 +382,4 @@ Report to user:
 - Run `/code-review` to review changes before committing
 - Run `/prp-commit` to commit with a descriptive message
 - Run `/prp-pr` to create a pull request
-- Run `/prp-plan <next-phase>` if the PRD has more phases
+- Run `/plan <path/to/spec.md>` if more work remains

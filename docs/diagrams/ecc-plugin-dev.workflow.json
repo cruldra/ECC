@@ -23,7 +23,7 @@
     { "id": "grilling", "lane": "talk", "col": 1, "type": "frontend", "label": "grilling", "sublabel": "口头共识", "tag": "前门" },
     { "id": "council", "lane": "talk", "col": 2, "type": "security", "label": "council", "sublabel": "分叉记录" },
     { "id": "lens", "lane": "spec", "col": 1, "type": "backend", "label": "product-lens", "sublabel": "PRODUCT-BRIEF.md" },
-    { "id": "prd", "lane": "spec", "col": 2, "type": "database", "label": "/plan-prd", "sublabel": "prds/*.prd.md" },
+    { "id": "prd", "lane": "spec", "col": 2, "type": "database", "label": "/spec", "sublabel": "specs/*.md" },
     { "id": "ac", "lane": "spec", "col": 3, "type": "database", "label": "intent-driven-development", "sublabel": "AC-NNN", "width": 188 },
     { "id": "plan", "lane": "build", "col": 3, "type": "backend", "label": "/plan", "sublabel": "plans/*.plan.md" },
     { "id": "tdd", "lane": "build", "col": 4, "type": "backend", "label": "tdd-workflow", "sublabel": "测试 + 实现" },
@@ -46,14 +46,14 @@
       "title": "主路径",
       "items": [
         "未定需求先 grilling，共识前不写文档、不写代码",
-        "然后 /plan-prd → /plan → tdd-workflow → code-review"
+        "然后 /spec → /plan → tdd-workflow → code-review"
       ]
     },
     {
       "dot": "emerald",
       "title": "产出",
       "items": [
-        "grilling：口头共识；product-lens：PRODUCT-BRIEF.md；/plan-prd：PRD",
+        "grilling：口头共识；product-lens：PRODUCT-BRIEF.md；/spec：PRD",
         "intent-driven-development：AC-NNN；/plan：实现计划；tdd：代码；code-review：审查意见"
       ]
     },

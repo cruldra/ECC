@@ -1,5 +1,5 @@
 ---
-description: Front door for requirements, brainstorming, and design discussion — one AskUserQuestion per turn until shared understanding, then stop. Does not write code, PRDs, or implementation plans.
+description: Front door for requirements, brainstorming, and design discussion — one AskUserQuestion per turn until shared understanding, then stop. Does not write code, specs, or implementation plans. Next is /spec.
 argument-hint: "[plan, decision, or idea to stress-test]"
 ---
 
@@ -11,4 +11,4 @@ Thin entry over the `grilling` skill. Follow that skill for the full workflow.
 
 If arguments are present, treat them as the idea under test. If empty, ask what to grill.
 
-Do not implement. Do not write a PRD or plan until grilling reaches confirmed shared understanding and the user names the next step.
+Do not implement. Do not write a spec or plan until grilling reaches confirmed shared understanding. Next is `/spec`.

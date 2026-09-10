@@ -86,7 +86,8 @@ function runTests() {
 
   if (test('does not reference surfaces that are not on main', () => {
     assert.ok(!body.includes('story-lifecycle'), 'story-lifecycle is not merged');
-    assert.ok(!body.includes('ecc:plan-prd'), 'plan-prd resolves as a command, not a skill');
+    assert.ok(!body.includes('ecc:plan-prd'), 'plan-prd is gone');
+    assert.ok(!body.includes('/plan-prd'), 'plan-prd is gone');
   })) passed++; else failed++;
 
   if (test('every referenced skill, agent, and command resolves in the repo', () => {
@@ -94,7 +95,7 @@ function runTests() {
       'skills/council/SKILL.md',
       'skills/team-builder/SKILL.md',
       'skills/santa-method/SKILL.md',
-      'commands/plan-prd.md',
+      'commands/spec.md',
       'commands/plan.md',
       'commands/epic-decompose.md',
       'commands/save-session.md',

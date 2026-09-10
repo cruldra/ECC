@@ -38,6 +38,11 @@ button, input { font: inherit; }
 .badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--primary-soft); color: var(--primary-deep); }
 .badge.miss { background: #eef0f3; color: var(--ink2); }
 .badge.warn { background: #fef3c7; color: var(--warning); }
+.badge.ok { background: #d1fae5; color: #047857; }
+.badge.bad { background: #fee2e2; color: var(--danger); }
+.status-row { display: flex; gap: 8px; align-items: center; }
+.detail .error { font-size: 12px; color: var(--danger); word-break: break-word; }
+.detail .actions { margin-top: 8px; flex-wrap: wrap; }
 .status { font-size: 13px; color: var(--ink2); }
 .detail-line, .hint { font-size: 12px; color: var(--muted); }
 .hint { font-size: 11px; color: var(--ink4); }
@@ -63,6 +68,9 @@ button, input { font: inherit; }
 .chip { border: 1px solid var(--border); background: var(--card); border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 600; color: var(--ink2); cursor: pointer; }
 .chip.on { background: var(--ink); color: var(--on-primary); border-color: var(--ink); }
 .list { display: flex; flex-direction: column; gap: 8px; overflow: auto; }
+.list.compact { flex: 0 0 auto; max-height: 220px; }
+.flow-doc { flex: 1; min-height: 240px; overflow: auto; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; }
+.flow-doc .language-mermaid, .flow-doc .mermaid, .flow-doc svg { max-width: 100%; }
 .row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; text-align: left; width: 100%; }
 .row.on { background: var(--primary-soft); border-color: var(--primary); }
 .row .body-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }

@@ -7,32 +7,26 @@ description: >
   头脑风暴, 设计讨论, a plan, a decision, or an idea that is not yet settled,
   or says grill / grilling / 拷问.
   Do not use after consensus exists, for implementation, code review, debugging,
-  or when the user explicitly asks to write a PRD, acceptance criteria, or an
-  implementation plan.
+  or when the user explicitly asks to write a spec or an implementation plan.
 metadata:
   origin: community
 ---
 
 # Grilling
 
-Interview until shared understanding. Then stop. Do not implement. Do not write a PRD, acceptance criteria, or an implementation plan until the user confirms the understanding and names the next step.
+Interview until shared understanding. Then stop. Do not implement. Do not write a spec or plan until the user confirms the understanding.
 
-This skill is the **front door**. Downstream skills write artifacts:
+This skill is **step 1** of the development chain:
 
-| After consensus, user wants | Use |
-| --- | --- |
-| Product brief / why-build diagnosis | `product-lens` |
-| PRD document | `/plan-prd` or `/prp-prd` |
-| Capability contract / constraints | `product-capability` |
-| Observable acceptance criteria | `intent-driven-development` |
-| Implementation steps | `/plan` |
-| Adversarial go/no-go among remaining paths | `council` |
+**grilling** → `spec` → `writing-plans` → `tdd-workflow` → `/code-review`
+
+After consensus, the next step is `spec` / `/spec` unless the user names something else.
 
 ## When to Use
 
 - Requirements, 需求, 头脑风暴, 设计讨论, a plan, a decision, or an idea is still open
 - User wants the idea stress-tested before anything is written
-- `/plan`, `/plan-prd`, or feature work would otherwise invent missing decisions
+- `/spec`, `/plan`, or feature work would otherwise invent missing decisions
 
 ## When NOT to Use
 
@@ -69,4 +63,4 @@ If the user types a custom answer, that is the decision. Do not force them back 
 
 ## After confirmation
 
-Name the settled decisions in a short list. Ask which downstream to run. Do not start coding, and do not start a second interview inside `/plan-prd` / `/prp-prd` / `intent-driven-development`.
+Name the settled decisions in a short list. Next is `spec` unless they say otherwise. Do not start coding. Do not start a second interview inside `spec` or `writing-plans`.

@@ -63,6 +63,15 @@ def _read(path: Path) -> str:
         return ""
 
 
+def _markdown_body(text: str) -> str:
+    if not text.startswith("---"):
+        return text
+    end = text.find("\n---", 3)
+    if end < 0:
+        return text
+    return text[end + 4 :].lstrip("\n")
+
+
 def source_hash(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
@@ -173,6 +182,25 @@ def load_catalog() -> dict:
                 }
             )
 
+    workflows: list[dict] = []
+    flows_dir = ECC_ROOT / "flows"
+    if flows_dir.is_dir():
+        for file in sorted(flows_dir.glob("*.md")):
+            if file.name.lower() == "readme.md":
+                continue
+            original = _read(file)
+            meta = _frontmatter(original)
+            workflows.append(
+                {
+                    "id": file.stem,
+                    "kind": "workflow",
+                    "module": meta.get("module") or "core",
+                    "blurb": (meta.get("description") or meta.get("name") or "").split("\n", 1)[0],
+                    "path": f"flows/{file.name}",
+                    "markdown": _markdown_body(original),
+                }
+            )
+
     latest = (ECC_ROOT / "VERSION").read_text(encoding="utf-8").strip()
     return {
         "latest": latest,
@@ -180,10 +208,12 @@ def load_catalog() -> dict:
         "hooks": hooks,
         "commands": commands,
         "mcps": mcps,
+        "workflows": workflows,
         "counts": {
             "skill": len(skills),
             "hook": len(hooks),
             "command": len(commands),
             "mcp": len(mcps),
+            "workflow": len(workflows),
         },
     }

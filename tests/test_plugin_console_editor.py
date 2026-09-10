@@ -167,3 +167,23 @@ def test_catalog_mcp_only_from_plugin_file(isolated_root):
     assert payload["mcps"][0]["id"] == "chrome-devtools"
     assert payload["mcps"][0]["path"] == ".mcp.json"
     assert payload["mcps"][0]["module"] == "stdio"
+
+
+def test_catalog_workflows_from_markdown(isolated_root):
+    payload = catalog.load_catalog()
+    assert payload["workflows"] == []
+    assert payload["counts"]["workflow"] == 0
+    folder = isolated_root / "flows"
+    folder.mkdir()
+    (folder / "dev.md").write_text(
+        "---\nname: dev\ndescription: 主开发链\nmodule: core\n---\n\n# 开发\n\n```mermaid\nflowchart LR\n  a[grilling] --> b[spec]\n```\n",
+        encoding="utf-8",
+    )
+    payload = catalog.load_catalog()
+    assert payload["counts"]["workflow"] == 1
+    item = payload["workflows"][0]
+    assert item["id"] == "dev"
+    assert item["path"] == "flows/dev.md"
+    assert item["module"] == "core"
+    assert "flowchart LR" in item["markdown"]
+    assert "---" not in item["markdown"][:10]

@@ -199,5 +199,5 @@ Run `dev-team` to shape a proposal, then `council` if a specific decision within
 - `council` — adversarial decision-making under ambiguity
 - `team-builder` — pick-your-own agent team when the preset four roles don't fit
 - `architect` (agent) — deep single-role architecture design
-- `/plan-prd` (command) — product requirements document before the team session
+- `/spec` (command) — design spec after grilling, before `/plan`
 - `/epic-decompose` (command) — break the outcome into issue-backed work
