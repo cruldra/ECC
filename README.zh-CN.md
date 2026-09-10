@@ -80,6 +80,8 @@
 
 ## 最新动态
 
+### v2.2.5 — 插件自带 context7、searxng、firecrawl（2026年9月）
+
 ### v2.2.4 — opencli browser 取代 chrome-devtools MCP（2026年9月）
 
 默认 MCP 为空。浏览页面用 `opencli browser`。

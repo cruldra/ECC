@@ -488,12 +488,12 @@ test('.mcp.json has mcpServers object', () => {
 });
 
 test('.mcp.json default set follows the connector policy', () => {
-  const servers = Object.keys(mcpConfig.mcpServers);
-  assert.deepStrictEqual(servers, [], 'Default connector set is empty; browser work is opencli browser');
+  const servers = Object.keys(mcpConfig.mcpServers).sort();
+  assert.deepStrictEqual(servers, ['context7', 'firecrawl', 'searxng']);
 });
 
 test('.mcp.json does not reintroduce retired default connectors', () => {
-  const retired = ['chrome-devtools', 'github', 'context7', 'exa', 'memory', 'playwright', 'sequential-thinking'];
+  const retired = ['chrome-devtools', 'github', 'exa', 'memory', 'playwright', 'sequential-thinking'];
   const servers = Object.keys(mcpConfig.mcpServers);
   for (const name of retired) {
     assert.ok(!servers.includes(name), `${name} was retired from the default set (June 2026 audit) — it lives in mcp-configs/mcp-servers.json as opt-in; see docs/MCP-CONNECTOR-POLICY.md`);

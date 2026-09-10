@@ -1,5 +1,5 @@
 // ECC Plugin Console Design Lab — Figma Desktop 本地开发插件.
-// 新建一页, 生成插件控制台: 只读目录 (skill / hook / command) + 顶栏把整份 ECC
+// 新建一页, 生成插件控制台: 目录 (skill / hook / command / mcp) + 顶栏把整份 ECC
 // 装到 Claude Code / Codex. 只用 Figma Plugin API, 不联网、不读真实安装状态.
 const PAGE_NAME = "ECC 插件控制台 · Design Lab";
 const GENERATOR = "ecc.plugin-console.design-lab";
@@ -37,6 +37,7 @@ const HOOKS = [
   { id: "Stop", module: "hooks-runtime", blurb: "一轮结束。" },
   { id: "SessionEnd", module: "hooks-runtime", blurb: "会话结束。" },
 ];
+const MCPS = [];
 const COMMANDS = [
   { id: "grilling", module: "commands-core", blurb: "打开需求前门。" },
   { id: "plan-prd", module: "commands-core", blurb: "写出 PRD。" },
@@ -51,6 +52,7 @@ const KINDS = [
   { key: "skill", label: "Skill", count: "287", items: SKILLS, path: "skills/<id>/SKILL.md" },
   { key: "hook", label: "Hook", count: "7", items: HOOKS, path: "hooks/hooks.json · <id>" },
   { key: "command", label: "Command", count: "95", items: COMMANDS, path: "commands/<id>.md" },
+  { key: "mcp", label: "MCP", count: "0", items: MCPS, path: ".mcp.json" },
 ];
 const CHIPS = ["全部", "workflow-quality", "agentic-patterns", "security"];
 const HARNESS = [
@@ -61,7 +63,7 @@ const STATES = ["missing", "installed", "update"];
 const DIALOGS = {
   install: { title: "安装 ECC", body: "把整份插件装到所选 harness。不按条开关。", confirm: "安装", danger: false },
   uninstall: { title: "卸载 ECC", body: "从该 harness 卸掉整份插件。目录还在仓库里。", confirm: "卸载", danger: true },
-  update: { title: "更新 ECC", body: "拉到 2.2.2。新会话才吃到新 skill。", confirm: "更新", danger: false },
+  update: { title: "更新 ECC", body: "拉到 2.2.4。新会话才吃到新 skill。", confirm: "更新", danger: false },
 };
 const SAMPLE_SKILL_MD = `---
 name: grilling
@@ -285,7 +287,7 @@ function filterChip(ctx, selected) {
 
 function catalogRow(ctx, kind, selected) {
   const spec = KINDS.find((item) => item.key === kind);
-  const sample = spec.items[0];
+  const sample = spec.items[0] || { id: "（空）", module: ".mcp.json", enabled: false };
   const node = frame(ctx, `Kind=${kind}, Selected=${selected ? "on" : "off"}`, { dir: "HORIZONTAL", width: DESKTOP - NAV - DETAIL - 48,
     px: 14, py: 12, gap: 12, radius: 12, align: "CENTER",
     fill: selected ? COLORS.primarySoft : COLORS.card, stroke: selected ? COLORS.primary : COLORS.border, component: true });
@@ -293,6 +295,12 @@ function catalogRow(ctx, kind, selected) {
   const body = append(node, frame(ctx, "Body", { gap: 2 }), true);
   text(ctx, body, "Name", sample.id, { hug: true, medium: true, size: 13 });
   text(ctx, body, "Module", sample.module, { hug: true, size: 11, color: COLORS.muted });
+  if (kind === "mcp") {
+    badge(ctx, node, "Mcp state", sample.enabled ? "已随插件" : "未随插件", {
+      fill: sample.enabled ? COLORS.primarySoft : COLORS.surface2,
+      color: sample.enabled ? COLORS.primaryDeep : COLORS.ink2,
+    });
+  }
   return node;
 }
 
@@ -366,8 +374,11 @@ function createComponents(ctx, page) {
 function applyRow(instance, item) {
   const name = instance.findOne((node) => node.name === "Name");
   const moduleNode = instance.findOne((node) => node.name === "Module");
+  const mcpState = instance.findOne((node) => node.name === "Mcp state");
+  const mcpLabel = mcpState && mcpState.findOne((node) => node.name === "Label");
   if (name) name.characters = item.id;
   if (moduleNode) moduleNode.characters = item.module;
+  if (mcpLabel) mcpLabel.characters = item.enabled ? "已随插件" : "未随插件";
 }
 
 function topBar(ctx, parent, components, claude, codex) {
@@ -387,7 +398,8 @@ function topBar(ctx, parent, components, claude, codex) {
 
 function consoleBoard(ctx, page, components, spec) {
   const kind = KINDS.find((item) => item.key === spec.kind);
-  const selected = kind.items.find((item) => item.id === spec.selected) || kind.items[0];
+  const items = kind.items;
+  const selected = items.find((item) => item.id === spec.selected) || items[0] || null;
   const screen = frame(ctx, spec.name, { width: DESKTOP, fill: COLORS.paper });
   page.appendChild(screen);
   topBar(ctx, screen, components, spec.claude, spec.codex);
@@ -407,7 +419,8 @@ function consoleBoard(ctx, page, components, spec) {
   const search = append(main, frame(ctx, "Search", { dir: "HORIZONTAL", px: 12, py: 10, radius: 10, fill: COLORS.card, stroke: COLORS.border }), true);
   text(ctx, search, "Placeholder", "筛选名称或模块", { hug: true, size: 13, color: COLORS.ink4 });
   const chips = append(main, frame(ctx, "Chips", { dir: "HORIZONTAL", gap: 8 }), true);
-  for (const label of CHIPS) {
+  const chipLabels = spec.chips || CHIPS;
+  for (const label of chipLabels) {
     const on = label === spec.chip;
     const chip = (on ? components.chips.on : components.chips.off).createInstance();
     chip.name = `Chip / ${label}`;
@@ -417,8 +430,11 @@ function consoleBoard(ctx, page, components, spec) {
   }
   const list = append(main, frame(ctx, "List", { gap: 8 }), true);
   const rowRefs = [];
-  for (const item of kind.items) {
-    const selectedRow = item.id === selected.id;
+  if (items.length === 0) {
+    text(ctx, list, "Empty", "插件 .mcp.json 是空的。只列自己带的 MCP，不管别人的。", { hug: true, size: 13, color: COLORS.muted });
+  }
+  for (const item of items) {
+    const selectedRow = selected && item.id === selected.id;
     const row = components.rows.get(`${spec.kind}:${selectedRow ? "on" : "off"}`).createInstance();
     row.name = `Row / ${item.id}`;
     applyRow(row, item);
@@ -428,14 +444,21 @@ function consoleBoard(ctx, page, components, spec) {
 
   const detail = append(body, frame(ctx, "Detail", { width: DETAIL, px: 20, py: 20, gap: 10, fill: COLORS.card, stroke: COLORS.border }));
   badge(ctx, detail, "Type", kind.label);
-  text(ctx, detail, "Detail name", selected.id, { medium: true, size: 20, display: true });
-  text(ctx, detail, "Detail module", selected.module, { size: 12, color: COLORS.muted });
-  text(ctx, detail, "Detail blurb", selected.blurb, { size: 13, color: COLORS.ink2 });
-  text(ctx, detail, "Detail path", kind.path.replace("<id>", selected.id), { size: 11, color: COLORS.ink4 });
-  text(ctx, detail, "Detail note", "随整份插件安装。此行不能单独装卸。", { size: 12, color: COLORS.muted });
+  if (selected) {
+    text(ctx, detail, "Detail name", selected.id, { medium: true, size: 20, display: true });
+    text(ctx, detail, "Detail module", selected.module, { size: 12, color: COLORS.muted });
+    text(ctx, detail, "Detail blurb", selected.blurb, { size: 13, color: COLORS.ink2 });
+    text(ctx, detail, "Detail path", kind.path.replace("<id>", selected.id), { size: 11, color: COLORS.ink4 });
+    text(ctx, detail, "Detail note", spec.kind === "mcp"
+      ? "这是插件 .mcp.json 里的条目。更新 ecc@ecc 并新开会话才进 Claude。"
+      : "随整份插件安装。此行不能单独装卸。", { size: 12, color: COLORS.muted });
+  } else {
+    text(ctx, detail, "Detail name", "没有自带 MCP", { medium: true, size: 20, display: true });
+    text(ctx, detail, "Detail note", "只看 ecc 插件自己的 .mcp.json。现在是空的。", { size: 13, color: COLORS.ink2 });
+  }
   const edit = spec.kind === "skill" ? button(ctx, detail, "CTA / edit", "编辑", { size: "sm" }) : null;
 
-  return { screen, nav: navButtons, rows: rowRefs, detail, edit };
+  return { screen, nav: navButtons, rows: rowRefs, detail, edit, mcpToggle: null };
 }
 
 function langChip(ctx, parent, name, label, on) {
@@ -510,12 +533,13 @@ function createOverview(ctx, page) {
   text(ctx, overview, "Title", "看见插件里有什么，整份装到 Claude 或 Codex。", { medium: true, size: 32, lineHeight: 40, display: true });
   const notes = [
     "安装 / 卸载 / 更新操作整份 ECC，不按条开关。和 claude plugin / codex plugin 一致。",
-    "一屏 1440：左 Skill / Hook / Command，中筛选列表，右详情。无手机版。",
+    "一屏 1440：左 Skill / Hook / Command / MCP，中筛选列表，右详情。无手机版。",
     "顶栏两张卡：未装 / 已装 / 可更新。不画 Claude 钩子档位（off / minimal / standard / strict）。",
     "装、卸、更新都先过确认弹窗。取消回到来源画板。",
     "分类芯片用 install-modules 分组名。列表是真实 ECC 名字的十几条样例，不是 287 条全画。",
     "选中「控制台」画板后点演示：类型切换、安装 Claude、再装 Codex、更新。",
     "Skill 详情有「编辑」，打开原版 SKILL.md。语言：English / 简体中文。没有中文时点「翻译成简体中文」。译本在 i18n/zh-CN.md，只读。哈希不对就提示过时。保存只写原版。",
+    "MCP 只列插件自己的 .mcp.json。现在是空的。不管 GitHub / Figma / 搜索那些别人的 MCP。",
   ];
   notes.forEach((note, index) => text(ctx, overview, `Note ${index + 1}`, `${index + 1}. ${note}`, { size: 14, color: COLORS.ink2 }));
   return overview;
@@ -566,6 +590,10 @@ async function build(api, stage = () => {}) {
     name: "Prototype / Command · 双未装", kind: "command", claude: "missing", codex: "missing",
     selected: "plan", chip: "全部",
   });
+  const mcpEmpty = consoleBoard(ctx, page, components, {
+    name: "Prototype / MCP · 插件不带", kind: "mcp", claude: "installed", codex: "missing",
+    selected: "", chip: "全部", chips: ["全部"],
+  });
   const dialogInstallClaude = overlayBoard(ctx, page, components, "Prototype / 确认 · 安装 Claude", "install", "Claude Code");
   const dialogInstallCodex = overlayBoard(ctx, page, components, "Prototype / 确认 · 安装 Codex", "install", "Codex");
   const dialogUninstall = overlayBoard(ctx, page, components, "Prototype / 确认 · 卸载", "uninstall", "Claude Code");
@@ -590,6 +618,12 @@ async function build(api, stage = () => {}) {
   await connect(hookNone.nav.command, commandNone.screen, "NAVIGATE");
   await connect(commandNone.nav.skill, skillNone.screen, "NAVIGATE");
   await connect(commandNone.nav.hook, hookNone.screen, "NAVIGATE");
+  await connect(skillNone.nav.mcp, mcpEmpty.screen, "NAVIGATE");
+  await connect(hookNone.nav.mcp, mcpEmpty.screen, "NAVIGATE");
+  await connect(commandNone.nav.mcp, mcpEmpty.screen, "NAVIGATE");
+  await connect(mcpEmpty.nav.skill, skillNone.screen, "NAVIGATE");
+  await connect(mcpEmpty.nav.hook, hookNone.screen, "NAVIGATE");
+  await connect(mcpEmpty.nav.command, commandNone.screen, "NAVIGATE");
   await connect(harnessCta(skillNone.screen, "claude", "CTA / install"), dialogInstallClaude.screen, "NAVIGATE");
   await connect(dialogInstallClaude.confirm, skillClaude.screen, "NAVIGATE");
   await connect(dialogInstallClaude.cancel, skillNone.screen, "NAVIGATE");
@@ -620,7 +654,8 @@ async function build(api, stage = () => {}) {
   stage("排布画板");
   const screens = [
     overview, skillNone.screen, skillClaude.screen, skillBoth.screen, skillUpdate.screen,
-    hookNone.screen, commandNone.screen, dialogInstallClaude.screen, dialogInstallCodex.screen,
+    hookNone.screen, commandNone.screen, mcpEmpty.screen,
+    dialogInstallClaude.screen, dialogInstallCodex.screen,
     dialogUninstall.screen, dialogUpdate.screen,
     editorEnNoZh.screen, editorEnHasZh.screen, editorZh.screen, editorZhStale.screen,
   ];
@@ -644,7 +679,7 @@ async function build(api, stage = () => {}) {
   api.viewport.scrollAndZoomIntoView(page.selection);
   return {
     page, components, overview, skillNone, skillClaude, skillBoth, skillUpdate,
-    hookNone, commandNone, dialogInstallClaude, dialogInstallCodex, dialogUninstall, dialogUpdate,
+    hookNone, commandNone, mcpEmpty, dialogInstallClaude, dialogInstallCodex, dialogUninstall, dialogUpdate,
     editorEnNoZh, editorEnHasZh, editorZh, editorZhStale, screens,
   };
 }
@@ -653,7 +688,7 @@ async function run(api) {
   let currentStage = "初始化";
   try {
     await build(api, (stage) => { currentStage = stage; });
-    api.closePlugin("已生成 ECC 插件控制台的可编辑组件与 15 块演示画板；选中「控制台」后点演示。");
+    api.closePlugin("已生成 ECC 插件控制台的可编辑组件与 16 块演示画板；选中「控制台」后点演示。");
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     api.closePlugin(`生成失败（${currentStage}）：${message}。已有设计未删除；本次未完成页面保留供检查。`);
@@ -662,7 +697,7 @@ async function run(api) {
 
 if (typeof module !== "undefined") {
   module.exports = {
-    build, run, nextPageName, stateCopy, applyRow, PAGE_NAME, COLORS, SKILLS, HOOKS, COMMANDS,
+    build, run, nextPageName, stateCopy, applyRow, PAGE_NAME, COLORS, SKILLS, HOOKS, COMMANDS, MCPS,
     KINDS, CHIPS, HARNESS, STATES, DIALOGS, SAMPLE_SKILL_MD, SAMPLE_SKILL_MD_ZH,
   };
 }

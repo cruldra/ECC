@@ -57,11 +57,11 @@
         </div>
         <div class="list">
           <template x-if="items().length === 0">
-            <div class="empty">没有匹配项</div>
+            <div class="empty" x-text="emptyCopy()"></div>
           </template>
           <template x-for="item in items()" :key="item.id">
             <button class="row" :class="{ on: selected() && selected().id === item.id }" @click="selectedId = item.id">
-              <span class="badge miss" x-text="kind === 'skill' ? 'Skill' : kind === 'hook' ? 'Hook' : 'Command'"></span>
+              <span class="badge miss" x-text="kindLabel()"></span>
               <span class="body-text">
                 <span class="name" x-text="item.id"></span>
                 <span class="module" x-text="item.module"></span>
@@ -72,13 +72,23 @@
         </div>
       </section>
 
-      <aside class="detail" x-show="selected()">
-        <span class="badge" x-text="kind === 'skill' ? 'Skill' : kind === 'hook' ? 'Hook' : 'Command'"></span>
-        <h2 x-text="selected() && selected().id"></h2>
-        <div class="module" x-text="selected() && selected().module"></div>
-        <p x-text="selected() && selected().blurb"></p>
-        <div class="path" x-text="selected() && selected().path"></div>
-        <div class="note">随整份插件安装。此行不能单独装卸。</div>
+      <aside class="detail" x-show="kind === 'mcp' || selected()">
+        <span class="badge" x-text="kindLabel()"></span>
+        <template x-if="selected()">
+          <div>
+            <h2 x-text="selected().id"></h2>
+            <div class="module" x-text="selected().module"></div>
+            <p x-text="selected().blurb"></p>
+            <div class="path" x-text="selected().path"></div>
+            <div class="note" x-text="kind === 'mcp' ? '这是插件 .mcp.json 里的条目。更新 ecc@ecc 并新开会话才进 Claude。' : '随整份插件安装。此行不能单独装卸。'"></div>
+          </div>
+        </template>
+        <template x-if="kind === 'mcp' && !selected()">
+          <div>
+            <h2>没有自带 MCP</h2>
+            <div class="note">只看 ecc 插件自己的 .mcp.json。现在是空的。</div>
+          </div>
+        </template>
         <template x-if="kind === 'skill' && selected() && selected().locales && selected().locales.length">
           <div class="note" x-text="selected().locales.some(l => l.stale) ? '有译本，已过时' : '有译本'"></div>
         </template>

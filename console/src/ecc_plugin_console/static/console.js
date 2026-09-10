@@ -69,7 +69,7 @@ function consoleApp() {
     query: "",
     chip: "全部",
     selectedId: "",
-    catalog: { skills: [], hooks: [], commands: [], counts: { skill: 0, hook: 0, command: 0 }, latest: "" },
+    catalog: { skills: [], hooks: [], commands: [], mcps: [], counts: { skill: 0, hook: 0, command: 0, mcp: 0 }, latest: "" },
     status: {
       latest: "",
       claude: { key: "claude", label: "Claude Code", state: "missing", version: "", hint: "", error: "" },
@@ -83,12 +83,29 @@ function consoleApp() {
       { key: "skill", label: "Skill" },
       { key: "hook", label: "Hook" },
       { key: "command", label: "Command" },
+      { key: "mcp", label: "MCP" },
     ],
+    listKey() {
+      if (this.kind === "skill") return "skills";
+      if (this.kind === "hook") return "hooks";
+      if (this.kind === "command") return "commands";
+      return "mcps";
+    },
+    kindLabel() {
+      if (this.kind === "skill") return "Skill";
+      if (this.kind === "hook") return "Hook";
+      if (this.kind === "command") return "Command";
+      return "MCP";
+    },
+    emptyCopy() {
+      if (this.kind === "mcp" && !this.query.trim()) return "插件 .mcp.json 是空的。只列自己带的 MCP，不管别人的。";
+      return "没有匹配项";
+    },
     async init() {
       await Promise.all([this.refreshCatalog(), this.refreshStatus()]);
     },
     items() {
-      const all = this.catalog[this.kind === "skill" ? "skills" : this.kind === "hook" ? "hooks" : "commands"] || [];
+      const all = this.catalog[this.listKey()] || [];
       const q = this.query.trim().toLowerCase();
       return all.filter((item) => {
         if (this.chip !== "全部" && item.module !== this.chip) return false;
@@ -101,7 +118,7 @@ function consoleApp() {
       return ["全部", ...modules.sort()];
     },
     itemsUnfiltered() {
-      return this.catalog[this.kind === "skill" ? "skills" : this.kind === "hook" ? "hooks" : "commands"] || [];
+      return this.catalog[this.listKey()] || [];
     },
     selected() {
       return this.items().find((item) => item.id === this.selectedId) || this.items()[0] || null;

@@ -87,12 +87,13 @@ function dlxServer(name, pkg, extraFields, extraToml) {
 const DEFAULT_MCP_STARTUP_TIMEOUT_SEC = 30;
 const DEFAULT_MCP_STARTUP_TIMEOUT_TOML = `startup_timeout_sec = ${DEFAULT_MCP_STARTUP_TIMEOUT_SEC}`;
 
-// Current default connector set (docs/MCP-CONNECTOR-POLICY.md): none.
-// Browser work is `opencli browser` via the opencli-browser skill.
-// chrome-devtools and the June 2026 retirees stay opt-in in
-// mcp-configs/mcp-servers.json. Existing user-managed entries are never
-// touched by the merge (add-only), except the known-invalid repair below.
-const ECC_SERVERS = {};
+// Plugin-owned default connectors (docs/MCP-CONNECTOR-POLICY.md).
+// Browser work stays `opencli browser`. chrome-devtools is not default.
+const ECC_SERVERS = {
+  context7: dlxServer('context7', '@upstash/context7-mcp', { startup_timeout_sec: DEFAULT_MCP_STARTUP_TIMEOUT_SEC }, DEFAULT_MCP_STARTUP_TIMEOUT_TOML),
+  firecrawl: dlxServer('firecrawl', 'firecrawl-mcp@latest', { startup_timeout_sec: DEFAULT_MCP_STARTUP_TIMEOUT_SEC }, DEFAULT_MCP_STARTUP_TIMEOUT_TOML),
+  searxng: dlxServer('searxng', 'mcp-searxng', { startup_timeout_sec: DEFAULT_MCP_STARTUP_TIMEOUT_SEC }, DEFAULT_MCP_STARTUP_TIMEOUT_TOML),
+};
 
 // ECC <= 2.0.0 emitted [mcp_servers.exa] with a `url` key. Codex rejects
 // `url` for stdio servers, which makes the *entire* config.toml fail to

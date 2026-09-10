@@ -635,10 +635,10 @@ if (
 
       assert.strictEqual(result.status, 0, `${result.stdout}\n${result.stderr}`);
       assert.match(result.stdout, /Package manager: npm \(exec: npx\)/);
-      assert.match(result.stdout, /All ECC MCP servers already present/);
-      assert.doesNotMatch(result.stdout, /\[add\]/);
-      // Retired defaults must not be emitted.
-      assert.doesNotMatch(result.stdout, /mcp_servers\.(chrome-devtools|supabase|playwright|context7|exa|github|memory|sequential-thinking)\b/);
+      assert.match(result.stdout, /\[add\] mcp_servers\.context7/);
+      assert.match(result.stdout, /\[add\] mcp_servers\.firecrawl/);
+      assert.match(result.stdout, /\[add\] mcp_servers\.searxng/);
+      assert.doesNotMatch(result.stdout, /mcp_servers\.(chrome-devtools|supabase|playwright|exa|github|memory|sequential-thinking)\b/);
       assert.doesNotMatch(result.stdout, /url = /);
       assert.strictEqual(fs.readFileSync(configPath, 'utf8'), original);
     } finally {
@@ -660,9 +660,11 @@ if (
       assert.strictEqual(first.status, 0, `${first.stdout}\n${first.stderr}`);
 
       const merged = fs.readFileSync(configPath, 'utf8');
-      assert.strictEqual(merged, '');
-      assert.doesNotMatch(merged, /chrome-devtools/);
-      assert.doesNotMatch(merged, /mcp_servers/);
+      const parsed = TOML.parse(merged);
+      assert.strictEqual(parsed.mcp_servers.context7.command, 'npx');
+      assert.strictEqual(parsed.mcp_servers.firecrawl.command, 'npx');
+      assert.strictEqual(parsed.mcp_servers.searxng.command, 'npx');
+      assert.strictEqual(parsed.mcp_servers['chrome-devtools'], undefined);
 
       const second = runNode(mergeMcpConfigScript, [configPath], deterministicPackageEnv);
       assert.strictEqual(second.status, 0, `${second.stdout}\n${second.stderr}`);
@@ -701,8 +703,8 @@ if (
       const parsed = TOML.parse(updated);
       assert.strictEqual(parsed.mcp_servers.exa, undefined, 'invalid exa url entry must be removed');
       assert.doesNotMatch(updated, /url = "https:\/\/mcp\.exa\.ai\/mcp"/);
-      // User-managed servers are untouched; no default connector is added.
       assert.strictEqual(parsed.mcp_servers.github.command, 'npx');
+      assert.strictEqual(parsed.mcp_servers.context7.command, 'npx');
       assert.strictEqual(parsed.mcp_servers['chrome-devtools'], undefined);
 
       // Re-running must not re-introduce the invalid entry.
@@ -767,10 +769,8 @@ if (
       const result = runNode(mergeMcpConfigScript, [configPath, '--update-mcp', '--dry-run'], deterministicPackageEnv);
 
       assert.strictEqual(result.status, 0, `${result.stdout}\n${result.stderr}`);
-      assert.match(result.stdout, /All ECC MCP servers already present/);
+      assert.match(result.stdout, /\[remove\] mcp_servers\.context7/);
       assert.doesNotMatch(result.stdout, /\[remove\] mcp_servers\.chrome-devtools/);
-      // Retired servers are no longer ECC-managed: never removed or re-added.
-      assert.doesNotMatch(result.stdout, /\[remove\] mcp_servers\.context7/);
       assert.strictEqual(fs.readFileSync(configPath, 'utf8'), original);
     } finally {
       cleanup(tempDir);
@@ -785,9 +785,9 @@ if (
     const tempDir = createTempDir('mcp-merge-disabled-');
     const configPath = path.join(tempDir, 'config.toml');
     const original = [
-      '[mcp_servers.chrome-devtools]',
+      '[mcp_servers.context7]',
       'command = "npx"',
-      'args = ["chrome-devtools-mcp@latest"]',
+      'args = ["-y", "@upstash/context7-mcp"]',
       '',
     ].join('\n');
 
@@ -795,14 +795,13 @@ if (
       fs.writeFileSync(configPath, original);
       const result = runNode(mergeMcpConfigScript, [configPath], {
         ...deterministicPackageEnv,
-        ECC_DISABLED_MCPS: 'chrome-devtools',
+        ECC_DISABLED_MCPS: 'context7,firecrawl,searxng',
       });
 
       assert.strictEqual(result.status, 0, `${result.stdout}\n${result.stderr}`);
       assert.match(result.stdout, /Disabled via ECC_DISABLED_MCPS/);
-      assert.match(result.stdout, /All ECC MCP servers already present/);
-      // chrome-devtools is no longer ECC-managed, so disable does not strip a leftover.
-      assert.match(fs.readFileSync(configPath, 'utf8'), /chrome-devtools/);
+      assert.match(result.stdout, /\[skip\] mcp_servers\.context7 \(disabled\)/);
+      assert.doesNotMatch(fs.readFileSync(configPath, 'utf8'), /mcp_servers\.context7/);
     } finally {
       cleanup(tempDir);
     }
@@ -880,6 +879,8 @@ if (
       assert.ok(parsedConfig.mcp_servers.memory);
       assert.ok(parsedConfig.mcp_servers['sequential-thinking']);
       assert.ok(parsedConfig.mcp_servers.context7);
+      assert.ok(parsedConfig.mcp_servers.firecrawl);
+      assert.ok(parsedConfig.mcp_servers.searxng);
 
       for (const roleFile of ['explorer.toml', 'reviewer.toml', 'docs-researcher.toml']) {
         assert.ok(fs.existsSync(path.join(codexDir, 'agents', roleFile)));

@@ -149,15 +149,41 @@ def load_catalog() -> dict:
                     }
                 )
 
+    mcps: list[dict] = []
+    bundled = json.loads(_read(ECC_ROOT / ".mcp.json") or "{}")
+    servers = bundled.get("mcpServers") or {}
+    if isinstance(servers, dict):
+        for name in sorted(servers):
+            spec = servers.get(name)
+            if not isinstance(spec, dict):
+                continue
+            http = bool(spec.get("url") or spec.get("type") == "http")
+            launch = str(spec.get("url") or "")
+            if not launch:
+                cmd = spec.get("command") or ""
+                args = spec.get("args") or []
+                launch = " ".join([str(cmd), *[str(a) for a in args]]).strip() if isinstance(args, list) else str(cmd)
+            mcps.append(
+                {
+                    "id": name,
+                    "kind": "mcp",
+                    "module": "http" if http else "stdio",
+                    "blurb": launch,
+                    "path": ".mcp.json",
+                }
+            )
+
     latest = (ECC_ROOT / "VERSION").read_text(encoding="utf-8").strip()
     return {
         "latest": latest,
         "skills": skills,
         "hooks": hooks,
         "commands": commands,
+        "mcps": mcps,
         "counts": {
             "skill": len(skills),
             "hook": len(hooks),
             "command": len(commands),
+            "mcp": len(mcps),
         },
     }

@@ -81,6 +81,8 @@
 
 ## 最新动态
 
+### v2.2.5 — 插件自带 context7、searxng、firecrawl（2026年9月）
+
 ### v2.2.4 — opencli browser 取代 chrome-devtools MCP（2026年9月）
 
 默认 MCP 为空。浏览页面用 `opencli browser`。
@@ -1304,7 +1306,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 | **上下文文件** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
 | **秘密检测** | 基于钩子                  | beforeSubmitPrompt 钩子 | 基于沙箱 | 基于钩子 |
 | **自动格式化** | PostToolUse 钩子        | afterFileEdit 钩子 | N/A | file.edited 钩子 |
-| **版本** | 插件 | 插件 | 参考配置 | 2.2.4 |
+| **版本** | 插件 | 插件 | 参考配置 | 2.2.5 |
 
 **关键架构决策：**
 

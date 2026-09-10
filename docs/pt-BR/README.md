@@ -79,6 +79,8 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ## O Que Há de Novo
 
+### v2.2.5 — plugin ships context7, searxng, firecrawl (Sep 2026)
+
 ### v2.2.4 — opencli browser replaces chrome-devtools MCP (Sep 2026)
 
 Default MCP set is empty. Live browser work uses `opencli browser`.

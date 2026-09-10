@@ -107,8 +107,17 @@ if [[ -f "$CONFIG_FILE" ]]; then
   check_config_pattern '^\[profiles\.strict\]' "profiles.strict exists"
   check_config_pattern '^\[profiles\.yolo\]' "profiles.yolo exists"
 
-  # Current default connector set is empty (docs/MCP-CONNECTOR-POLICY.md).
-  # Browser work is opencli browser. Do not require any mcp_servers.* section.
+  for section in \
+    'mcp_servers.context7' \
+    'mcp_servers.firecrawl' \
+    'mcp_servers.searxng'
+  do
+    if search_file "^\[$section\]" "$CONFIG_FILE"; then
+      ok "MCP section [$section] exists"
+    else
+      fail "MCP section [$section] missing"
+    fi
+  done
 
   # ECC <= 2.0.0 emitted a url-only exa entry that Codex's stdio-only
   # schema rejects, breaking the whole config (#2224). Flag it so users

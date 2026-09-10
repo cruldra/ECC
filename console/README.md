@@ -1,6 +1,7 @@
 # ECC 插件控制台
 
-浏览器里看 skill / hook / command，并把整份 `ecc@ecc` 装到 Claude Code 或 Codex。
+浏览器里看 skill / hook / command / MCP，并把整份 `ecc@ecc` 装到 Claude Code 或 Codex。
+MCP 只列插件自己的 `.mcp.json`，不管别人的。
 也能打开现有 skill 的原版编辑器，并把阅读用简体中文译本写到 `skills/<id>/i18n/zh-CN.md`。
 
 ```sh

@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const {
   build, run, nextPageName, stateCopy, applyRow,
-  PAGE_NAME, SKILLS, HOOKS, COMMANDS, KINDS, DIALOGS,
+  PAGE_NAME, SKILLS, HOOKS, COMMANDS, MCPS, KINDS, DIALOGS,
 } = require("./code.js");
 const { fakeFigma } = require("../../figma-lab/fake-figma");
 
@@ -14,7 +14,7 @@ function named(parent, name) {
   assert.ok(node, `Missing node: ${name}`);
   return node;
 }
-const EXPECTED_LINKS = 33;
+const EXPECTED_LINKS = 39;
 
 test("state copy matches harness install semantics", () => {
   assert.equal(stateCopy("missing").cta, "安装");
@@ -30,7 +30,8 @@ test("catalog samples are real ECC names", () => {
   assert.equal(HOOKS.length, 7);
   assert.equal(HOOKS[0].id, "SessionStart");
   assert.ok(COMMANDS.some((item) => item.id === "plan-prd"));
-  assert.deepEqual(KINDS.map((item) => item.count), ["287", "7", "95"]);
+  assert.deepEqual(KINDS.map((item) => item.count), ["287", "7", "95", "0"]);
+  assert.equal(MCPS.length, 0);
 });
 
 test("manifest stays local, without a fabricated plugin ID", () => {
@@ -51,9 +52,9 @@ test("build creates variant sets, reuses them as instances and wires the demo fl
 
   const sets = Object.fromEntries(result.page.children.filter((node) => node.type === "COMPONENT_SET").map((set) => [set.name, set]));
   assert.deepEqual(Object.fromEntries(Object.entries(sets).map(([name, set]) => [name, set.children.length])), {
-    "Harness / Card": 6, "Type / Nav": 6, "Filter / Chip": 2, "Catalog / Row": 6, "Dialog / Confirm": 3,
+    "Harness / Card": 6, "Type / Nav": 8, "Filter / Chip": 2, "Catalog / Row": 8, "Dialog / Confirm": 3,
   });
-  assert.equal(result.screens.length, 15);
+  assert.equal(result.screens.length, 16);
 
   const grilling = named(result.skillNone.screen, "Row / grilling");
   assert.equal(grilling.type, "INSTANCE");
@@ -75,6 +76,10 @@ test("build creates variant sets, reuses them as instances and wires the demo fl
   assert.ok(result.skillNone.edit);
   assert.equal(result.hookNone.edit, null);
   assert.equal(result.commandNone.edit, null);
+  assert.equal(action(result.skillNone.nav.mcp).destinationId, result.mcpEmpty.screen.id);
+  assert.equal(named(result.mcpEmpty.screen, "Detail name").characters, "没有自带 MCP");
+  assert.match(named(result.mcpEmpty.screen, "Empty").characters, /只列自己带的 MCP/);
+  assert.equal(result.mcpEmpty.mcpToggle, null);
   assert.equal(action(result.skillNone.edit).destinationId, result.editorEnNoZh.screen.id);
   assert.equal(action(result.editorEnNoZh.translate).destinationId, result.editorZh.screen.id);
   assert.equal(action(result.editorZh.langEn).destinationId, result.editorEnHasZh.screen.id);
@@ -163,7 +168,7 @@ test("success is reported only after building and connecting the document", asyn
   const api = fakeFigma();
   await run(api);
   assert.equal(api.connected, EXPECTED_LINKS);
-  assert.match(api.messages[0], /已生成 ECC 插件控制台的可编辑组件与 15 块演示画板/);
+  assert.match(api.messages[0], /已生成 ECC 插件控制台的可编辑组件与 16 块演示画板/);
 });
 
 test("applyRow overwrites catalog instance labels", () => {

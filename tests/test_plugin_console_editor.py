@@ -145,3 +145,25 @@ def test_script_rejects_other_locale(tmp_path):
     module = _load_script()
     with pytest.raises(SystemExit, match="zh-CN"):
         module.main(["--root", str(tmp_path), "--skill", "demo", "--locale", "en"])
+
+
+def test_catalog_mcp_only_from_plugin_file(isolated_root):
+    payload = catalog.load_catalog()
+    assert payload["mcps"] == []
+    assert payload["counts"]["mcp"] == 0
+    (isolated_root / "mcp-configs").mkdir()
+    (isolated_root / "mcp-configs" / "mcp-servers.json").write_text(
+        json.dumps({"mcpServers": {"github": {"command": "npx", "args": ["x"]}}}),
+        encoding="utf-8",
+    )
+    payload = catalog.load_catalog()
+    assert payload["mcps"] == []
+    (isolated_root / ".mcp.json").write_text(
+        json.dumps({"mcpServers": {"chrome-devtools": {"command": "npx", "args": ["-y", "x"]}}}),
+        encoding="utf-8",
+    )
+    payload = catalog.load_catalog()
+    assert payload["counts"]["mcp"] == 1
+    assert payload["mcps"][0]["id"] == "chrome-devtools"
+    assert payload["mcps"][0]["path"] == ".mcp.json"
+    assert payload["mcps"][0]["module"] == "stdio"
