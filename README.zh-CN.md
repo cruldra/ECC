@@ -80,6 +80,8 @@
 
 ## 最新动态
 
+### v2.2.11 — 删掉 PRP 三件套与 PRD 残留路径，产物统一到 .claude/specs 与 .claude/plans（2026年9月）
+
 ### v2.2.10 — spec 的架构章节改用 mermaid 图，不再画 ASCII（2026年9月）
 
 ### v2.2.9 — 以 submodule 集成 anything2explainer 讲解视频技能，可跟上游更新（2026年9月）

@@ -1,6 +1,6 @@
 ---
 description: Open a plan or HTML artifact in the browser Plan Canvas for annotate-and-approve review
-argument-hint: "[path/to/artifact.plan.md | path/to/artifact.html]"
+argument-hint: "[path/to/plan.md | path/to/artifact.html]"
 ---
 
 # Plan Canvas Command
@@ -29,7 +29,7 @@ stop polling, `end` the session, and begin implementation.
 ## Example
 
 ```
-User: /plan-canvas .claude/plans/notifications.plan.md
+User: /plan-canvas .claude/plans/notifications.md
 
 Assistant: (runs open + await, browser opens)
 ...user clicks "Request changes" with two annotations...

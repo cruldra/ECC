@@ -10,7 +10,7 @@ module: core
 
 ```mermaid
 flowchart LR
-  review["/code-review"] --> commit["/prp-commit 或 git"]
+  review["/code-review"] --> commit["git commit"]
   commit --> pr["/pr 开 PR"]
 ```
 

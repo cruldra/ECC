@@ -70,7 +70,6 @@ derived live — the table below is the *classification rule*, not a frozen list
 |---|---|---|
 | `orch-*` | gated Research, Plan, TDD, Review, Commit per task type | pick one orch-* by task kind; it runs its own internal phases |
 | `multi-*` | multi-model workflow | `multi-plan` then `multi-execute` then review (or `multi-workflow` end-to-end) |
-| `prp-*` | implement / commit / PR leftovers | `prp-implement` then `prp-commit` then `prp-pr`. Spec and plan are `/spec` then `/plan` |
 | `epic-*` | large multi-unit epic, parallel | `epic-decompose` then `epic-claim` then `epic-validate` then `epic-review` then `epic-unblock` then `epic-sync` then `epic-publish` |
 | `loop-*` | managed autonomous loop and monitor | `loop-start <pattern>` then watch with `loop-status` |
 | `gan-*` | generator and evaluator loop | `gan-build` (code) or `gan-design` (UI); self-looping |

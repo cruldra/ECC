@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "totalCommands": 95,
+  "totalCommands": 92,
   "commands": [
     {
       "command": "aside",
@@ -114,7 +114,7 @@
     {
       "command": "epic-claim",
       "description": "Claim an epic issue, stamp coordination state, and sync local ownership.",
-      "type": "review",
+      "type": "testing",
       "primaryAgents": [],
       "allAgents": [],
       "skills": [
@@ -719,35 +719,6 @@
       "path": "commands/promote.md"
     },
     {
-      "command": "prp-commit",
-      "description": "Quick commit with natural language file targeting — describe what to commit in plain English",
-      "type": "testing",
-      "primaryAgents": [],
-      "allAgents": [],
-      "skills": [],
-      "path": "commands/prp-commit.md"
-    },
-    {
-      "command": "prp-implement",
-      "description": "Execute an implementation plan with rigorous validation loops",
-      "type": "testing",
-      "primaryAgents": [],
-      "allAgents": [],
-      "skills": [
-        "spec"
-      ],
-      "path": "commands/prp-implement.md"
-    },
-    {
-      "command": "prp-pr",
-      "description": "Create a GitHub PR from current branch with unpushed commits — discovers templates, analyzes changes, pushes",
-      "type": "testing",
-      "primaryAgents": [],
-      "allAgents": [],
-      "skills": [],
-      "path": "commands/prp-pr.md"
-    },
-    {
       "command": "prune",
       "description": "Delete pending instincts older than 30 days that were never promoted",
       "type": "review",
@@ -1052,8 +1023,8 @@
       "orchestration": 11,
       "planning": 3,
       "refactoring": 1,
-      "review": 15,
-      "testing": 52
+      "review": 14,
+      "testing": 50
     },
     "topAgents": [
       {
@@ -1100,7 +1071,7 @@
     "topSkills": [
       {
         "skill": "spec",
-        "count": 8
+        "count": 7
       },
       {
         "skill": "continuous-learning-v2",

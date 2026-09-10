@@ -23,4 +23,4 @@ Compatibility aliases:
 
 - `/orch-add-feature`
 - `/orch-change-feature`
-- `/prp-implement`
+- `/tdd`

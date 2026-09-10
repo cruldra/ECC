@@ -1,6 +1,6 @@
 # Commands Quick Reference
 
-> 95 slash commands. Type `/` in any Claude Code session to invoke.
+> 92 slash commands. Type `/` in any Claude Code session to invoke.
 
 ---
 
@@ -81,16 +81,6 @@
 
 ---
 
-## PRP leftovers
-
-| Command | What it does |
-|---------|-------------|
-| `/prp-implement` | Execute an implementation plan with validation loops. Plan comes from `/plan` |
-| `/prp-commit` | Quick commit with natural language file targeting |
-| `/prp-pr` | Create a GitHub PR from the current branch with unpushed commits |
-
----
-
 ## Epic Coordination (GitHub-native)
 
 | Command | What it does |
@@ -109,7 +99,6 @@
 
 | Command | What it does |
 |---------|-------------|
-| `/plan` | Restate requirements, assess risks, write step-by-step implementation plan — **waits for your confirm before touching code** |
 | `/multi-plan` | Multi-model collaborative planning |
 | `/multi-workflow` | Multi-model collaborative development |
 | `/multi-backend` | Backend-focused multi-model development |
