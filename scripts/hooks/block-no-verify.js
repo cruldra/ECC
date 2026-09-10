@@ -15,6 +15,8 @@
 
 'use strict';
 
+const { tokenizeShellWords } = require('../lib/shell-invocations');
+
 const MAX_STDIN = 1024 * 1024;
 let raw = '';
 
@@ -78,89 +80,6 @@ const COMMIT_OPTIONS_WITH_INLINE_VALUE = [
 // must stop at this character — anything after it is the inline value,
 // not another flag.
 const COMMIT_SHORT_OPTIONS_WITH_VALUE = new Set(['m', 'F', 'C', 'c', 't']);
-
-function tokenizeShellWords(input, start = 0, end = input.length) {
-  const tokens = [];
-  let value = '';
-  let tokenStart = null;
-  let quote = null;
-  let escaped = false;
-
-  function beginToken(index) {
-    if (tokenStart === null) {
-      tokenStart = index;
-    }
-  }
-
-  function pushToken(index) {
-    if (tokenStart === null) {
-      return;
-    }
-
-    tokens.push({
-      value,
-      start: tokenStart,
-      end: index,
-    });
-    value = '';
-    tokenStart = null;
-  }
-
-  for (let i = start; i < end; i++) {
-    const char = input.charAt(i);
-
-    if (escaped) {
-      beginToken(i - 1);
-      value += char;
-      escaped = false;
-      continue;
-    }
-
-    if (quote) {
-      if (char === quote) {
-        quote = null;
-        continue;
-      }
-
-      if (quote === '"' && char === '\\') {
-        beginToken(i);
-        escaped = true;
-        continue;
-      }
-
-      beginToken(i);
-      value += char;
-      continue;
-    }
-
-    if (char === '"' || char === "'") {
-      beginToken(i);
-      quote = char;
-      continue;
-    }
-
-    if (char === '\\') {
-      beginToken(i);
-      escaped = true;
-      continue;
-    }
-
-    if (/\s/.test(char)) {
-      pushToken(i);
-      continue;
-    }
-
-    beginToken(i);
-    value += char;
-  }
-
-  if (escaped) {
-    value += '\\';
-  }
-  pushToken(end);
-
-  return tokens;
-}
 
 function findCommandSegmentEnd(input, start) {
   let quote = null;

@@ -58,6 +58,20 @@ test('detects git commit', () => {
   assert.strictEqual(hook.isGitCommit('git status'), false);
 });
 
+test('ignores git words inside quoted arguments', () => {
+  assert.strictEqual(hook.isGitCommit('grep -rn "git add|git commit" vendor/'), false);
+  assert.strictEqual(hook.isGitCommit('echo "run git commit later"'), false);
+  assert.strictEqual(hook.isGitCommit('rg "git commit" --files-with-matches'), false);
+  assert.strictEqual(hook.isBranchCreate('grep -rn "git checkout -b" docs/'), false);
+});
+
+test('still detects commits behind wrappers and substitutions', () => {
+  assert.strictEqual(hook.isGitCommit('sudo git commit -m x'), true);
+  assert.strictEqual(hook.isGitCommit('bash -c "git commit -m x"'), true);
+  assert.strictEqual(hook.isGitCommit('git -c user.name=x commit -m y'), true);
+  assert.strictEqual(hook.isGitCommit('git push origin commit'), false);
+});
+
 test('detects branch create', () => {
   assert.strictEqual(hook.isBranchCreate('git checkout -b feat'), true);
   assert.strictEqual(hook.isBranchCreate('git switch -c feat'), true);
@@ -65,6 +79,10 @@ test('detects branch create', () => {
   assert.strictEqual(hook.isBranchCreate('git worktree add ../wt feat'), true);
   assert.strictEqual(hook.isBranchCreate('git checkout main'), false);
   assert.strictEqual(hook.isBranchCreate('git branch -d feat'), false);
+  assert.strictEqual(hook.isBranchCreate('git branch -m old new'), false);
+  assert.strictEqual(hook.isBranchCreate('git branch --merged main'), false);
+  assert.strictEqual(hook.isBranchCreate('git branch'), false);
+  assert.strictEqual(hook.isBranchCreate('git worktree list'), false);
 });
 
 test('asks before commit on main', () => {
@@ -97,6 +115,15 @@ test('allows branch create inside a linked worktree', () => {
   spawnSync('git', ['worktree', 'add', '-b', 'feat', wt], { cwd: root, encoding: 'utf8' });
   const result = hook.run({ tool_input: { command: 'git checkout -b other' }, cwd: wt });
   assert.ok(!result.stdout, `linked worktree should pass, got: ${result.stdout}`);
+});
+
+test('read-only search on main is not treated as a commit', () => {
+  const cwd = initRepo('main');
+  const result = hook.run({
+    tool_input: { command: 'grep -rn "ensure_rewind_git|REWIND_GIT_AUTHOR|git add|git commit" vendor/' },
+    cwd,
+  });
+  assert.ok(!result.stdout, `read-only grep should pass, got: ${result.stdout}`);
 });
 
 test('dispatcher surfaces ask for main commit', () => {

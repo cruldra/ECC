@@ -4,6 +4,7 @@
 const { spawnSync } = require('child_process');
 const path = require('path');
 const { parseBoolean } = require('../lib/hook-flags');
+const { gitSubcommands } = require('../lib/shell-invocations');
 
 const MAX_STDIN = 1024 * 1024;
 
@@ -28,20 +29,68 @@ function extractCwd(data) {
   return cwd ? String(cwd) : process.cwd();
 }
 
-function involvesGit(command) {
-  return /(?:^|[|;&]|\s)git(?:\s|$)/.test(command);
+const BRANCH_NON_CREATE_FLAGS = new Set([
+  '-d', '-D', '--delete',
+  '-m', '-M', '--move',
+  '-c', '-C', '--copy',
+  '-l', '--list',
+  '--show-current',
+  '--edit-description',
+  '--unset-upstream',
+  '-u', '--set-upstream-to',
+]);
+
+// `git branch` flags that take the next token as their value; that value is
+// not a new branch name.
+const BRANCH_FLAGS_WITH_VALUE = new Set([
+  '--contains', '--no-contains',
+  '--merged', '--no-merged',
+  '--sort', '--format', '--points-at',
+]);
+
+function commitsOnAny(subcommands) {
+  return subcommands.some(sub => sub.name === 'commit');
 }
 
 function isGitCommit(command) {
-  return /(?:^|[|;&]|\s)git(?:\s+\S+)*\s+commit\b/.test(command);
+  return commitsOnAny(gitSubcommands(command));
+}
+
+function createsBranchRef(args) {
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === '--') continue;
+    if (arg.startsWith('-')) {
+      if (BRANCH_NON_CREATE_FLAGS.has(arg) || arg.startsWith('--set-upstream-to=')) return false;
+      if (BRANCH_FLAGS_WITH_VALUE.has(arg)) i++;
+      continue;
+    }
+    return true;
+  }
+  return false;
+}
+
+function hasShortFlag(args, letter) {
+  const pattern = new RegExp(`^-[a-zA-Z]*${letter}$`);
+  return args.some(arg => !arg.startsWith('--') && pattern.test(arg));
+}
+
+function firstPositional(args) {
+  return args.find(arg => !arg.startsWith('-'));
+}
+
+function createsBranchOnAny(subcommands) {
+  return subcommands.some(sub => {
+    if (sub.name === 'checkout') return hasShortFlag(sub.args, '[bB]');
+    if (sub.name === 'switch') return hasShortFlag(sub.args, '[cC]') || sub.args.includes('--create');
+    if (sub.name === 'branch') return createsBranchRef(sub.args);
+    if (sub.name === 'worktree') return firstPositional(sub.args) === 'add';
+    return false;
+  });
 }
 
 function isBranchCreate(command) {
-  if (/\bcheckout\b/.test(command) && /(?:^|\s)-[a-zA-Z]*[bB](?:\s|$|=)/.test(command)) return true;
-  if (/\bswitch\b/.test(command) && /(?:^|\s)-[a-zA-Z]*[cC](?:\s|$|=)/.test(command)) return true;
-  if (/\bbranch\b\s+[^-/\s]/.test(command)) return true;
-  if (/\bworktree\s+add\b/.test(command)) return true;
-  return false;
+  return createsBranchOnAny(gitSubcommands(command));
 }
 
 function git(cwd, args) {
@@ -97,13 +146,14 @@ function run(rawInput) {
   if (!isMainGitAskEnabled()) return { exitCode: 0 };
   const data = parseInput(rawInput);
   const command = extractCommand(data);
-  if (!involvesGit(command)) return { exitCode: 0 };
+  const subcommands = gitSubcommands(command);
+  if (subcommands.length === 0) return { exitCode: 0 };
 
   const cwd = extractCwd(data);
-  if (isGitCommit(command) && currentBranch(cwd) === 'main') {
+  if (commitsOnAny(subcommands) && currentBranch(cwd) === 'main') {
     return ask(COMMIT_REASON);
   }
-  if (isBranchCreate(command) && isPrimaryWorktree(cwd)) {
+  if (createsBranchOnAny(subcommands) && isPrimaryWorktree(cwd)) {
     return ask(BRANCH_REASON);
   }
   return { exitCode: 0 };
@@ -113,7 +163,6 @@ module.exports = {
   run,
   isGitCommit,
   isBranchCreate,
-  involvesGit,
   isMainGitAskEnabled,
   COMMIT_REASON,
   BRANCH_REASON,
