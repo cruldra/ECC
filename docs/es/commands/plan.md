@@ -99,7 +99,6 @@ Después de planificar:
 - Usar la skill `tdd-workflow` para implementar con desarrollo guiado por pruebas
 - Usar `/build-fix` si ocurren errores de build
 - Usar `/code-review` para revisar la implementación completada
-- Usar `/pr` o `/prp-pr` para abrir un pull request
 
 ## Agente Planificador Opcional
 

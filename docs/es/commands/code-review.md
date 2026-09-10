@@ -5,7 +5,6 @@ argument-hint: [número-pr | url-pr | vacío para revisión local]
 
 # Revisión de Código
 
-> Modo de revisión de PR adaptado de PRPs-agentic-eng por Wirasm. Parte de la serie de flujos de trabajo PRP.
 
 **Entrada**: $ARGUMENTS
 
@@ -99,7 +98,6 @@ Si no se encuentra el PR, detener con error. Almacenar metadatos del PR para fas
 Construir contexto de revisión:
 
 1. **Reglas del proyecto** — Leer `CLAUDE.md`, `.claude/docs/`, y cualquier guía de contribución
-2. **Artefactos de planificación** — Verificar `.claude/prds/`, `.claude/plans/`, `.claude/reviews/`, y legacy `.claude/PRPs/{prds,plans,reports,reviews}/` para contexto relacionado con este PR
 3. **Intención del PR** — Parsear la descripción del PR para objetivos, issues vinculados, planes de prueba
 4. **Archivos modificados** — Listar todos los archivos modificados y categorizar por tipo (fuente, prueba, config, docs)
 
@@ -188,7 +186,6 @@ Casos especiales:
 
 ### Fase 6 — REPORTE
 
-Crear artefacto de revisión en `.claude/reviews/pr-<NÚMERO>-review.md` a menos que el repositorio ya use el legacy `.claude/PRPs/reviews/` para este flujo:
 
 ```markdown
 # Revisión de PR: #<NÚMERO> — <TÍTULO>

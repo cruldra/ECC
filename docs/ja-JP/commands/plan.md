@@ -46,7 +46,6 @@ argument-hint: "[機能の説明 | path/to/*.prd.md]"
 | フリーフォームテキスト | 会話モード | インライン計画を出力 |
 | 空の入力 | 明確化モード | 何を計画すべきかを質問 |
 
-PRDアーティファクトモードでは、必要に応じて`.claude/plans/`を作成します。PRDに`Delivery Milestones`テーブルが含まれている場合、選択された行のみを`pending`から`in-progress`に更新し、その`Plan`セルに生成された計画パスを設定します。PRDがレガシーの`.claude/PRPs/prds/`形式で`Implementation Phases`を使用している場合、パスを移行せずに読み取ります。
 
 ## パターン根拠付け
 
@@ -184,11 +183,9 @@ Assistant:
 - `tdd-workflow`スキルでテスト駆動開発で実装
 - ビルドエラーが発生した場合は`/build-fix`を使用
 - 完成した実装をレビューするには`/code-review`を使用
-- プルリクエストを作成するには`/pr`または`/prp-pr`を使用
 
 > **要件が先に必要ですか？** `/plan-prd`を使用して`.claude/prds/{name}.prd.md`にリーンなPRDを作成。
 >
-> **レガシーPRPフローが必要ですか？** `/prp-plan`を使用して`.claude/PRPs/`アーティファクトによる詳細なPRP計画を作成。`/prp-implement`を使用してそれらの計画を厳密なバリデーションループで実行。
 
 ## オプショナルプランナーエージェント
 

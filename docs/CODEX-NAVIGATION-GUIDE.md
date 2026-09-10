@@ -117,7 +117,6 @@ packet feeds that template; it does not replace it.
 | Need | Command Surface | Notes |
 |------|-----------------|-------|
 | Create a PR | `/pr` | Discovers PR template, analyzes commits and files, pushes, and creates a PR |
-| Create a PR from PRP workflow | `/prp-pr` | Same core flow with PRP artifact references |
 | Review a PR | `/review-pr` | Runs multi-perspective review lanes and aggregates findings |
 | Review current changes before PR | `/code-review` | Use before committing when no GitHub PR exists yet |
 

@@ -71,12 +71,8 @@ git diff origin/<base>..HEAD --name-only
 
 ### 計画アーティファクト
 
-`/plan-prd`、`/plan`、またはレガシーPRPワークフローで作成された関連アーティファクトを確認:
 - `.claude/prds/` — このPRがマイルストーンを実装するPRD
 - `.claude/plans/` — このPRで実行された計画
-- `.claude/PRPs/prds/` — レガシーPRP PRD
-- `.claude/PRPs/plans/` — レガシーPRP実装計画
-- `.claude/PRPs/reports/` — レガシーPRP実装レポート
 
 存在する場合、PR本文で参照。
 

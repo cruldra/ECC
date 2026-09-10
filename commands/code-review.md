@@ -5,7 +5,7 @@ argument-hint: [pr-number | pr-url | blank for local review]
 
 # Code Review
 
-> PR review mode adapted from PRPs-agentic-eng by Wirasm. Part of the PRP workflow series.
+> PR review mode adapted from PRPs-agentic-eng by Wirasm.
 
 **Input**: $ARGUMENTS
 
