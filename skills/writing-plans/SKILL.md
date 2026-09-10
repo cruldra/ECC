@@ -1,27 +1,25 @@
 ---
 name: writing-plans
-description: Write a bite-sized TDD implementation plan from an approved spec, before touching code. Use when the user wants /plan, an implementation plan, or after spec is approved. Do not use when the idea is still open (grilling) or the spec is missing (spec).
+description: Write a bite-sized TDD implementation plan from an approved spec, before touching code. Use when the user wants /plan, an implementation plan, 实施计划, or after a spec is approved. Do not use when the idea is still open (grilling) or the spec is missing (spec).
 ---
 
 # Writing Plans
 
 Write the implementation plan from an approved spec. Assume the implementer has no repo context. Each step is one action with real file paths, real test code, real commands. DRY. YAGNI. TDD.
 
-This skill is **step 3** of the development chain:
-
-`grilling` → `spec` → **writing-plans** → `tdd-workflow` → `/code-review`
+Chain: `grilling` → `spec` → **writing-plans** → `tdd-workflow` → `/code-review`
 
 **Announce at start:** using writing-plans to write the implementation plan.
 
-**Save plans to:** `.claude/plans/<stem>.md`
+## Drop path
 
-`<stem>` matches the spec file: `.claude/specs/<stem>.md`. Short kebab of the feature. Never put `spec` or `plan` in the stem, and never use a `.plan.md` suffix — the folder already says plan.
+`.claude/plans/<stem>.md`
 
-Bad: `console-artifacts.plan.md`. Good: `plans/console-artifacts.md` next to `specs/console-artifacts.md`.
+`<stem>` matches the spec file: `.claude/specs/<stem>.md`. Short kebab of the feature. Never put `spec` or `plan` in the stem, and never use a `.plan.md` suffix — the folder already says plan. Bad: `console-artifacts.plan.md`. Good: `plans/console-artifacts.md` beside `specs/console-artifacts.md`.
 
-Create `.claude/plans/` if needed. Do not write these under `docs/`. Saving the plan markdown does not need a commit. **Implementing** the plan does: every task ends with its own commit. That is not optional.
+Create `.claude/plans/` if needed. Never under `docs/`.
 
-**Spec path:** `.claude/specs/<stem>.md` — the plan points at it. Both stay in `.claude/`.
+Saving the plan markdown needs no commit. **Implementing** it does: every task ends with its own commit. Not optional.
 
 ## Gate
 
@@ -30,40 +28,44 @@ Need an approved spec. Look for:
 - `$ARGUMENTS` pointing at `.claude/specs/*.md`
 - A spec written and approved this session
 
-If the idea is still open, follow `grilling`. If there is consensus but no spec, follow `spec`. Do not invent the spec inside the plan.
+Idea still open → follow `grilling`. Consensus but no spec → follow `spec`. Never invent the spec inside the plan.
 
 If the spec covers multiple independent subsystems, split into one plan per subsystem. Each plan must produce working, testable software on its own.
 
-## 文件结构
+## Language
 
-After the header, before tasks, put one section titled `## 文件结构（创建/修改一览）`.
+**The plan file is written in the user's language** — title, labels, headings, section names, and step names. The English headings below are the canonical structure, not literal strings to copy. A user writing 中文 who gets `Goal` / `Task 1` / `Step 1` headings is a bug; translate them. Code, paths, and commands stay verbatim.
 
-This is the file map. Not an architecture essay. A tree of every file this plan creates or edits, each line one reason.
+## File structure section
+
+After the header, before the tasks, put exactly one section whose title means "files created and modified".
+
+It is a map, not an architecture essay: a tree of every file this plan creates or edits, one short reason per line.
 
 Marker: 🆕 create · ✏️ modify
 
 ````markdown
-## 文件结构（创建/修改一览）
+## File structure (created / modified)
 
-标记：🆕 新建 · ✏️ 修改
+Markers: 🆕 new · ✏️ changed
 
 ```
 project-root/
 ├── src/
 │   └── feature/
-│       ├── service.py  🆕 编排
-│       └── routes.py  ✏️ 挂入口
+│       ├── service.py  🆕 orchestration
+│       └── routes.py  ✏️ mount the entry point
 └── tests/
-    └── test_feature.py  🆕 主路径失败用例
+    └── test_feature.py  🆕 failing case for the main path
 ```
 ````
 
 Rules:
 
-- Every file a task will touch appears here
+- Every file a task touches appears here
 - One short reason per file, on the same line
-- No file that is only "mentioned" — if it is in the tree, a task owns it
-- Do not add a second file-structure chapter, table, or prose map. This tree is the map.
+- Nothing merely "mentioned" — if it is in the tree, a task owns it
+- No second file map anywhere: no extra chapter, table, or prose list. This tree is the map.
 
 ## Task size
 
@@ -75,32 +77,28 @@ A task is the smallest unit with its own test cycle. Fold setup into the task th
 - Run it and see it fail
 - Minimal code to pass
 - Run tests and see them pass
-- Commit that task (required — one commit per task, like the original writing-plans)
+- Commit that task — one commit per task, required
 
 ## Header
-
-**Language:** title, labels, headings, and step names follow the user's language. English `Goal` / `Task` / `Step` when the user writes 中文 is a bug.
-
-中文用户用下面这份。
 
 Every plan starts with:
 
 ```markdown
-# <题目> 实施计划
+# <Title> Implementation Plan
 
-> 按 `tdd-workflow` 执行本文件，然后 `/code-review`。步骤用 `- [ ]`。
+> Execute this file with `tdd-workflow`, then `/code-review`. Steps use `- [ ]`.
 
-**目标：** [一句话]
+**Goal:** [one sentence]
 
-**架构：** [两三句]
+**Architecture:** [2–3 sentences]
 
-**技术栈：** [关键库]
+**Tech stack:** [key libraries]
 
-**规格：** [本计划对应的规格路径]
+**Spec:** [path to the spec this plan implements]
 
-## 全局约束
+## Global constraints
 
-[从规格逐字抄过来的项目级约束。每个任务都带上。]
+[Project-wide requirements copied verbatim from the spec. Every task inherits them.]
 
 ---
 ```
@@ -108,18 +106,18 @@ Every plan starts with:
 ## Task shape
 
 ````markdown
-### 任务 N: [组件名]
+### Task N: [Component]
 
-**文件：**
-- 新建：`exact/path/to/file.py`
-- 修改：`exact/path/to/existing.py`
-- 测试：`tests/exact/path/to/test.py`
+**Files:**
+- Create: `exact/path/to/file.py`
+- Modify: `exact/path/to/existing.py`
+- Test: `tests/exact/path/to/test.py`
 
-**接口：**
-- 消费：[前面任务给出的签名]
-- 产出：[后面任务要用的名字和类型]
+**Interfaces:**
+- Consumes: [exact signatures from earlier tasks]
+- Produces: [exact names and types later tasks rely on]
 
-- [ ] **步骤 1：写会失败的测试**
+- [ ] **Step 1: Write the failing test**
 
 ```python
 def test_specific_behavior():
@@ -127,24 +125,24 @@ def test_specific_behavior():
     assert result == expected
 ```
 
-- [ ] **步骤 2：跑测试，确认失败**
+- [ ] **Step 2: Run it and confirm it fails**
 
 Run: `uv run pytest tests/path/test.py::test_name -v`
 Expected: FAIL with "function not defined"
 
-- [ ] **步骤 3：写刚好能过的实现**
+- [ ] **Step 3: Write the minimal implementation**
 
 ```python
 def function(input):
     return expected
 ```
 
-- [ ] **步骤 4：跑测试，确认通过**
+- [ ] **Step 4: Run it and confirm it passes**
 
 Run: `uv run pytest tests/path/test.py::test_name -v`
 Expected: PASS
 
-- [ ] **步骤 5：提交**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add tests/path/test.py src/path/file.py
@@ -168,15 +166,15 @@ Plan failures — never write:
 ## Self-review
 
 1. **Spec coverage:** every spec requirement has a task
-2. **Placeholder scan:** fix any red flags above
+2. **Placeholder scan:** fix any red flag above
 3. **Type consistency:** later tasks use the names earlier tasks produced
 
 Fix inline.
 
 ## Handoff
 
-Plan saved to `.claude/plans/<filename>.md`.
+Plan saved to `.claude/plans/<stem>.md`.
 
 Next: `tdd-workflow` / `/tdd <path>`. After green: `/code-review`.
 
-Wait for the user to say start. Do not write production code in this skill.
+Wait for the user to say start. Never write production code in this skill.

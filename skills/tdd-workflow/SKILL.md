@@ -17,7 +17,7 @@ This skill ensures all code development follows TDD principles with comprehensiv
 - Refactoring existing code
 - Adding API endpoints
 - Creating new components
-- Continuing from a `/plan` output (`writing-plans`) or another `.claude/plans/*.md` implementation plan. If the plan has a **规格：** or **Spec:** path, read that spec too.
+- Continuing from a `/plan` output (`writing-plans`) or another `.claude/plans/*.md` implementation plan. If the plan names a spec path, read that spec too.
 
 ## Plan Handoff
 
