@@ -10,7 +10,7 @@
 |---------|-------------|
 | `/grilling` | Front door — one question at a time until shared understanding |
 | `/spec` | Write a design spec after grilling. Saves `.claude/specs/<name>.md` |
-| `/plan` | TDD implementation plan from an approved spec. Saves `.claude/plans/<name>.plan.md`. Waits before code |
+| `/plan` | TDD implementation plan from an approved spec. Saves `.claude/plans/<stem>.md`. Waits before code |
 | `/tdd` | Implement test-first from the plan |
 | `/plan-canvas` | Open a plan or HTML artifact in the browser Plan Canvas for annotate-and-approve review |
 | `/feature-dev` | Same chain: grilling → spec → plan → tdd → code-review |

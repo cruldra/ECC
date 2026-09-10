@@ -19,59 +19,68 @@ Consensus exists → do not re-ask settled decisions.
 
 ## Drop path
 
-`.claude/specs/<kebab-name>.md`
+`.claude/specs/<stem>.md`
 
-Create `.claude/specs/` if needed. Do not commit unless the user asks. These files stay in the project, not in `docs/`.
+`<stem>` is a short kebab of the **feature** (what it does). The matching plan is `.claude/plans/<stem>.md`. Never put `spec` or `plan` in the stem — the folder already says that. Bad: `console-artifacts.plan.md`. Good: `console-artifacts.md` in `plans/`.
+
+Bad: `console-spec-plan.md`. Good: `console-artifacts.md`.
+
+Create `.claude/specs/` if needed. Do not commit this file unless the user asks. Stay in `.claude/`, not `docs/`.
 
 ## What to write
 
-Explore the repo first. Then one spec. YAGNI. User's language.
+Explore the repo first. Then one spec. YAGNI.
+
+**Language:** the written file uses the user's language for the title, meta labels, and every heading. Copying English headings from this skill (`Problem`, `Goals`, `Architecture`) when the user writes 中文 is a bug.
+
+中文用户用下面这份。英文用户把标题译成 Problem / Goals and non-goals / Decisions / Architecture / Data and interfaces / Error handling / Testing / Open questions，元信息用 Date / Status / Source。
 
 ```markdown
-# <Title>
+# <题目>
 
-- Date: YYYY-MM-DD
-- Status: draft
-- Source: grilling consensus this session
+- 日期：YYYY-MM-DD
+- 状态：草稿
+- 来源：本轮对齐
 
-## Problem
+## 问题
 
-Who has what pain. What the code does today. Cost of leaving it.
+谁有什么痛。现在代码怎么做。放着不管的代价。
 
-## Goals and non-goals
+## 目标与非目标
 
-**Goals**
-- observable outcomes
+**目标**
+- 能看见的结果
 
-**Non-goals (YAGNI)**
-- what we are not building, and why
+**非目标**
+- 这次不做，以及为什么
 
-## Decisions
+## 决策
 
-| # | Decision | Choice | Why |
-|---|----------|--------|-----|
+| # | 决策 | 选择 | 理由 |
+|---|------|------|------|
 | 1 | | | |
 
-## Architecture
+## 架构
 
-How the pieces fit. A small tree or diagram of the runtime path is fine. No file-by-file implementation list — that belongs in the plan.
+块怎么拼。运行路径可以画一小棵树。不要在这里列要改哪些文件，那是计划的事。
 
-## Data and interfaces
+## 数据与接口
 
-Tables, types, payloads. Exact names.
+表、类型、载荷。名字写死。
 
-## Error handling
+## 出错时
 
-Failure modes and what the caller sees.
+失败形态，调用方看见什么。
 
-## Testing
+## 测试
 
-What a failing test looks like for the main behaviors. No task list.
+主路径失败测试长什么样。不要写任务清单。
 
-## Open questions
+## 未决问题
 
-Must be empty before `/plan`. Decide with the user or cut from scope.
+进 `/plan` 前必须空。跟用户拍板，或者划出范围。
 ```
+
 
 No TBD, TODO, or "handle later". If unknown, decide or cut.
 
@@ -83,4 +92,4 @@ Then:
 
 > Spec written to `<path>`. Read it. Say what to change, or say it is good. Next is `/plan <path>`.
 
-Wait. Set Status to approved only after they say so. Next skill is only `writing-plans`.
+Wait. Set 状态 to 已通过 only after they say so. Next skill is only `writing-plans`.

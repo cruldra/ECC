@@ -13,11 +13,15 @@ This skill is **step 3** of the development chain:
 
 **Announce at start:** using writing-plans to write the implementation plan.
 
-**Save plans to:** `.claude/plans/<kebab-name>.plan.md`
+**Save plans to:** `.claude/plans/<stem>.md`
 
-Create `.claude/plans/` if needed. Do not commit unless the user asks. Do not write these under `docs/`.
+`<stem>` matches the spec file: `.claude/specs/<stem>.md`. Short kebab of the feature. Never put `spec` or `plan` in the stem, and never use a `.plan.md` suffix — the folder already says plan.
 
-**Spec path:** `.claude/specs/<kebab-name>.md` — the plan points at it. Both stay in `.claude/`.
+Bad: `console-artifacts.plan.md`. Good: `plans/console-artifacts.md` next to `specs/console-artifacts.md`.
+
+Create `.claude/plans/` if needed. Do not write these under `docs/`. Saving the plan markdown does not need a commit. **Implementing** the plan does: every task ends with its own commit. That is not optional.
+
+**Spec path:** `.claude/specs/<stem>.md` — the plan points at it. Both stay in `.claude/`.
 
 ## Gate
 
@@ -71,28 +75,32 @@ A task is the smallest unit with its own test cycle. Fold setup into the task th
 - Run it and see it fail
 - Minimal code to pass
 - Run tests and see them pass
-- Commit (only if the user asked to commit)
+- Commit that task (required — one commit per task, like the original writing-plans)
 
 ## Header
+
+**Language:** title, labels, headings, and step names follow the user's language. English `Goal` / `Task` / `Step` when the user writes 中文 is a bug.
+
+中文用户用下面这份。
 
 Every plan starts with:
 
 ```markdown
-# [Feature Name] Implementation Plan
+# <题目> 实施计划
 
-> **For implementers:** follow `tdd-workflow` with this file, then `/code-review`. Steps use `- [ ]`.
+> 按 `tdd-workflow` 执行本文件，然后 `/code-review`。步骤用 `- [ ]`。
 
-**Goal:** [one sentence]
+**目标：** [一句话]
 
-**Architecture:** [2–3 sentences]
+**架构：** [两三句]
 
-**Tech Stack:** [key libraries]
+**技术栈：** [关键库]
 
-**Spec:** [path to the spec this plan implements]
+**规格：** [本计划对应的规格路径]
 
-## Global Constraints
+## 全局约束
 
-[Copy exact constraint lines from the spec. Every task inherits them.]
+[从规格逐字抄过来的项目级约束。每个任务都带上。]
 
 ---
 ```
@@ -100,18 +108,18 @@ Every plan starts with:
 ## Task shape
 
 ````markdown
-### Task N: [Component Name]
+### 任务 N: [组件名]
 
-**Files:**
-- Create: `exact/path/to/file.py`
-- Modify: `exact/path/to/existing.py`
-- Test: `tests/exact/path/to/test.py`
+**文件：**
+- 新建：`exact/path/to/file.py`
+- 修改：`exact/path/to/existing.py`
+- 测试：`tests/exact/path/to/test.py`
 
-**Interfaces:**
-- Consumes: [exact signatures from earlier tasks]
-- Produces: [exact names and types later tasks need]
+**接口：**
+- 消费：[前面任务给出的签名]
+- 产出：[后面任务要用的名字和类型]
 
-- [ ] **Step 1: Write the failing test**
+- [ ] **步骤 1：写会失败的测试**
 
 ```python
 def test_specific_behavior():
@@ -119,24 +127,29 @@ def test_specific_behavior():
     assert result == expected
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [ ] **步骤 2：跑测试，确认失败**
 
 Run: `uv run pytest tests/path/test.py::test_name -v`
 Expected: FAIL with "function not defined"
 
-- [ ] **Step 3: Write minimal implementation**
+- [ ] **步骤 3：写刚好能过的实现**
 
 ```python
 def function(input):
     return expected
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [ ] **步骤 4：跑测试，确认通过**
 
 Run: `uv run pytest tests/path/test.py::test_name -v`
 Expected: PASS
 
-- [ ] **Step 5: Commit** (skip unless the user asked)
+- [ ] **步骤 5：提交**
+
+```bash
+git add tests/path/test.py src/path/file.py
+git commit -m "feat: add specific feature"
+```
 ````
 
 Use the repo's real test runner, not a guessed one. Match existing test style.

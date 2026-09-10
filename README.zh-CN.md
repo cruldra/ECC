@@ -80,6 +80,8 @@
 
 ## 最新动态
 
+### v2.2.7 — 规格/计划跟用户语言；计划按任务提交；文件名不再带 .plan（2026年9月）
+
 ### v2.2.6 — 开发链 grilling→spec→plan→tdd→review；控制台可预览工作流（2026年9月）
 
 ### v2.2.5 — 插件自带 context7、searxng、firecrawl（2026年9月）

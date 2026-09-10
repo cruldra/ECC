@@ -8,7 +8,7 @@ module: core
 
 装 `ecc@ecc` 后走这一条。不要再开一条 PRD 旁路。
 
-落盘：规格 `.claude/specs/<名字>.md`，计划 `.claude/plans/<名字>.plan.md`。
+落盘：规格 `.claude/specs/<名字>.md`，计划 `.claude/plans/<名字>.md`。
 
 ```mermaid
 flowchart LR

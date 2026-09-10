@@ -15,7 +15,7 @@ skill for the full workflow and rules.
 ## What This Command Does
 
 1. Resolve the artifact: the given path, else the most recently modified
-   `.claude/plans/*.plan.md`, else ask what to review.
+   `.claude/plans/*.md`, else ask what to review.
 2. `ecc-plan-canvas open <artifact>` — opens the user's browser.
 3. `ecc-plan-canvas await <artifact>` — block until feedback,
    verdict, or session end; leave it running.

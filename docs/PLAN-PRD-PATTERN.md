@@ -7,7 +7,7 @@ Each step writes a file the next step reads. Not a conversation in memory.
 ```
 .claude/
   specs/           # /spec  →  <kebab-name>.md
-  plans/           # /plan  →  <kebab-name>.plan.md
+  plans/           # /plan  →  <stem>.md
 ```
 
 Do not write these under `docs/`. Do not commit them unless asked.

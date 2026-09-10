@@ -18,7 +18,7 @@ ECC-native around the `/plan` confirmation gate, with zero dependencies.
 
 ## When to Use
 
-- You just wrote a plan artifact (`.claude/plans/*.plan.md` from `/plan`) and
+- You just wrote a plan artifact (`.claude/plans/*.md` from `/plan`) and
   need the CONFIRM/approve decision — the canvas verdict replaces a typed
   "yes/proceed".
 - The user should *point at* what to change: reviewing designs, comparisons,

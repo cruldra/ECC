@@ -13,4 +13,4 @@ If `$ARGUMENTS` is a spec path, use it. If this session already has an approved 
 
 If the idea is still open, follow `grilling`. If consensus exists but no spec, follow `spec`.
 
-Do not write a PRD. Do not write code. Save to `.claude/plans/<kebab-name>.plan.md`. After the plan is saved, next is `/tdd <plan-path>`.
+Do not write a PRD. Do not write code. Save to `.claude/plans/<stem>.md`. After the plan is saved, next is `/tdd <plan-path>`.
