@@ -104,7 +104,7 @@ def test_script_status_and_skip_without_network(tmp_path, monkeypatch):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.setenv("GLM53F_PROFILE", str(tmp_path / "missing.json"))
 
-    status = module.status_payload(root / "skills" / "demo", "zh-CN")
+    status = module.status_payload(root, "skill", "demo", "zh-CN")
     assert status["exists"] is True
     assert status["stale"] is False
 
@@ -187,3 +187,56 @@ def test_catalog_workflows_from_markdown(isolated_root):
     assert item["module"] == "core"
     assert "flowchart LR" in item["markdown"]
     assert "---" not in item["markdown"][:10]
+
+
+def _write_command(root: Path, command_id: str, body: str) -> Path:
+    folder = root / "commands"
+    folder.mkdir(exist_ok=True)
+    path = folder / f"{command_id}.md"
+    path.write_text(body, encoding="utf-8")
+    return path
+
+
+def test_catalog_tracks_command_translations(isolated_root):
+    _write_command(isolated_root, "demo-cmd", "---\ndescription: Demo command\n---\n\nBody.\n")
+    payload = catalog.load_catalog()
+    cmd = next(item for item in payload["commands"] if item["id"] == "demo-cmd")
+    assert cmd["locales"] == []
+
+    mirror = isolated_root / "docs" / "zh-CN" / "commands" / "demo-cmd.md"
+    mirror.parent.mkdir(parents=True)
+    mirror.write_text("---\nlocale: zh-CN\nsource_hash: deadbeef\n---\n\n演示\n", encoding="utf-8")
+    cmd = next(item for item in catalog.load_catalog()["commands"] if item["id"] == "demo-cmd")
+    assert cmd["locales"][0]["locale"] == "zh-CN"
+    assert cmd["locales"][0]["stale"] is True
+
+    mirror.write_text(
+        f"---\nlocale: zh-CN\nsource_hash: {cmd['hash']}\n---\n\n演示\n", encoding="utf-8"
+    )
+    cmd = next(item for item in catalog.load_catalog()["commands"] if item["id"] == "demo-cmd")
+    assert cmd["locales"][0]["stale"] is False
+
+
+def test_editor_loads_and_saves_a_command(isolated_root):
+    _write_command(isolated_root, "demo-cmd", "---\ndescription: Demo command\n---\n\nBody.\n")
+    item = editor.load_item("command", "demo-cmd")
+    assert item["kind"] == "command"
+    assert item["path"] == "commands/demo-cmd.md"
+
+    updated = "---\ndescription: Demo command\n---\n\nChanged.\n"
+    saved = editor.save_item("command", "demo-cmd", updated)
+    assert saved["original"] == updated
+    assert (isolated_root / "commands" / "demo-cmd.md").read_text(encoding="utf-8") == updated
+
+
+def test_command_translation_never_lands_under_commands(isolated_root):
+    module = _load_script()
+    _write_command(isolated_root, "demo-cmd", "---\ndescription: Demo command\n---\n\nBody.\n")
+    out = module.output_path(isolated_root, "command", "demo-cmd", "zh-CN")
+    assert out == isolated_root / "docs" / "zh-CN" / "commands" / "demo-cmd.md"
+    assert (isolated_root / "commands") not in out.parents
+
+
+def test_editor_rejects_unknown_kind():
+    with pytest.raises(ValueError, match="未知类型"):
+        editor.load_item("hook", "session-start")

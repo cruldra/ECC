@@ -9,7 +9,7 @@ from fastapi.templating import Jinja2Templates
 import uvicorn
 
 from .catalog import load_catalog
-from .editor import load_skill, save_original, translate_skill
+from .editor import load_item, save_item, translate_item
 from .harness import load_status, mutate
 from . import mcpctl
 
@@ -54,41 +54,53 @@ def mcp_action(server_id: str, action: str):
         raise HTTPException(status_code=400, detail=str(exc)) from None
 
 
-def _skill_or_http(skill_id: str) -> dict:
+KIND_PATH = {"skills": "skill", "commands": "command"}
+
+
+def _kind_or_http(bucket: str) -> str:
+    kind = KIND_PATH.get(bucket)
+    if kind is None:
+        raise HTTPException(status_code=404, detail="未知类型")
+    return kind
+
+
+def _load_or_http(kind: str, item_id: str) -> dict:
     try:
-        return load_skill(skill_id)
+        return load_item(kind, item_id)
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="找不到 skill") from None
+        raise HTTPException(status_code=404, detail=f"找不到 {kind}") from None
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from None
 
 
-@app.get("/api/skills/{skill_id}")
-def get_skill(skill_id: str):
-    return _skill_or_http(skill_id)
+@app.get("/api/{bucket}/{item_id}")
+def get_item(bucket: str, item_id: str):
+    return _load_or_http(_kind_or_http(bucket), item_id)
 
 
-@app.put("/api/skills/{skill_id}")
-def put_skill(skill_id: str, payload: dict = Body(...)):
+@app.put("/api/{bucket}/{item_id}")
+def put_item(bucket: str, item_id: str, payload: dict = Body(...)):
+    kind = _kind_or_http(bucket)
     text = payload.get("text")
     if not isinstance(text, str):
         raise HTTPException(status_code=400, detail="缺少 text")
     try:
-        return save_original(skill_id, text)
+        return save_item(kind, item_id, text)
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="找不到 skill") from None
+        raise HTTPException(status_code=404, detail=f"找不到 {kind}") from None
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from None
 
 
-@app.post("/api/skills/{skill_id}/translate")
-def post_translate(skill_id: str, payload: dict = Body(default={})):
+@app.post("/api/{bucket}/{item_id}/translate")
+def post_translate(bucket: str, item_id: str, payload: dict = Body(default={})):
+    kind = _kind_or_http(bucket)
     locale = payload.get("locale") or "zh-CN"
     force = bool(payload.get("force"))
     try:
-        result = translate_skill(skill_id, locale=locale, force=force)
+        result = translate_item(kind, item_id, locale=locale, force=force)
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="找不到 skill") from None
+        raise HTTPException(status_code=404, detail=f"找不到 {kind}") from None
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from None
     if not result.get("ok"):

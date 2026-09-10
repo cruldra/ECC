@@ -73,6 +73,9 @@ def sha256_text(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+KINDS = ("skill", "command")
+
+
 def skill_dir(root: Path, skill_id: str) -> Path:
     if not SKILL_ID_RE.match(skill_id):
         raise SystemExit(f"非法 skill id: {skill_id}")
@@ -83,6 +86,39 @@ def skill_dir(root: Path, skill_id: str) -> Path:
     if not (folder / "SKILL.md").is_file():
         raise SystemExit(f"找不到 {folder / 'SKILL.md'}")
     return folder
+
+
+def source_path(root: Path, kind: str, item_id: str) -> Path:
+    """Original file for a skill or a command."""
+    if kind not in KINDS:
+        raise SystemExit(f"未知 kind: {kind}")
+    if not SKILL_ID_RE.match(item_id):
+        raise SystemExit(f"非法 id: {item_id}")
+    if kind == "skill":
+        return skill_dir(root, item_id) / "SKILL.md"
+    path = (root / "commands" / f"{item_id}.md").resolve()
+    commands_root = (root / "commands").resolve()
+    if commands_root not in path.parents:
+        raise SystemExit("路径逃出 commands/")
+    if not path.is_file():
+        raise SystemExit(f"找不到 {path}")
+    return path
+
+
+def output_path(root: Path, kind: str, item_id: str, locale: str) -> Path:
+    """Where the translation lands.
+
+    Commands cannot keep their translation under commands/: that directory is
+    scanned by the harness, so a subdirectory would register bogus namespaced
+    commands. Translated command docs live in the existing docs mirror.
+    """
+    if not LOCALE_RE.match(locale):
+        raise SystemExit(f"非法 locale: {locale}")
+    if kind not in KINDS:
+        raise SystemExit(f"未知 kind: {kind}")
+    if kind == "skill":
+        return root / "skills" / item_id / "i18n" / f"{locale}.md"
+    return root / "docs" / locale / "commands" / f"{item_id}.md"
 
 
 def i18n_path(folder: Path, locale: str) -> Path:
@@ -162,44 +198,50 @@ def call_model(base: str, token: str, model: str, locale: str, original: str) ->
     return text
 
 
-def status_payload(folder: Path, locale: str) -> dict:
-    original = (folder / "SKILL.md").read_text(encoding="utf-8")
+def stored_source_hash(text: str) -> str:
+    fm, _ = split_frontmatter(text)
+    for line in fm.splitlines():
+        if line.startswith("source_hash:"):
+            return line.split(":", 1)[1].strip()
+    return ""
+
+
+def status_payload(root: Path, kind: str, item_id: str, locale: str) -> dict:
+    original = source_path(root, kind, item_id).read_text(encoding="utf-8")
     digest = sha256_text(original)
-    path = i18n_path(folder, locale)
+    path = output_path(root, kind, item_id, locale)
+    rel = str(path.relative_to(root))
     if not path.is_file():
         return {
-            "id": folder.name,
+            "id": item_id,
+            "kind": kind,
             "locale": locale,
             "exists": False,
             "stale": False,
             "source_hash": digest,
             "stored_hash": "",
-            "path": str(path.relative_to(folder.parent.parent)),
+            "path": rel,
         }
     stored = path.read_text(encoding="utf-8")
-    fm, _ = split_frontmatter(stored)
-    stored_hash = ""
-    for line in fm.splitlines():
-        if line.startswith("source_hash:"):
-            stored_hash = line.split(":", 1)[1].strip()
+    stored_hash = stored_source_hash(stored)
     return {
-        "id": folder.name,
+        "id": item_id,
+        "kind": kind,
         "locale": locale,
         "exists": True,
         "stale": stored_hash != digest,
         "source_hash": digest,
         "stored_hash": stored_hash,
-        "path": str(path.relative_to(folder.parent.parent)),
+        "path": rel,
         "text": stored,
     }
 
 
-def translate(root: Path, skill_id: str, locale: str, force: bool) -> dict:
-    folder = skill_dir(root, skill_id)
-    original = (folder / "SKILL.md").read_text(encoding="utf-8")
+def translate(root: Path, item_id: str, locale: str, force: bool, kind: str = "skill") -> dict:
+    original = source_path(root, kind, item_id).read_text(encoding="utf-8")
     digest = sha256_text(original)
-    path = i18n_path(folder, locale)
-    current = status_payload(folder, locale)
+    path = output_path(root, kind, item_id, locale)
+    current = status_payload(root, kind, item_id, locale)
     if current["exists"] and not current["stale"] and not force:
         current["skipped"] = True
         return current
@@ -217,7 +259,8 @@ def translate(root: Path, skill_id: str, locale: str, force: bool) -> dict:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(translated, encoding="utf-8")
     return {
-        "id": skill_id,
+        "id": item_id,
+        "kind": kind,
         "locale": locale,
         "exists": True,
         "stale": False,
@@ -232,7 +275,9 @@ def translate(root: Path, skill_id: str, locale: str, force: bool) -> dict:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Translate an ECC SKILL.md for reading")
     parser.add_argument("--root", type=Path, default=None)
-    parser.add_argument("--skill", required=True)
+    parser.add_argument("--kind", choices=KINDS, default="skill")
+    parser.add_argument("--skill")
+    parser.add_argument("--command")
     parser.add_argument("--locale", default=DEFAULT_LOCALE)
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--status", action="store_true")
@@ -241,11 +286,14 @@ def main(argv: list[str] | None = None) -> int:
     root = (args.root or Path(__file__).resolve().parents[3]).resolve()
     if args.locale != DEFAULT_LOCALE:
         raise SystemExit("第一版只支持 zh-CN")
-    folder = skill_dir(root, args.skill)
+    kind = "command" if args.command else args.kind
+    item_id = args.command or args.skill
+    if not item_id:
+        raise SystemExit("要给 --skill 或 --command")
     if args.status:
-        payload = status_payload(folder, args.locale)
+        payload = status_payload(root, kind, item_id, args.locale)
     else:
-        payload = translate(root, args.skill, args.locale, args.force)
+        payload = translate(root, item_id, args.locale, args.force, kind)
     if args.json:
         sys.stdout.write(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
     else:
@@ -253,7 +301,7 @@ def main(argv: list[str] | None = None) -> int:
             sys.stdout.write(f"已有最新译文 {payload['path']}\n")
         elif args.status:
             state = "无译本" if not payload["exists"] else ("过时" if payload["stale"] else "最新")
-            sys.stdout.write(f"{args.skill} {args.locale}: {state}\n")
+            sys.stdout.write(f"{item_id} {args.locale}: {state}\n")
         else:
             sys.stdout.write(f"已写入 {payload['path']}\n")
     return 0

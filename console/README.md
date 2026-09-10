@@ -13,16 +13,19 @@ uv run --package ecc-plugin-console ecc-plugin-console
 
 只绑本机。安装 / 卸载 / 更新会跑本机 `claude plugin` / `codex plugin`。
 
-## 技能编辑器
+## 编辑器（skill 与 command）
 
-- 只改已有 skill，不新建。
+- 只改已有 skill / command，不新建。
+- 原文落 `skills/<id>/SKILL.md` 或 `commands/<id>.md`；译本落 `skills/<id>/i18n/zh-CN.md` 或 `docs/zh-CN/commands/<id>.md`。
+- command 的译本不能放 `commands/` 下——那目录会被 harness 扫，子目录会注册成假命令。
 - 正文用 Vditor 所见即所得；YAML 头折在详情里。译本只渲染，不给源码。
-- 保存只写 `skills/<id>/SKILL.md`。安装永远对着原版。
+- 保存只写原文那一份。安装永远对着原文。
 - 译本只读。语言：English / 简体中文。
-- 原版 SHA-256 对不上 `source_hash` 时，界面标「译本过时」，可重新翻译。
+- 原文 SHA-256 对不上译本里的 `source_hash` 时，界面标「译本过时」，可重新翻译。
 
 命令行同等入口：
 
 ```sh
 python3 skills/translate-skill/scripts/translate_skill.py --skill grilling --locale zh-CN
+python3 skills/translate-skill/scripts/translate_skill.py --command plan --locale zh-CN
 ```

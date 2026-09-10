@@ -80,6 +80,8 @@
 
 ## 最新动态
 
+### v2.2.12 — 控制台支持编辑与翻译 command（2026年9月）
+
 ### v2.2.11 — 删掉 PRP 三件套与 PRD 残留路径，产物统一到 .claude/specs 与 .claude/plans（2026年9月）
 
 ### v2.2.10 — spec 的架构章节改用 mermaid 图，不再画 ASCII（2026年9月）

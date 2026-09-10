@@ -270,6 +270,14 @@ function consoleApp() {
     async refreshStatus() {
       this.status = await (await fetch("/api/status")).json();
     },
+    zhPath() {
+      const meta = this.localeMeta("zh-CN");
+      if (meta && meta.path) return meta.path;
+      if (!this.editor) return "";
+      return this.editor.kind === "command"
+        ? `docs/zh-CN/commands/${this.editor.id}.md`
+        : `skills/${this.editor.id}/i18n/zh-CN.md`;
+    },
     localeMeta(locale) {
       if (!this.editor) return null;
       return this.editor.locales[locale] || null;
@@ -322,13 +330,19 @@ function consoleApp() {
         },
       });
     },
+    editable() {
+      return this.kind === "skill" || this.kind === "command";
+    },
+    bucket(kind) {
+      return (kind || this.kind) === "skill" ? "skills" : "commands";
+    },
     async openEditor() {
       const item = this.selected();
-      if (!item || this.kind !== "skill") return;
+      if (!item || !this.editable()) return;
       this.busy = true;
       this.toast = "";
       try {
-        const res = await fetch(`/api/skills/${item.id}`);
+        const res = await fetch(`/api/${this.bucket()}/${item.id}`);
         const data = await res.json();
         if (!res.ok) {
           this.toast = data.detail || "打不开";
@@ -361,7 +375,7 @@ function consoleApp() {
       this.busy = true;
       this.toast = "";
       try {
-        const res = await fetch(`/api/skills/${this.editor.id}`, {
+        const res = await fetch(`/api/${this.bucket(this.editor.kind)}/${this.editor.id}`, {
           method: "PUT",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ text: this.editor.draft }),
@@ -375,7 +389,7 @@ function consoleApp() {
         await this.refreshCatalog();
         await this.$nextTick();
         this.mountMarkdown();
-        this.toast = "已保存原版";
+        this.toast = "已保存原文";
       } catch (err) {
         this.toast = String(err);
       } finally {
@@ -388,7 +402,7 @@ function consoleApp() {
       this.busy = true;
       this.toast = "";
       try {
-        const res = await fetch(`/api/skills/${this.editor.id}/translate`, {
+        const res = await fetch(`/api/${this.bucket(this.editor.kind)}/${this.editor.id}/translate`, {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ locale: "zh-CN", force: Boolean(force) }),
@@ -398,12 +412,12 @@ function consoleApp() {
           this.toast = data.detail || "翻译失败";
           return;
         }
-        const skill = data.skill;
-        this.editor = this.applySource({ ...this.editor, ...skill }, "zh-CN", skill.locales["zh-CN"] ? skill.locales["zh-CN"].text : "");
+        const updated = data.item || data.skill;
+        this.editor = this.applySource({ ...this.editor, ...updated }, "zh-CN", updated.locales["zh-CN"] ? updated.locales["zh-CN"].text : "");
         await this.refreshCatalog();
         await this.$nextTick();
         this.mountMarkdown();
-        this.toast = data.skipped ? "已有最新译文" : "已写入 i18n/zh-CN.md";
+        this.toast = data.skipped ? "已有最新译文" : `已写入 ${this.zhPath()}`;
       } catch (err) {
         this.toast = String(err);
       } finally {

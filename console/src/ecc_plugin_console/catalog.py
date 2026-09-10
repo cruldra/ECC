@@ -94,6 +94,31 @@ def _skill_locales(folder: Path, digest: str) -> list[dict]:
     return locales
 
 
+def _command_locales(command_id: str, digest: str) -> list[dict]:
+    """Translated command docs live in docs/<locale>/commands/<id>.md.
+
+    commands/ itself is scanned by the harness, so a translation kept there
+    would register as a bogus namespaced command.
+    """
+    docs = ECC_ROOT / "docs"
+    if not docs.is_dir():
+        return []
+    locales: list[dict] = []
+    for locale_dir in sorted(p for p in docs.iterdir() if p.is_dir()):
+        file = locale_dir / "commands" / f"{command_id}.md"
+        if not file.is_file():
+            continue
+        stored = _frontmatter(_read(file)).get("source_hash") or ""
+        locales.append(
+            {
+                "locale": locale_dir.name,
+                "stale": stored != digest,
+                "path": f"docs/{locale_dir.name}/commands/{file.name}",
+            }
+        )
+    return locales
+
+
 def load_catalog() -> dict:
     index = _module_index()
     skills: list[dict] = []
@@ -123,8 +148,10 @@ def load_catalog() -> dict:
     commands_dir = ECC_ROOT / "commands"
     if commands_dir.is_dir():
         for file in sorted(commands_dir.glob("*.md")):
-            meta = _frontmatter(_read(file))
+            original = _read(file)
+            meta = _frontmatter(original)
             stem = file.stem
+            digest = source_hash(original)
             commands.append(
                 {
                     "id": stem,
@@ -132,6 +159,8 @@ def load_catalog() -> dict:
                     "module": _lookup_module(index, f"commands/{file.name}") or "commands-core",
                     "blurb": (meta.get("description") or "").split("\n", 1)[0],
                     "path": f"commands/{file.name}",
+                    "hash": digest,
+                    "locales": _command_locales(stem, digest),
                 }
             )
 
