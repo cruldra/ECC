@@ -12,7 +12,7 @@
       "name": "ecc",
       "source": "./",
       "description": "Harness-native ECC operator layer - 68 agents, 293 skills, 93 commands, reusable hooks, rules, selective install profiles, and production-ready workflows for Claude Code, Codex, OpenCode, Cursor, and related agent harnesses",
-      "version": "2.2.15",
+      "version": "2.2.16",
       "author": {
         "name": "Affaan Mustafa",
         "email": "me@affaanmustafa.com"

@@ -80,6 +80,8 @@
 
 ## 最新动态
 
+### v2.2.16 — 修掉 hook 误判：命令里引号中的 `git commit` 不再触发授权弹框（2026年9月）
+
 ### v2.2.15 — 新增 bugsink skill + `/bugsink <url>` 命令，bugsink-cli 以 submodule 收进 `skills/bugsink/bugsink-cli`（2026年9月）
 
 ### v2.2.14 — 各处清单数字对齐实际：292 skill / 68 agent / 92 command（2026年9月）

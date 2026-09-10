@@ -79,6 +79,8 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ## Yenilikler
 
+### v2.2.16 — Hook false positive fixed: a quoted `git commit` inside a command no longer triggers the approval prompt (Sep 2026)
+
 ### v2.2.15 — bugsink skill + `/bugsink <url>` command, bugsink-cli vendored as a submodule under `skills/bugsink/bugsink-cli` (Sep 2026)
 
 ### v2.2.5 — plugin ships context7, searxng, firecrawl (Sep 2026)
