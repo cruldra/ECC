@@ -1,0 +1,23 @@
+<header class="top" x-data="harnessCards">
+  <div class="brand">
+    <h1>ECC 插件控制台</h1>
+    <p>ecc@ecc · 目录只读 · 整插件安装<template x-if="$store.console.status.latest"> · 仓库 <span x-text="$store.console.status.latest"></span></template></p>
+  </div>
+  <template x-for="key in keys" :key="key">
+    <article class="harness" :class="[key, card(key).state]">
+      <div class="harness-head">
+        <span class="mark"></span>
+        <span class="harness-name" x-text="card(key).label"></span>
+        <span class="badge" :class="badge(card(key).state).cls" x-text="badge(card(key).state).text"></span>
+      </div>
+      <div class="status" x-text="statusLine(card(key))"></div>
+      <div class="detail-line" x-text="detailLine(card(key))"></div>
+      <div class="hint" x-text="card(key).hint"></div>
+      <div class="actions">
+        <button class="btn primary" x-show="card(key).state === 'missing'" :disabled="$store.console.busy" @click="ask(key, 'install')">安装</button>
+        <button class="btn primary" x-show="card(key).state === 'update'" :disabled="$store.console.busy" @click="ask(key, 'update')">更新</button>
+        <button class="btn outline" x-show="card(key).state !== 'missing'" :disabled="$store.console.busy" @click="ask(key, 'uninstall')">卸载</button>
+      </div>
+    </article>
+  </template>
+</header>

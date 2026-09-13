@@ -1,0 +1,9 @@
+<nav class="nav">
+  <div class="nav-title">类型</div>
+  <template x-for="item in $store.console.kinds" :key="item.key">
+    <button class="nav-item" :class="{ on: $store.console.kind === item.key }" @click="$store.console.selectKind(item.key)">
+      <span x-text="item.label"></span>
+      <span class="count" x-text="$store.console.catalog.counts[item.key]"></span>
+    </button>
+  </template>
+</nav>

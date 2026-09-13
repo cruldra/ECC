@@ -1,0 +1,12 @@
+<div class="mask" x-show="$store.console.dialog" @click.self="$store.console.closeDialog()">
+  <div class="dialog" x-show="$store.console.dialog">
+    <h3 x-text="$store.console.dialog && $store.console.dialog.title"></h3>
+    <p x-text="$store.console.dialog && $store.console.dialog.body"></p>
+    <div class="actions">
+      <button class="btn outline" @click="$store.console.closeDialog()" :disabled="$store.console.busy">取消</button>
+      <button class="btn" :class="$store.console.dialog && $store.console.dialog.danger ? 'danger' : 'primary'"
+              @click="$store.console.confirm()" :disabled="$store.console.busy"
+              x-text="$store.console.busy ? '执行中' : ($store.console.dialog && $store.console.dialog.confirm)"></button>
+    </div>
+  </div>
+</div>

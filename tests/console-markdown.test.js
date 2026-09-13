@@ -3,7 +3,7 @@
 const assert = require('assert');
 const path = require('path');
 const { splitFrontmatter, joinFrontmatter } = require(
-  path.resolve(__dirname, '../console/src/ecc_plugin_console/static/console.js')
+  path.resolve(__dirname, '../console/src/ecc_plugin_console/static/js/lib/markdown.js')
 );
 
 let passed = 0;

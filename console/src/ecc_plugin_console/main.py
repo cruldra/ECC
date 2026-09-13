@@ -24,14 +24,17 @@ templates = Jinja2Templates(directory=str(HERE / "templates"))
 def _asset_version() -> str:
     """Short hash of the static bundle so a changed console.js never rides an old browser cache."""
     digest = hashlib.sha256()
-    for name in ("console.js", "console.css"):
-        digest.update((HERE / "static" / name).read_bytes())
+    for file in sorted((HERE / "static").rglob("*")):
+        if file.is_file():
+            digest.update(file.read_bytes())
     return digest.hexdigest()[:12]
 
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
-    return templates.TemplateResponse(request, "index.html", {"asset_v": _asset_version()})
+    return templates.TemplateResponse(
+        request, "index.html", {"asset_v": _asset_version()}, headers={"Cache-Control": "no-cache"}
+    )
 
 
 @app.get("/api/catalog")

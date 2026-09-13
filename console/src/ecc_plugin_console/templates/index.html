@@ -7,168 +7,30 @@
   <link rel="stylesheet" href="/static/console.css?v={{ asset_v }}">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vditor@3.11.3/dist/index.css">
   <script src="https://cdn.jsdelivr.net/npm/vditor@3.11.3/dist/index.min.js"></script>
+  {# Deferred scripts run in order: libs, store, panels, then Alpine boots and picks them up. #}
+  <script defer src="/static/js/lib/markdown.js?v={{ asset_v }}"></script>
+  <script defer src="/static/js/lib/api.js?v={{ asset_v }}"></script>
+  <script defer src="/static/js/store.js?v={{ asset_v }}"></script>
+  <script defer src="/static/js/components/harness.js?v={{ asset_v }}"></script>
+  <script defer src="/static/js/components/catalog.js?v={{ asset_v }}"></script>
+  <script defer src="/static/js/components/mcp.js?v={{ asset_v }}"></script>
+  <script defer src="/static/js/components/editor.js?v={{ asset_v }}"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
 </head>
 <body>
-  <div class="shell" x-data="consoleApp()" x-init="init()">
-    <header class="top">
-      <div class="brand">
-        <h1>ECC 插件控制台</h1>
-        <p>ecc@ecc · 目录只读 · 整插件安装<template x-if="status.latest"> · 仓库 <span x-text="status.latest"></span></template></p>
-      </div>
-      <template x-for="key in ['claude', 'codex']" :key="key">
-        <article class="harness" :class="[key, status[key].state]">
-          <div class="harness-head">
-            <span class="mark"></span>
-            <span class="harness-name" x-text="status[key].label"></span>
-            <span class="badge" :class="badge(status[key].state).cls" x-text="badge(status[key].state).text"></span>
-          </div>
-          <div class="status" x-text="statusLine(status[key])"></div>
-          <div class="detail-line" x-text="detailLine(status[key])"></div>
-          <div class="hint" x-text="status[key].hint"></div>
-          <div class="actions">
-            <button class="btn primary" x-show="status[key].state === 'missing'" :disabled="busy" @click="ask(key, 'install')">安装</button>
-            <button class="btn primary" x-show="status[key].state === 'update'" :disabled="busy" @click="ask(key, 'update')">更新</button>
-            <button class="btn outline" x-show="status[key].state !== 'missing'" :disabled="busy" @click="ask(key, 'uninstall')">卸载</button>
-          </div>
-        </article>
-      </template>
-    </header>
+  <div class="shell" x-data x-init="$store.console.boot()">
+    {% include "partials/harness.html" %}
 
     <div class="body">
-      <nav class="nav">
-        <div class="nav-title">类型</div>
-        <template x-for="item in kinds" :key="item.key">
-          <button class="nav-item" :class="{ on: kind === item.key }" @click="selectKind(item.key)">
-            <span x-text="item.label"></span>
-            <span class="count" x-text="catalog.counts[item.key]"></span>
-          </button>
-        </template>
-      </nav>
-
-      <section class="main">
-        <div class="search">
-          <input type="search" placeholder="筛选名称或模块" x-model="query">
-        </div>
-        <div class="chips">
-          <template x-for="name in chips()" :key="name">
-            <button class="chip" :class="{ on: chip === name }" @click="chip = name" x-text="name"></button>
-          </template>
-        </div>
-        <div class="list" :class="{ compact: kind === 'workflow' }">
-          <template x-if="items().length === 0">
-            <div class="empty" x-text="emptyCopy()"></div>
-          </template>
-          <template x-for="item in items()" :key="item.id">
-            <button class="row" :class="{ on: selected() && selected().id === item.id }" @click="selectedId = item.id">
-              <span class="badge miss" x-show="kind !== 'mcp'" x-text="kindLabel()"></span>
-              <span class="badge" x-show="kind === 'mcp'" :class="mcpBadge(item).cls" x-text="mcpBadge(item).text"></span>
-              <span class="body-text">
-                <span class="name" x-text="item.id"></span>
-                <span class="module" x-text="item.module"></span>
-              </span>
-              <span class="badge" x-show="editable() && item.locales && item.locales.length" :class="item.locales && item.locales.some(l => l.stale) ? 'warn' : ''" x-text="item.locales && item.locales.some(l => l.stale) ? '译本过时' : '有译本'"></span>
-            </button>
-          </template>
-        </div>
-        <template x-if="kind === 'workflow' && selected()">
-          <div class="flow-doc">
-            <div id="workflow-md" class="md-preview vditor-reset"></div>
-          </div>
-        </template>
-      </section>
-
-      <aside class="detail" x-show="kind === 'mcp' || selected()">
-        <span class="badge" x-text="kindLabel()"></span>
-        <template x-if="selected()">
-          <div>
-            <h2 x-text="selected().id"></h2>
-            <div class="module" x-text="selected().module"></div>
-            <p x-text="selected().blurb"></p>
-            <div class="path" x-text="selected().path"></div>
-            <template x-if="kind === 'agent'">
-              <div>
-                <div class="note" x-text="'工具：' + (selected().tools || '默认全部')"></div>
-                <div class="note" x-text="'模型：' + (selected().model || '跟随会话')"></div>
-              </div>
-            </template>
-            <template x-if="kind === 'mcp'">
-              <div>
-                <div class="status-row">
-                  <span class="badge" :class="mcpBadge(selected()).cls" x-text="mcpBadge(selected()).text"></span>
-                </div>
-                <div class="note" x-text="mcpNote(selected())"></div>
-                <div class="error" x-show="selected().error" x-text="selected().error"></div>
-                <div class="actions">
-                  <template x-for="cta in mcpActions(selected())" :key="cta.action">
-                    <button class="btn" :class="cta.danger ? 'danger' : (cta.action === 'install' ? 'primary' : 'outline')" :disabled="busy" @click="askMcp(cta.action)" x-text="cta.label"></button>
-                  </template>
-                </div>
-              </div>
-            </template>
-            <div class="note" x-show="kind === 'workflow'">装插件就带上。这里只预览，不单独装卸。</div>
-            <div class="note" x-show="kind !== 'mcp' && kind !== 'workflow'">随整份插件安装。此行不能单独装卸。</div>
-            <div class="note" x-show="(kind === 'command' || kind === 'agent') && selected().locales && selected().locales.length" x-text="selected().locales.some(l => l.stale) ? '有译本，已过时' : '有译本'"></div>
-          </div>
-        </template>
-        <template x-if="kind === 'mcp' && !selected()">
-          <div>
-            <h2>没有自带 MCP</h2>
-            <div class="note">只看 ecc 插件自己的 .mcp.json。现在是空的。</div>
-          </div>
-        </template>
-        <template x-if="kind === 'skill' && selected() && selected().locales && selected().locales.length">
-          <div class="note" x-text="selected().locales.some(l => l.stale) ? '有译本，已过时' : '有译本'"></div>
-        </template>
-        <button class="btn primary" x-show="editable()" :disabled="busy" @click="openEditor()">编辑</button>
-      </aside>
+      {% include "partials/nav.html" %}
+      {% include "partials/catalog.html" %}
+      {% include "partials/detail.html" %}
     </div>
 
-    <div class="toast" x-show="toast" x-text="toast" @click="toast = ''"></div>
+    <div class="toast" x-show="$store.console.toast" x-text="$store.console.toast" @click="$store.console.notify('')"></div>
 
-    <template x-if="editor">
-      <div class="editor-page">
-        <header class="editor-bar">
-          <div>
-            <div class="kicker" x-text="editor.locale === 'zh-CN' ? '阅读译本' : '编辑原文 ' + editor.kind"></div>
-            <h2 x-text="editor.id"></h2>
-            <div class="path" x-text="editor.locale === 'zh-CN' ? zhPath() : editor.path"></div>
-          </div>
-          <div class="actions">
-            <button class="btn outline" @click="closeEditor()" :disabled="busy" x-text="editor.locale === 'zh-CN' ? '返回' : '取消'"></button>
-            <button class="btn primary" x-show="editor.locale === 'en'" :disabled="busy" @click="saveEditor()">保存</button>
-          </div>
-        </header>
-        <div class="editor-body">
-          <div class="stale" x-show="editor.locale === 'zh-CN' && zhStale()" x-text="'译本已过时。原文 ' + editor.path + ' 改过，哈希对不上。'"></div>
-          <div class="chips">
-            <button class="chip" :class="{ on: editor.locale === 'en' }" @click="setLocale('en')">原文</button>
-            <button class="chip" x-show="hasZh()" :class="{ on: editor.locale === 'zh-CN' }" @click="setLocale('zh-CN')" x-text="zhStale() ? '简体中文（过时）' : '简体中文'"></button>
-            <button class="btn primary" x-show="editor.locale === 'en' && !hasZh()" :disabled="busy" @click="translate(false)" x-text="busy ? '翻译中' : '翻译成简体中文'"></button>
-            <button class="btn primary" x-show="editor.locale === 'zh-CN' && zhStale()" :disabled="busy" @click="translate(true)" x-text="busy ? '翻译中' : '重新翻译'"></button>
-          </div>
-          <p class="note" x-show="editor.locale === 'zh-CN'" x-text="'译本只供阅读。安装和保存永远对着原文 ' + editor.path + '。'"></p>
-          <details class="fm">
-            <summary>YAML 头</summary>
-            <textarea x-show="editor.locale === 'en'" x-model="editor.frontmatter" @input="syncDraftFromParts()" spellcheck="false"></textarea>
-            <pre x-show="editor.locale === 'zh-CN'" x-text="editor.frontmatter"></pre>
-          </details>
-          <div id="skill-md-wrap" class="md-wrap"></div>
-        </div>
-      </div>
-    </template>
-
-    <div class="mask" x-show="dialog" @click.self="closeDialog()">
-      <div class="dialog" x-show="dialog">
-        <h3 x-text="dialog && dialog.title"></h3>
-        <p x-text="dialog && dialog.body"></p>
-        <div class="actions">
-          <button class="btn outline" @click="closeDialog()" :disabled="busy">取消</button>
-          <button class="btn" :class="dialog && dialog.danger ? 'danger' : 'primary'" @click="confirm()" :disabled="busy" x-text="busy ? '执行中' : (dialog && dialog.confirm)"></button>
-        </div>
-      </div>
-    </div>
+    {% include "partials/editor.html" %}
+    {% include "partials/dialog.html" %}
   </div>
-  <script src="/static/console.js?v={{ asset_v }}"></script>
 </body>
 </html>

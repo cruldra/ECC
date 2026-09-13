@@ -1,0 +1,47 @@
+<aside class="detail" x-data="mcpPanel" x-show="$store.console.kind === 'mcp' || $store.console.selected()">
+  <span class="badge" x-text="$store.console.kindLabel()"></span>
+  <template x-if="$store.console.selected()">
+    <div>
+      <h2 x-text="$store.console.selected().id"></h2>
+      <div class="module" x-text="$store.console.selected().module"></div>
+      <p x-text="$store.console.selected().blurb"></p>
+      <div class="path" x-text="$store.console.selected().path"></div>
+
+      <template x-if="$store.console.kind === 'agent'">
+        <div>
+          <div class="note" x-text="'工具：' + ($store.console.selected().tools || '默认全部')"></div>
+          <div class="note" x-text="'模型：' + ($store.console.selected().model || '跟随会话')"></div>
+        </div>
+      </template>
+
+      <template x-if="$store.console.kind === 'mcp'">
+        <div>
+          <div class="status-row">
+            <span class="badge" :class="badge($store.console.selected()).cls" x-text="badge($store.console.selected()).text"></span>
+          </div>
+          <div class="note" x-text="note($store.console.selected())"></div>
+          <div class="error" x-show="$store.console.selected().error" x-text="$store.console.selected().error"></div>
+          <div class="actions">
+            <template x-for="cta in actions($store.console.selected())" :key="cta.action">
+              <button class="btn" :class="cta.cls" :disabled="$store.console.busy" @click="ask($store.console.selected(), cta.action)" x-text="cta.label"></button>
+            </template>
+          </div>
+        </div>
+      </template>
+
+      <div class="note" x-show="$store.console.kind === 'workflow'">装插件就带上。这里只预览，不单独装卸。</div>
+      <div class="note" x-show="$store.console.kind !== 'mcp' && $store.console.kind !== 'workflow'">随整份插件安装。此行不能单独装卸。</div>
+      <template x-if="$store.console.editable() && $store.console.selected().locales && $store.console.selected().locales.length">
+        <div class="note" x-text="$store.console.selected().locales.some(l => l.stale) ? '有译本，已过时' : '有译本'"></div>
+      </template>
+    </div>
+  </template>
+  <template x-if="$store.console.kind === 'mcp' && !$store.console.selected()">
+    <div>
+      <h2>没有自带 MCP</h2>
+      <div class="note">只看 ecc 插件自己的 .mcp.json。现在是空的。</div>
+    </div>
+  </template>
+  <button class="btn primary" x-show="$store.console.editable() && $store.console.selected()" :disabled="$store.console.busy"
+          @click="$store.console.openEditor($store.console.kind, $store.console.selected().id)">编辑</button>
+</aside>

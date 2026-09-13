@@ -1,0 +1,33 @@
+<div x-data="itemEditor">
+  <template x-if="editor">
+    <div class="editor-page">
+      <header class="editor-bar">
+        <div>
+          <div class="kicker" x-text="kicker()"></div>
+          <h2 x-text="editor.id"></h2>
+          <div class="path" x-text="shownPath()"></div>
+        </div>
+        <div class="actions">
+          <button class="btn outline" @click="close()" :disabled="$store.console.busy" x-text="editor.locale === 'zh-CN' ? '返回' : '取消'"></button>
+          <button class="btn primary" x-show="editor.locale === 'en'" :disabled="$store.console.busy" @click="save()">保存</button>
+        </div>
+      </header>
+      <div class="editor-body">
+        <div class="stale" x-show="editor.locale === 'zh-CN' && zhStale()" x-text="'译本已过时。原文 ' + editor.path + ' 改过，哈希对不上。'"></div>
+        <div class="chips">
+          <button class="chip" :class="{ on: editor.locale === 'en' }" @click="setLocale('en')">原文</button>
+          <button class="chip" x-show="hasZh()" :class="{ on: editor.locale === 'zh-CN' }" @click="setLocale('zh-CN')" x-text="zhStale() ? '简体中文（过时）' : '简体中文'"></button>
+          <button class="btn primary" x-show="editor.locale === 'en' && !hasZh()" :disabled="$store.console.busy" @click="translate(false)" x-text="$store.console.busy ? '翻译中' : '翻译成简体中文'"></button>
+          <button class="btn primary" x-show="editor.locale === 'zh-CN' && zhStale()" :disabled="$store.console.busy" @click="translate(true)" x-text="$store.console.busy ? '翻译中' : '重新翻译'"></button>
+        </div>
+        <p class="note" x-show="editor.locale === 'zh-CN'" x-text="'译本只供阅读。安装和保存永远对着原文 ' + editor.path + '。'"></p>
+        <details class="fm">
+          <summary>YAML 头</summary>
+          <textarea x-show="editor.locale === 'en'" x-model="editor.frontmatter" @input="syncDraft()" spellcheck="false"></textarea>
+          <pre x-show="editor.locale === 'zh-CN'" x-text="editor.frontmatter"></pre>
+        </details>
+        <div x-ref="mdWrap" class="md-wrap"></div>
+      </div>
+    </div>
+  </template>
+</div>

@@ -26,6 +26,19 @@ uv run --package ecc-plugin-console ecc-plugin-console
 - 译本只读。语言：English / 简体中文。
 - 原文 SHA-256 对不上译本里的 `source_hash` 时，界面标「译本过时」，可重新翻译。
 
+## 前端结构
+
+页面状态只放一个 Alpine store（`static/js/store.js`）：当前类型、筛选、选中项、目录、harness 状态、弹框、正在编辑的条目。
+各面板是独立的 `Alpine.data` 组件，只读 store、通过 store 的方法改状态，互相不引用：
+
+- `components/harness.js` 顶部 Claude Code / Codex 卡片
+- `components/catalog.js` 中间列表与工作流预览
+- `components/mcp.js` MCP 徽章、说明、装卸禁用
+- `components/editor.js` 全屏编辑器（原文 / 译本 / 保存 / 翻译）
+- `lib/api.js` 一个 fetch 封装；`lib/markdown.js` YAML 头拆合与 Vditor 挂载
+
+模板按面板拆在 `templates/partials/`，`index.html` 只做布局。静态文件地址带内容哈希，改完不吃旧缓存。
+
 命令行同等入口：
 
 ```sh

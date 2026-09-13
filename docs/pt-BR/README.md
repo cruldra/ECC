@@ -79,6 +79,8 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ## O Que Há de Novo
 
+### v2.2.22 — lightweb-fastapi-starter skill added; console front end split into a store, per-panel components, and template partials (Sep 2026)
+
 ### v2.2.21 — console static assets carry a content hash so a stale browser cache no longer hides new tabs (Sep 2026)
 
 ### v2.2.20 — dropped the upstream machine-translated agent mirrors (199 files); agents are now translated on demand from the console with a source_hash (Sep 2026)

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}{{project_name}} - 应用中心{% endblock %}
+
+{% block content %}
+<app-root></app-root>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/components/app-grid.js"></script>
+<script type="module" src="/static/js/components/app-card.js"></script>
+{% endblock %}

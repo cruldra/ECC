@@ -1,0 +1,35 @@
+<section class="main" x-data="catalogBrowser">
+  <div class="search">
+    <input type="search" placeholder="筛选名称或模块" x-model="$store.console.query">
+  </div>
+  <div class="chips">
+    <template x-for="name in $store.console.chips()" :key="name">
+      <button class="chip" :class="{ on: $store.console.chip === name }" @click="$store.console.chip = name" x-text="name"></button>
+    </template>
+  </div>
+  <div class="list" :class="{ compact: $store.console.kind === 'workflow' }">
+    <template x-if="$store.console.items().length === 0">
+      <div class="empty" x-text="emptyCopy()"></div>
+    </template>
+    <template x-for="item in $store.console.items()" :key="item.id">
+      <button class="row" :class="{ on: isSelected(item) }" @click="$store.console.select(item.id)">
+        <template x-if="$store.console.kind !== 'mcp'">
+          <span class="badge miss" x-text="$store.console.kindLabel()"></span>
+        </template>
+        <template x-if="$store.console.kind === 'mcp'">
+          <span class="badge" :class="mcpBadge(item).cls" x-text="mcpBadge(item).text"></span>
+        </template>
+        <span class="body-text">
+          <span class="name" x-text="item.id"></span>
+          <span class="module" x-text="item.module"></span>
+        </span>
+        <template x-if="$store.console.editable() && localeBadge(item)">
+          <span class="badge" :class="localeBadge(item).cls" x-text="localeBadge(item).text"></span>
+        </template>
+      </button>
+    </template>
+  </div>
+  <div class="flow-doc" x-show="$store.console.kind === 'workflow' && $store.console.selected()">
+    <div x-ref="workflowMd" class="md-preview vditor-reset"></div>
+  </div>
+</section>
