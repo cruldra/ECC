@@ -79,6 +79,8 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ## Yenilikler
 
+### v2.2.23 — console keeps browser history: editor and tab changes are hash routes, so back / swipe-back works (Sep 2026)
+
 ### v2.2.22 — lightweb-fastapi-starter skill added; console front end split into a store, per-panel components, and template partials (Sep 2026)
 
 ### v2.2.21 — console static assets carry a content hash so a stale browser cache no longer hides new tabs (Sep 2026)

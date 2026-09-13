@@ -68,15 +68,49 @@ document.addEventListener("alpine:init", () => {
       return list.find((item) => item.id === this.selectedId) || list[0] || null;
     },
 
+    // ── browser history ────────────────────────────────────────────────
+    // Tab switches and opening the editor push an entry; picking a row only
+    // replaces it. Back / forward (and the trackpad swipe) replay the hash.
+    route() {
+      return EccRoute.formatRoute({ kind: this.kind, id: this.selectedId, edit: Boolean(this.editing) });
+    },
+    navigate(push) {
+      const route = this.route();
+      const state = { editor: Boolean(this.editing) };
+      if (push) history.pushState(state, "", route);
+      else history.replaceState(state, "", route);
+    },
+    applyRoute(hash) {
+      const parsed = EccRoute.parseRoute(hash);
+      if (!parsed || !KINDS.some((item) => item.key === parsed.kind)) {
+        this.editing = null;
+        return;
+      }
+      if (parsed.kind !== this.kind) {
+        this.kind = parsed.kind;
+        this.chip = "全部";
+        if (parsed.kind === "mcp") this.refreshMcp();
+      }
+      this.selectedId = parsed.id;
+      this.editing = parsed.edit && this.editable(parsed.kind) ? { kind: parsed.kind, id: parsed.id } : null;
+    },
+    listenHistory() {
+      window.addEventListener("popstate", () => this.applyRoute(location.hash));
+    },
+
     // ── mutations ──────────────────────────────────────────────────────
     selectKind(kind) {
+      if (kind === this.kind && !this.editing) return;
       this.kind = kind;
       this.chip = "全部";
       this.selectedId = "";
+      this.editing = null;
       if (kind === "mcp") this.refreshMcp();
+      this.navigate(true);
     },
     select(id) {
       this.selectedId = id;
+      this.navigate(false);
     },
     notify(message) {
       this.toast = message || "";
@@ -105,10 +139,18 @@ document.addEventListener("alpine:init", () => {
     },
     openEditor(kind, id) {
       if (!this.editable(kind)) return;
+      this.selectedId = id;
       this.editing = { kind, id };
+      this.navigate(true);
     },
     closeEditor() {
+      if (!this.editing) return;
+      if (history.state && history.state.editor) {
+        history.back();
+        return;
+      }
       this.editing = null;
+      this.navigate(false);
     },
 
     // ── loaders ────────────────────────────────────────────────────────
@@ -131,6 +173,9 @@ document.addEventListener("alpine:init", () => {
       this.catalog.counts.mcp = mcps.length;
     },
     async boot() {
+      this.applyRoute(location.hash);
+      this.navigate(false);
+      this.listenHistory();
       await Promise.all([this.refreshCatalog(), this.refreshStatus()]);
       await this.refreshMcp();
     },

@@ -39,6 +39,8 @@ uv run --package ecc-plugin-console ecc-plugin-console
 
 模板按面板拆在 `templates/partials/`，`index.html` 只做布局。静态文件地址带内容哈希，改完不吃旧缓存。
 
+地址栏带 hash 路由：`#/agent`、`#/agent/code-reviewer`、`#/agent/code-reviewer/edit`。切类型和进编辑器各记一条历史，点行只替换当前条；浏览器后退（触控板手势）能从编辑器退回列表，再退回上一个类型。直接打开带 `/edit` 的链接也能进编辑器。
+
 命令行同等入口：
 
 ```sh
