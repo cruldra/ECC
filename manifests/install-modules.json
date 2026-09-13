@@ -63,7 +63,9 @@
       "paths": [
         "commands",
         "scripts/harness-audit.js",
-        "scripts/skills-health.js"
+        "scripts/skills-health.js",
+        "scripts/console.js",
+        "scripts/lib/console-launcher.js"
       ],
       "targets": [
         "claude",

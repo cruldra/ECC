@@ -1,5 +1,9 @@
 'use strict';
 
+// The machine running the suite may have the prompt switched off in its own settings.
+delete process.env.ECC_MAIN_GIT_ASK;
+delete process.env.CLAUDE_PLUGIN_OPTION_MAIN_GIT_ASK;
+
 const assert = require('assert');
 const fs = require('fs');
 const os = require('os');

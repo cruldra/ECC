@@ -11,6 +11,8 @@ uv run --package ecc-plugin-console ecc-plugin-console
 
 打开 http://127.0.0.1:8765
 
+会话里直接 `/console`：跑 `scripts/console.js`，端口上已经有控制台就只开浏览器，没有才起一个（后台常驻，日志在 `~/.claude/ecc-console.log`）。多个会话共用同一个实例，不会开一堆。端口改 `ECC_CONSOLE_PORT`；跑哪份仓库按 `ECC_ROOT`、当前目录所在的仓库、已装插件的顺序找。
+
 只绑本机。安装 / 卸载 / 更新会跑本机 `claude plugin` / `codex plugin`。
 
 ## 编辑器（skill 与 command）

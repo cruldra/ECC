@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from fastapi import Body, FastAPI, HTTPException, Request
@@ -109,4 +110,5 @@ def post_translate(bucket: str, item_id: str, payload: dict = Body(default={})):
 
 
 def main() -> None:
-    uvicorn.run("ecc_plugin_console.main:app", host="127.0.0.1", port=8765, reload=False)
+    port = int(os.environ.get("ECC_CONSOLE_PORT", "8765"))
+    uvicorn.run("ecc_plugin_console.main:app", host="127.0.0.1", port=port, reload=False)

@@ -79,6 +79,8 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ## Yenilikler
 
+### v2.2.18 — `/console` command: opens the plugin console and shares one instance on port 8765 across sessions (Sep 2026)
+
 ### v2.2.17 — figma-plugin-prototyping skill: draw prototypes with a local Figma plugin + fake-document tests instead of the Figma MCP (Sep 2026)
 
 ### v2.2.16 — Hook false positive fixed: a quoted `git commit` inside a command no longer triggers the approval prompt (Sep 2026)

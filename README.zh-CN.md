@@ -80,6 +80,8 @@
 
 ## 最新动态
 
+### v2.2.18 — 新增 `/console` 命令：一键打开插件控制台，多个会话共用 8765 端口同一个实例（2026年9月）
+
 ### v2.2.17 — 新增 figma-plugin-prototyping skill：用本地 Figma 插件 + 假文档单测画原型，不再走 Figma MCP（2026年9月）
 ### v2.2.16 — 修掉 hook 误判：命令里引号中的 `git commit` 不再触发授权弹框（2026年9月）
 
@@ -233,7 +235,7 @@ Copy-Item -Recurse rules/typescript "$HOME/.claude/rules/"
 /plugin list ecc@ecc
 ```
 
-**完成！** 你现在可以使用 68 个代理、294 个技能和 93 个命令。
+**完成！** 你现在可以使用 68 个代理、294 个技能和 94 个命令。
 
 ### multi-* 命令需要额外配置
 
