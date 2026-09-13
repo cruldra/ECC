@@ -46,6 +46,9 @@ document.addEventListener("alpine:init", () => {
           ? `skills/${this.editor.id}/i18n/zh-CN.md`
           : `docs/zh-CN/${this.editor.kind}s/${this.editor.id}.md`;
       },
+      fmEntries() {
+        return this.editor ? EccMarkdown.frontmatterEntries(this.editor.frontmatter) : [];
+      },
       shownPath() {
         return this.editor.locale === "zh-CN" ? this.zhPath() : this.editor.path;
       },

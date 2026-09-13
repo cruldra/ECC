@@ -24,7 +24,16 @@
         <details class="fm">
           <summary>YAML 头</summary>
           <textarea x-show="editor.locale === 'en'" x-model="editor.frontmatter" @input="syncDraft()" spellcheck="false"></textarea>
-          <pre x-show="editor.locale === 'zh-CN'" x-text="editor.frontmatter"></pre>
+          <table class="fm-table" x-show="editor.locale === 'zh-CN'">
+            <tbody>
+              <template x-for="row in fmEntries()" :key="row.key">
+                <tr>
+                  <th x-text="row.key"></th>
+                  <td x-text="row.value"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
         </details>
         <div x-ref="mdWrap" class="md-wrap"></div>
       </div>

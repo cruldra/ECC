@@ -29,6 +29,24 @@
     return `---\n${fm}\n---\n\n${rest}`;
   }
 
+  /** YAML head → [{key, value}]. Handles `key: value`, block scalars (>, |) and indented continuations. */
+  function frontmatterEntries(frontmatter) {
+    const entries = [];
+    let current = null;
+    for (const line of (frontmatter || "").split("\n")) {
+      const match = /^([A-Za-z0-9_-]+):\s*(.*)$/.exec(line);
+      if (match && !/^\s/.test(line)) {
+        if (current) entries.push({ key: current.key, value: current.lines.join("\n").trim().replace(/^["']|["']$/g, "") });
+        const rest = match[2].trim();
+        current = { key: match[1], lines: [">", "|", ">-", "|-"].includes(rest) ? [] : [rest] };
+      } else if (current) {
+        current.lines.push(line.trim());
+      }
+    }
+    if (current) entries.push({ key: current.key, value: current.lines.join("\n").trim().replace(/^["']|["']$/g, "") });
+    return entries;
+  }
+
   function available() {
     return typeof Vditor !== "undefined";
   }
@@ -62,7 +80,7 @@
     return instance;
   }
 
-  const api = { VDITOR_CDN, splitFrontmatter, joinFrontmatter, preview, editor };
+  const api = { VDITOR_CDN, splitFrontmatter, joinFrontmatter, frontmatterEntries, preview, editor };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   root.EccMarkdown = api;
 })(typeof window !== "undefined" ? window : globalThis);

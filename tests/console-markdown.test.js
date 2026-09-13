@@ -2,7 +2,7 @@
 
 const assert = require('assert');
 const path = require('path');
-const { splitFrontmatter, joinFrontmatter } = require(
+const { splitFrontmatter, joinFrontmatter, frontmatterEntries } = require(
   path.resolve(__dirname, '../console/src/ecc_plugin_console/static/js/lib/markdown.js')
 );
 
@@ -40,6 +40,17 @@ test('body-only file has empty frontmatter', () => {
   const parts = splitFrontmatter('# Hi\n');
   assert.strictEqual(parts.frontmatter, '');
   assert.strictEqual(parts.body, '# Hi\n');
+});
+
+test('yaml head becomes key/value rows, block scalars folded', () => {
+  const rows = frontmatterEntries('name: demo\ndescription: >-\n  first line\n  second line\ntools: Read, Grep\nmodel: "sonnet"');
+  assert.deepStrictEqual(rows, [
+    { key: 'name', value: 'demo' },
+    { key: 'description', value: 'first line\nsecond line' },
+    { key: 'tools', value: 'Read, Grep' },
+    { key: 'model', value: 'sonnet' },
+  ]);
+  assert.deepStrictEqual(frontmatterEntries(''), []);
 });
 
 console.log(`\nPassed: ${passed}`);

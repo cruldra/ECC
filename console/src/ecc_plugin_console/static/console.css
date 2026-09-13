@@ -97,6 +97,11 @@ button, input { font: inherit; }
 .fm { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 8px 12px; }
 .fm summary { cursor: pointer; color: var(--muted); font-size: 12px; font-weight: 600; }
 .fm textarea, .fm pre { width: 100%; min-height: 88px; margin: 8px 0 0; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font: 12px/18px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--paper); color: var(--ink2); resize: vertical; white-space: pre-wrap; }
+.fm-table { width: 100%; margin: 8px 0 0; border-collapse: collapse; font-size: 13px; }
+.fm-table th, .fm-table td { padding: 6px 10px; border-top: 1px solid var(--border); vertical-align: top; text-align: left; }
+.fm-table tr:first-child th, .fm-table tr:first-child td { border-top: 0; }
+.fm-table th { width: 140px; color: var(--muted); font: 600 12px/18px ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
+.fm-table td { color: var(--ink2); line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
 .md-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .md-wrap > div { flex: 1; min-height: 0; }
 .md-preview { overflow: auto; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 28px; }
