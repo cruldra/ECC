@@ -1,6 +1,6 @@
 {
   "name": "ecc-universal",
-  "version": "2.2.16",
+  "version": "2.2.17",
   "description": "Harness-native agent operating system for Codex, OpenCode, Cursor, Gemini, Claude Code, and terminal workflows - skills, hooks, rules, MCP conventions, and operator control-plane patterns",
   "publishConfig": {
     "access": "public"
@@ -218,6 +218,7 @@
     "skills/exa-search/",
     "skills/benchmark-optimization-loop/",
     "skills/fal-ai-media/",
+    "skills/figma-plugin-prototyping/",
     "skills/fastapi-patterns/",
     "skills/finance-billing-ops/",
     "skills/foundation-models-on-device/",
