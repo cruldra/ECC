@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import os
 from pathlib import Path
 
@@ -20,9 +21,17 @@ app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
 templates = Jinja2Templates(directory=str(HERE / "templates"))
 
 
+def _asset_version() -> str:
+    """Short hash of the static bundle so a changed console.js never rides an old browser cache."""
+    digest = hashlib.sha256()
+    for name in ("console.js", "console.css"):
+        digest.update((HERE / "static" / name).read_bytes())
+    return digest.hexdigest()[:12]
+
+
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
-    return templates.TemplateResponse(request, "index.html")
+    return templates.TemplateResponse(request, "index.html", {"asset_v": _asset_version()})
 
 
 @app.get("/api/catalog")
