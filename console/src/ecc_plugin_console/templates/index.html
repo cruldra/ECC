@@ -86,6 +86,12 @@
             <div class="module" x-text="selected().module"></div>
             <p x-text="selected().blurb"></p>
             <div class="path" x-text="selected().path"></div>
+            <template x-if="kind === 'agent'">
+              <div>
+                <div class="note" x-text="'工具：' + (selected().tools || '默认全部')"></div>
+                <div class="note" x-text="'模型：' + (selected().model || '跟随会话')"></div>
+              </div>
+            </template>
             <template x-if="kind === 'mcp'">
               <div>
                 <div class="status-row">
@@ -102,7 +108,7 @@
             </template>
             <div class="note" x-show="kind === 'workflow'">装插件就带上。这里只预览，不单独装卸。</div>
             <div class="note" x-show="kind !== 'mcp' && kind !== 'workflow'">随整份插件安装。此行不能单独装卸。</div>
-            <div class="note" x-show="kind === 'command' && selected().locales && selected().locales.length" x-text="selected().locales.some(l => l.stale) ? '有译本，已过时' : '有译本'"></div>
+            <div class="note" x-show="(kind === 'command' || kind === 'agent') && selected().locales && selected().locales.length" x-text="selected().locales.some(l => l.stale) ? '有译本，已过时' : '有译本'"></div>
           </div>
         </template>
         <template x-if="kind === 'mcp' && !selected()">
@@ -124,7 +130,7 @@
       <div class="editor-page">
         <header class="editor-bar">
           <div>
-            <div class="kicker" x-text="editor.locale === 'zh-CN' ? '阅读译本' : (editor.kind === 'command' ? '编辑原文 command' : '编辑原文 skill')"></div>
+            <div class="kicker" x-text="editor.locale === 'zh-CN' ? '阅读译本' : '编辑原文 ' + editor.kind"></div>
             <h2 x-text="editor.id"></h2>
             <div class="path" x-text="editor.locale === 'zh-CN' ? zhPath() : editor.path"></div>
           </div>

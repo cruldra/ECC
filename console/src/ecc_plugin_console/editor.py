@@ -5,11 +5,11 @@ import re
 import sys
 from pathlib import Path
 
-from .catalog import ECC_ROOT, source_hash, _frontmatter, _skill_locales, _command_locales
+from .catalog import ECC_ROOT, source_hash, _frontmatter, _skill_locales, _docs_locales
 from .harness import run_argv
 
 ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
-KINDS = ("skill", "command")
+KINDS = ("skill", "command", "agent")
 SCRIPT = ECC_ROOT / "skills" / "translate-skill" / "scripts" / "translate_skill.py"
 
 
@@ -28,7 +28,7 @@ def _source(kind: str, item_id: str) -> Path:
         root = (ECC_ROOT / "skills").resolve()
         path = (root / item_id / "SKILL.md").resolve()
     else:
-        root = (ECC_ROOT / "commands").resolve()
+        root = (ECC_ROOT / f"{kind}s").resolve()
         path = (root / f"{item_id}.md").resolve()
     if root not in path.parents:
         raise ValueError(f"路径逃出 {kind}s/")
@@ -40,7 +40,7 @@ def _source(kind: str, item_id: str) -> Path:
 def _locales(kind: str, item_id: str, digest: str) -> list[dict]:
     if kind == "skill":
         return _skill_locales(ECC_ROOT / "skills" / item_id, digest)
-    return _command_locales(item_id, digest)
+    return _docs_locales(f"{kind}s", item_id, digest)
 
 
 def load_item(kind: str, item_id: str) -> dict:
@@ -78,7 +78,7 @@ def translate_item(kind: str, item_id: str, locale: str = "zh-CN", force: bool =
     if locale != "zh-CN":
         raise ValueError("第一版只支持 zh-CN")
     _source(kind, item_id)
-    flag = "--skill" if kind == "skill" else "--command"
+    flag = f"--{kind}"
     argv = [sys.executable, str(SCRIPT), "--root", str(ECC_ROOT), flag, item_id, "--locale", locale, "--json"]
     if force:
         argv.append("--force")

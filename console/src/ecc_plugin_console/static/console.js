@@ -72,7 +72,7 @@ function consoleApp() {
     query: "",
     chip: "全部",
     selectedId: "",
-    catalog: { skills: [], hooks: [], commands: [], mcps: [], workflows: [], counts: { skill: 0, hook: 0, command: 0, mcp: 0, workflow: 0 }, latest: "" },
+    catalog: { skills: [], agents: [], hooks: [], commands: [], mcps: [], workflows: [], counts: { skill: 0, agent: 0, hook: 0, command: 0, mcp: 0, workflow: 0 }, latest: "" },
     status: {
       latest: "",
       claude: { key: "claude", label: "Claude Code", state: "missing", version: "", hint: "", error: "" },
@@ -84,6 +84,7 @@ function consoleApp() {
     editor: null,
     kinds: [
       { key: "skill", label: "Skill" },
+      { key: "agent", label: "Agent" },
       { key: "hook", label: "Hook" },
       { key: "command", label: "Command" },
       { key: "mcp", label: "MCP" },
@@ -91,6 +92,7 @@ function consoleApp() {
     ],
     listKey() {
       if (this.kind === "skill") return "skills";
+      if (this.kind === "agent") return "agents";
       if (this.kind === "hook") return "hooks";
       if (this.kind === "command") return "commands";
       if (this.kind === "mcp") return "mcps";
@@ -98,6 +100,7 @@ function consoleApp() {
     },
     kindLabel() {
       if (this.kind === "skill") return "Skill";
+      if (this.kind === "agent") return "Agent";
       if (this.kind === "hook") return "Hook";
       if (this.kind === "command") return "Command";
       if (this.kind === "mcp") return "MCP";
@@ -274,9 +277,9 @@ function consoleApp() {
       const meta = this.localeMeta("zh-CN");
       if (meta && meta.path) return meta.path;
       if (!this.editor) return "";
-      return this.editor.kind === "command"
-        ? `docs/zh-CN/commands/${this.editor.id}.md`
-        : `skills/${this.editor.id}/i18n/zh-CN.md`;
+      return this.editor.kind === "skill"
+        ? `skills/${this.editor.id}/i18n/zh-CN.md`
+        : `docs/zh-CN/${this.editor.kind}s/${this.editor.id}.md`;
     },
     localeMeta(locale) {
       if (!this.editor) return null;
@@ -331,10 +334,10 @@ function consoleApp() {
       });
     },
     editable() {
-      return this.kind === "skill" || this.kind === "command";
+      return ["skill", "command", "agent"].includes(this.kind);
     },
     bucket(kind) {
-      return (kind || this.kind) === "skill" ? "skills" : "commands";
+      return `${kind || this.kind}s`;
     },
     async openEditor() {
       const item = this.selected();

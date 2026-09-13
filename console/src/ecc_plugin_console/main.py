@@ -55,7 +55,7 @@ def mcp_action(server_id: str, action: str):
         raise HTTPException(status_code=400, detail=str(exc)) from None
 
 
-KIND_PATH = {"skills": "skill", "commands": "command"}
+KIND_PATH = {"skills": "skill", "commands": "command", "agents": "agent"}
 
 
 def _kind_or_http(bucket: str) -> str:

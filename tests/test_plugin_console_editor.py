@@ -240,3 +240,56 @@ def test_command_translation_never_lands_under_commands(isolated_root):
 def test_editor_rejects_unknown_kind():
     with pytest.raises(ValueError, match="未知类型"):
         editor.load_item("hook", "session-start")
+
+
+def _write_agent(root: Path, agent_id: str, body: str) -> Path:
+    folder = root / "agents"
+    folder.mkdir(exist_ok=True)
+    path = folder / f"{agent_id}.md"
+    path.write_text(body, encoding="utf-8")
+    return path
+
+
+AGENT_MD = "---\nname: demo-agent\ndescription: Reviews demos\ntools: Read, Grep\nmodel: sonnet\n---\n\nBody.\n"
+
+
+def test_catalog_lists_agents_with_tools_and_docs_locales(isolated_root):
+    _write_agent(isolated_root, "demo-agent", AGENT_MD)
+    payload = catalog.load_catalog()
+    assert payload["counts"]["agent"] == 1
+    agent = payload["agents"][0]
+    assert agent["id"] == "demo-agent"
+    assert agent["path"] == "agents/demo-agent.md"
+    assert agent["tools"] == "Read, Grep"
+    assert agent["model"] == "sonnet"
+    assert agent["blurb"] == "Reviews demos"
+    assert agent["locales"] == []
+
+    mirror = isolated_root / "docs" / "zh-CN" / "agents" / "demo-agent.md"
+    mirror.parent.mkdir(parents=True)
+    mirror.write_text(f"---\nlocale: zh-CN\nsource_hash: {agent['hash']}\n---\n\n演示\n", encoding="utf-8")
+    agent = catalog.load_catalog()["agents"][0]
+    assert agent["locales"] == [{"locale": "zh-CN", "stale": False, "path": "docs/zh-CN/agents/demo-agent.md"}]
+
+
+def test_editor_loads_and_saves_an_agent(isolated_root):
+    _write_agent(isolated_root, "demo-agent", AGENT_MD)
+    item = editor.load_item("agent", "demo-agent")
+    assert item["kind"] == "agent"
+    assert item["path"] == "agents/demo-agent.md"
+
+    updated = AGENT_MD.replace("Body.", "Changed.")
+    saved = editor.save_item("agent", "demo-agent", updated)
+    assert saved["original"] == updated
+    assert (isolated_root / "agents" / "demo-agent.md").read_text(encoding="utf-8") == updated
+
+
+def test_agent_translation_lands_in_docs_mirror(isolated_root):
+    module = _load_script()
+    _write_agent(isolated_root, "demo-agent", AGENT_MD)
+    assert module.source_path(isolated_root, "agent", "demo-agent") == isolated_root / "agents" / "demo-agent.md"
+    out = module.output_path(isolated_root, "agent", "demo-agent", "zh-CN")
+    assert out == isolated_root / "docs" / "zh-CN" / "agents" / "demo-agent.md"
+    assert (isolated_root / "agents") not in out.parents
+    with pytest.raises(SystemExit, match="路径逃出|非法"):
+        module.source_path(isolated_root, "agent", "../secrets", )

@@ -94,18 +94,18 @@ def _skill_locales(folder: Path, digest: str) -> list[dict]:
     return locales
 
 
-def _command_locales(command_id: str, digest: str) -> list[dict]:
-    """Translated command docs live in docs/<locale>/commands/<id>.md.
+def _docs_locales(section: str, item_id: str, digest: str) -> list[dict]:
+    """Translated command / agent docs live in docs/<locale>/<section>/<id>.md.
 
-    commands/ itself is scanned by the harness, so a translation kept there
-    would register as a bogus namespaced command.
+    commands/ and agents/ are scanned by the harness, so a translation kept
+    there would register as a bogus namespaced entry.
     """
     docs = ECC_ROOT / "docs"
     if not docs.is_dir():
         return []
     locales: list[dict] = []
     for locale_dir in sorted(p for p in docs.iterdir() if p.is_dir()):
-        file = locale_dir / "commands" / f"{command_id}.md"
+        file = locale_dir / section / f"{item_id}.md"
         if not file.is_file():
             continue
         stored = _frontmatter(_read(file)).get("source_hash") or ""
@@ -113,10 +113,18 @@ def _command_locales(command_id: str, digest: str) -> list[dict]:
             {
                 "locale": locale_dir.name,
                 "stale": stored != digest,
-                "path": f"docs/{locale_dir.name}/commands/{file.name}",
+                "path": f"docs/{locale_dir.name}/{section}/{file.name}",
             }
         )
     return locales
+
+
+def _command_locales(command_id: str, digest: str) -> list[dict]:
+    return _docs_locales("commands", command_id, digest)
+
+
+def _agent_locales(agent_id: str, digest: str) -> list[dict]:
+    return _docs_locales("agents", agent_id, digest)
 
 
 def load_catalog() -> dict:
@@ -161,6 +169,30 @@ def load_catalog() -> dict:
                     "path": f"commands/{file.name}",
                     "hash": digest,
                     "locales": _command_locales(stem, digest),
+                }
+            )
+
+    agents: list[dict] = []
+    agents_dir = ECC_ROOT / "agents"
+    if agents_dir.is_dir():
+        for file in sorted(agents_dir.glob("*.md")):
+            if file.name.lower() == "readme.md":
+                continue
+            original = _read(file)
+            meta = _frontmatter(original)
+            stem = file.stem
+            digest = source_hash(original)
+            agents.append(
+                {
+                    "id": stem,
+                    "kind": "agent",
+                    "module": _lookup_module(index, f"agents/{file.name}") or "agents-core",
+                    "blurb": (meta.get("description") or "").split("\n", 1)[0],
+                    "path": f"agents/{file.name}",
+                    "hash": digest,
+                    "tools": meta.get("tools") or "",
+                    "model": meta.get("model") or "",
+                    "locales": _agent_locales(stem, digest),
                 }
             )
 
@@ -234,12 +266,14 @@ def load_catalog() -> dict:
     return {
         "latest": latest,
         "skills": skills,
+        "agents": agents,
         "hooks": hooks,
         "commands": commands,
         "mcps": mcps,
         "workflows": workflows,
         "counts": {
             "skill": len(skills),
+            "agent": len(agents),
             "hook": len(hooks),
             "command": len(commands),
             "mcp": len(mcps),

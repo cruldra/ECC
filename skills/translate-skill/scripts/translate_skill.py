@@ -73,7 +73,7 @@ def sha256_text(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-KINDS = ("skill", "command")
+KINDS = ("skill", "command", "agent")
 
 
 def skill_dir(root: Path, skill_id: str) -> Path:
@@ -89,17 +89,18 @@ def skill_dir(root: Path, skill_id: str) -> Path:
 
 
 def source_path(root: Path, kind: str, item_id: str) -> Path:
-    """Original file for a skill or a command."""
+    """Original file for a skill, a command, or an agent."""
     if kind not in KINDS:
         raise SystemExit(f"未知 kind: {kind}")
     if not SKILL_ID_RE.match(item_id):
         raise SystemExit(f"非法 id: {item_id}")
     if kind == "skill":
         return skill_dir(root, item_id) / "SKILL.md"
-    path = (root / "commands" / f"{item_id}.md").resolve()
-    commands_root = (root / "commands").resolve()
-    if commands_root not in path.parents:
-        raise SystemExit("路径逃出 commands/")
+    section = f"{kind}s"
+    path = (root / section / f"{item_id}.md").resolve()
+    section_root = (root / section).resolve()
+    if section_root not in path.parents:
+        raise SystemExit(f"路径逃出 {section}/")
     if not path.is_file():
         raise SystemExit(f"找不到 {path}")
     return path
@@ -108,9 +109,10 @@ def source_path(root: Path, kind: str, item_id: str) -> Path:
 def output_path(root: Path, kind: str, item_id: str, locale: str) -> Path:
     """Where the translation lands.
 
-    Commands cannot keep their translation under commands/: that directory is
-    scanned by the harness, so a subdirectory would register bogus namespaced
-    commands. Translated command docs live in the existing docs mirror.
+    Commands and agents cannot keep their translation under commands/ or
+    agents/: those directories are scanned by the harness, so a subdirectory
+    would register bogus namespaced entries. Their translations live in the
+    existing docs mirror.
     """
     if not LOCALE_RE.match(locale):
         raise SystemExit(f"非法 locale: {locale}")
@@ -118,7 +120,7 @@ def output_path(root: Path, kind: str, item_id: str, locale: str) -> Path:
         raise SystemExit(f"未知 kind: {kind}")
     if kind == "skill":
         return root / "skills" / item_id / "i18n" / f"{locale}.md"
-    return root / "docs" / locale / "commands" / f"{item_id}.md"
+    return root / "docs" / locale / f"{kind}s" / f"{item_id}.md"
 
 
 def i18n_path(folder: Path, locale: str) -> Path:
@@ -278,6 +280,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--kind", choices=KINDS, default="skill")
     parser.add_argument("--skill")
     parser.add_argument("--command")
+    parser.add_argument("--agent")
     parser.add_argument("--locale", default=DEFAULT_LOCALE)
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--status", action="store_true")
@@ -286,10 +289,10 @@ def main(argv: list[str] | None = None) -> int:
     root = (args.root or Path(__file__).resolve().parents[3]).resolve()
     if args.locale != DEFAULT_LOCALE:
         raise SystemExit("第一版只支持 zh-CN")
-    kind = "command" if args.command else args.kind
-    item_id = args.command or args.skill
+    kind = "agent" if args.agent else "command" if args.command else args.kind
+    item_id = args.agent or args.command or args.skill
     if not item_id:
-        raise SystemExit("要给 --skill 或 --command")
+        raise SystemExit("要给 --skill、--command 或 --agent")
     if args.status:
         payload = status_payload(root, kind, item_id, args.locale)
     else:

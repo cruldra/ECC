@@ -81,6 +81,8 @@
 
 ## 最新动态
 
+### v2.2.19 — 控制台新增 Agent 页：看 68 个自定义 agent 的工具 / 模型，能编辑、能翻译（2026年9月）
+
 ### v2.2.18 — 新增 `/console` 命令：一键打开插件控制台，多个会话共用 8765 端口同一个实例（2026年9月）
 
 ### v2.2.17 — 新增 figma-plugin-prototyping skill：用本地 Figma 插件 + 假文档单测画原型，不再走 Figma MCP（2026年9月）
@@ -1313,7 +1315,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 | **上下文文件** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
 | **秘密检测** | 基于钩子                  | beforeSubmitPrompt 钩子 | 基于沙箱 | 基于钩子 |
 | **自动格式化** | PostToolUse 钩子        | afterFileEdit 钩子 | N/A | file.edited 钩子 |
-| **版本** | 插件 | 插件 | 参考配置 | 2.2.18 |
+| **版本** | 插件 | 插件 | 参考配置 | 2.2.19 |
 
 **关键架构决策：**
 
