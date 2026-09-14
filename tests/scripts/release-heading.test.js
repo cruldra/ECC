@@ -131,10 +131,10 @@ function runTests() {
 
   if (test('every localized README with a release heading is bumped by release.sh', () => {
     // docs/zh-CN/README.md regressed once because it got a version-row bump
-    // without a heading bump. Pin all five call sites so a dropped one fails
-    // here instead of during a release.
+    // without a heading bump. Pin all four call sites so a dropped one fails
+    // here instead of during a release. The English README carries no release
+    // headings, so it is not part of this surface.
     const requiredFileVariables = [
-      'README_FILE',
       'ROOT_ZH_CN_README_FILE',
       'TR_README_FILE',
       'PT_BR_README_FILE',
