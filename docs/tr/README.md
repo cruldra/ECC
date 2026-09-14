@@ -79,7 +79,9 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ## Yenilikler
 
-### v2.2.30 — intake form output rules: write it in the working directory, ship a .docx the client can fill in, cover one phase only; release.sh no longer stalls on the English README (Sep 2026)
+### v2.2.30 — spawning-peer-sessions skill added: open a peer session on demand (visible tab or headless), and get back the name that actually addresses it (Sep 2026)
+
+### v2.2.29 — intake form output rules: write it in the working directory, ship a .docx the client can fill in, cover one phase only; release.sh no longer stalls on the English README (Sep 2026)
 
 ### v2.2.28 — closing-custom-dev-deals gains gate 0: when the client cannot say what they want, send the intake form before prototyping (Sep 2026)
 
