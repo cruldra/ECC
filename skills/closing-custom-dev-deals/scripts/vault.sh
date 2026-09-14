@@ -8,6 +8,9 @@
 # operator is asked for it once per machine rather than once per session.
 #
 #   vault.sh seal <plaintext-dir> [out.enc]   encrypt every *.md in the directory
+#
+# CCDD_ASKPASS=gui forces the native dialog even on a terminal; =tty forces the
+# silent read. Default picks by whether stdin is a terminal.
 #   vault.sh unlock                           ask for the passphrase, cache it
 #   vault.sh show [name.md]                   decrypt to stdout
 #   vault.sh list                             names inside the vault
@@ -58,11 +61,28 @@ key_forget() {
   fi
 }
 
+# Asks for the passphrase without it ever crossing stdout. With a terminal the
+# prompt is a silent read; without one (an agent session, a hook) macOS gets a
+# native hidden-answer dialog, so the operator can type it where the calling
+# process cannot see it. CCDD_ASKPASS=tty|gui forces either path.
 ask_passphrase() {
-  local p
-  printf '口令: ' >&2
-  read -rs p
-  printf '\n' >&2
+  local label="${1:-口令}" kind="${CCDD_ASKPASS:-auto}" p
+  if [ "$kind" = auto ]; then
+    if [ -t 0 ]; then kind=tty
+    elif [ "$(uname -s)" = Darwin ] && command -v osascript >/dev/null 2>&1; then kind=gui
+    else kind=tty; fi
+  fi
+  case "$kind" in
+    gui)
+      p="$(osascript -e "text returned of (display dialog \"$label\" default answer \"\" with hidden answer with title \"ECC 保险箱\")" 2>/dev/null)" \
+        || die "取消了，没有输入口令"
+      ;;
+    *)
+      printf '%s: ' "$label" >&2
+      read -rs p
+      printf '\n' >&2
+      ;;
+  esac
   [ -n "$p" ] || die "口令是空的"
   printf '%s' "$p"
 }
@@ -98,9 +118,8 @@ cmd_seal() {
   local pass
   pass="$(key_load)"
   if [ -z "$pass" ]; then
-    pass="$(ask_passphrase)"
-    printf '再输一次确认: ' >&2
-    local again; read -rs again; printf '\n' >&2
+    pass="$(ask_passphrase "设一个口令（长一点，密文是公开的）")"
+    local again; again="$(ask_passphrase "再输一次确认")"
     [ "$pass" = "$again" ] || die "两次不一致"
   fi
 
@@ -115,7 +134,7 @@ cmd_seal() {
 
 cmd_unlock() {
   need_vault
-  local pass; pass="$(ask_passphrase)"
+  local pass; pass="$(ask_passphrase "口令")"
   verify "$pass" || die "口令不对，保险箱打不开"
   key_store "$pass"
   echo "口令已记住。以后 show 直接出内容，不再问。"
