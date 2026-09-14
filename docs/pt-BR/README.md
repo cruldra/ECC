@@ -79,6 +79,8 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ## O Que Há de Novo
 
+### v2.2.25 — closing-custom-dev-deals skill added (custom-dev deal flow: four gates, pricing guardrails, contract clauses); company figures kept in an encrypted vault (Sep 2026)
+
 ### v2.2.24 — console translation view renders the YAML head as a key/value table (Sep 2026)
 
 ### v2.2.23 — console keeps browser history: editor and tab changes are hash routes, so back / swipe-back works (Sep 2026)

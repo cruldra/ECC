@@ -1,6 +1,6 @@
 spec_version: "0.1.0"
 name: ecc
-version: 2.2.24
+version: 2.2.25
 description: "Initial gitagent export surface for ECC's shared skill catalog, governance, and identity. Native agents, commands, and hooks remain authoritative in the repository while manifest coverage expands."
 author: affaan-m
 license: MIT
@@ -35,6 +35,7 @@ skills:
   - claude-devfleet
   - click-path-audit
   - clickhouse-io
+  - closing-custom-dev-deals
   - codebase-onboarding
   - coding-standards
   - compose-multiplatform-patterns

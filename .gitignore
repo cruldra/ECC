@@ -108,3 +108,8 @@ assets/images/security/badrudi-exploit.mp4
 
 .aider*
 .spx
+
+# closing-custom-dev-deals: only the encrypted vault is tracked
+skills/closing-custom-dev-deals/vault/plaintext/
+skills/closing-custom-dev-deals/company-profile.md
+skills/closing-custom-dev-deals/pricing-model.md
