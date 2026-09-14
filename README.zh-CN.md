@@ -80,6 +80,8 @@
 
 ## 最新动态
 
+### v2.2.28 — closing-custom-dev-deals 加闸门 0：需求说不清时先发摸底表，再做原型（2026年9月）
+
 ### v2.2.27 — closing-custom-dev-deals 补「原型怎么做」：原型是一次性的，栈和骨架照现有两份写（2026年9月）
 
 ### v2.2.26 — closing-custom-dev-deals 的保险箱已封存；口令改由系统对话框输入，agent 看不到（2026年9月）

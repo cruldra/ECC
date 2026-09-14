@@ -79,6 +79,8 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ## O Que Há de Novo
 
+### v2.2.28 — closing-custom-dev-deals gains gate 0: when the client cannot say what they want, send the intake form before prototyping (Sep 2026)
+
 ### v2.2.27 — closing-custom-dev-deals gains a prototype recipe: prototypes are throwaway, stack and skeleton taken from the two live ones (Sep 2026)
 
 ### v2.2.26 — closing-custom-dev-deals vault sealed; the passphrase is typed into a native dialog the calling agent never sees (Sep 2026)
