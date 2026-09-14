@@ -21,13 +21,14 @@ bash "${CLAUDE_PLUGIN_ROOT}/skills/closing-custom-dev-deals/scripts/vault.sh" sh
 |---|---|
 | `company-profile.md` | 乙方主体信息、收款开票、标准技术栈、标准交付承诺 |
 | `pricing-model.md` | 标定参数、模块档位、报价算法、历史成交水位、底线单价 |
+| `prototype-refs.md` | 两份现成原型的源码位置、线上地址、反代配置片段 |
 
 **报错怎么办：**
 
 - `这台机器还没存口令` —— 让用户跑一次 `vault.sh unlock` 输口令。存进系统钥匙串，以后不再问。**不要替用户猜口令，也不要把口令写进任何文件或回复里。**
-- `还没有保险箱` —— 明文还在本机 `~/.claude/skills/closing-custom-dev-deals/`，让用户跑一次 `vault.sh seal ~/.claude/skills/closing-custom-dev-deals`。
+- `还没有保险箱` —— 明文在本机 `~/.config/ecc/ccdd-plaintext/`，让用户跑一次 `vault.sh seal ~/.config/ecc/ccdd-plaintext`。
 
-**改了里面的数字**（每年校准、团队规模变了、又签了一单）：改本机明文，再 `vault.sh seal` 重新封，然后把 `vault/secrets.enc` 提交推上去。
+**改了里面的数字**（每年校准、团队规模变了、又签了一单、新起了一份原型）：改 `~/.config/ecc/ccdd-plaintext/` 下的明文，再 `vault.sh seal ~/.config/ecc/ccdd-plaintext` 重新封，然后把 `vault/secrets.enc` 提交推上去。
 
 解出来的内容只在当前会话里用，不要复述进提交信息、issue、对外文档的可见处。
 
@@ -80,9 +81,14 @@ digraph gates {
 
 **高保真前端原型是报价的前提，不是报价之后的工作。** 没有原型，"功能范围"就是空话。
 
-1. 把口头需求变成客户能指着屏幕确认的页面 —— 范围锁定的唯一可靠手段
-2. 客户签约前就看到东西，显著提高成交率
-3. 原型代码可直接演进为正式代码，不是沉没成本
+原型只有两个目的：
+
+1. **对齐需求** —— 把口头需求变成客户能指着屏幕说"对"或"不对"的页面。这是范围锁定的唯一可靠手段
+2. **促成下决心** —— 客户签约前就看到东西，成交率明显更高
+
+**原型是一次性的，不进正式代码。** 不要为了"以后能复用"去搭工程化的架子。不写后端、不接数据库、不做鉴权、不管性能，数据全部写死在前端。正式开发另起项目，按标准技术栈来。原型这几天的人力算进阶段 0 的报价，不是沉没成本。
+
+怎么搭见下面「原型怎么做」。
 
 原型做完必须让客户**书面确认页面清单**。报价方案的"附录·功能页面总览"必须与原型一一对应。
 
@@ -106,6 +112,63 @@ digraph gates {
 | AI 输出"感觉不好"无限返工 | 量化验收标准 + 7 工作日优化期不计入延期 |
 | 交付后客户改代码再来索赔 | 源码交付后义务终止条款 |
 | 第三方费用超支 | Token、服务器、CDN、短信、平台费明确由甲方承担 |
+
+## 原型怎么做
+
+公司已经有两份跑着的原型可以照抄，源码位置和线上地址在保险箱的 `prototype-refs.md` 里。下面是从那两份里提炼的做法。
+
+### 技术栈
+
+| 层 | 选型 | 为什么是它 |
+|---|---|---|
+| 框架 | React 19 + TypeScript | 和正式项目同一套，不用换脑子 |
+| 路由 | TanStack Router | 左侧导航按角色分层，路由即菜单 |
+| 构建 | Vite + pnpm | 起得快，改完即见，客户当场提意见当场改 |
+| 样式 | Tailwind 4，或手写一份 `index.css` | 两份现成原型各用一种，都行 |
+| 图标 | lucide-react | 需要时才装 |
+| 检查 | oxlint | 原型不写测试，lint 够用 |
+
+**明确不要的**：后端、数据库、鉴权、状态管理库、CI、单元测试、错误上报。一样都不要。
+
+### 目录骨架
+
+```
+src/
+  data/      写死的业务数据，一个主题一个文件（tiers.ts / questions.ts / leads.ts）
+  shell/     Layout 左侧导航、Scene 页面容器、PhoneFrame 手机外壳
+  scenes/    按角色分：h5 用户端 / ai 智能层 / admin 运营后台 / arch 架构与路线
+  lib/       store.ts，useSyncExternalStore + localStorage 撑起跨页流程
+```
+
+四条规矩：
+
+- **数据写死在 `src/data/`**，导出类型加常量数组。改文案就是改这一个文件，客户坐在旁边说一句你改一句
+- **按角色分场景，不按功能分**。客户关心的是"我看到什么、我员工看到什么、后台看到什么"，不是"这是列表页那是详情页"
+- **`lib/store.ts` 用 localStorage 假装有后端**。客户填的表单下一页能看到，演示就成立了
+- **手机端套 `PhoneFrame` 组件**，另开一条 `/m` 路由做全屏版，客户用手机直接打开
+
+### 给客户看
+
+Docker 多阶段构建成 nginx 静态站，部署到公司服务器，反代配一个二级域名：
+
+```dockerfile
+FROM node:22-alpine AS builder
+RUN corepack enable && corepack prepare pnpm@latest --activate
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+COPY . .
+RUN pnpm build
+
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+RUN echo 'server { listen 80; root /usr/share/nginx/html; location / { try_files $uri $uri/ /index.html; } }' > /etc/nginx/conf.d/default.conf
+EXPOSE 80
+```
+
+映射一个未占用的端口，再加一条反代规则指向它。具体主机、端口段、配置文件路径见保险箱的 `prototype-refs.md`。
+
+给客户的只有一条链接，他什么都不用装，手机也能开。
 
 ## 交付物顺序
 

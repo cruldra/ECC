@@ -79,6 +79,8 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ## O Que Há de Novo
 
+### v2.2.27 — closing-custom-dev-deals gains a prototype recipe: prototypes are throwaway, stack and skeleton taken from the two live ones (Sep 2026)
+
 ### v2.2.26 — closing-custom-dev-deals vault sealed; the passphrase is typed into a native dialog the calling agent never sees (Sep 2026)
 
 ### v2.2.25 — closing-custom-dev-deals skill added (custom-dev deal flow: four gates, pricing guardrails, contract clauses); company figures kept in an encrypted vault (Sep 2026)

@@ -98,7 +98,7 @@ verify() {
 
 need_vault() { [ -f "$VAULT" ] || die "还没有保险箱：$VAULT
 先跑一次 seal，把明文那两份收进来：
-  bash $HERE/vault.sh seal ~/.claude/skills/closing-custom-dev-deals"; }
+  bash $HERE/vault.sh seal "${XDG_CONFIG_HOME:-$HOME/.config}/ecc/ccdd-plaintext""; }
 
 need_key() {
   local k
