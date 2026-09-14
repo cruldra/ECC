@@ -443,6 +443,7 @@
     "scripts/console.js",
     "skills/lightweb-fastapi-starter/",
     "skills/closing-custom-dev-deals/",
+    "skills/spawning-peer-sessions/",
     "!**/__pycache__/**",
     "!**/*.pyc",
     "!**/*.pyo",

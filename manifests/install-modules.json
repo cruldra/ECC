@@ -814,6 +814,7 @@
       "paths": [
         "scripts/claw.js",
         "skills/agent-architecture-audit",
+        "skills/spawning-peer-sessions",
         "skills/agent-harness-construction",
         "skills/agentic-engineering",
         "skills/agentic-os",

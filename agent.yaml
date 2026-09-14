@@ -145,6 +145,7 @@ skills:
   - security-scan
   - skill-comply
   - skill-stocktake
+  - spawning-peer-sessions
   - springboot-patterns
   - springboot-security
   - springboot-tdd
