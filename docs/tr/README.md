@@ -79,7 +79,7 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ## Yenilikler
 
-### v2.2.31 — figma-plugin-prototyping asks after writing the plugin, and on a yes registers it with Figma Desktop and launches it (Sep 2026)
+### v2.2.32 — figma-plugin-prototyping asks after writing the plugin, and on a yes registers it with Figma Desktop and launches it (Sep 2026)
 
 ### v2.2.30 — spawning-peer-sessions skill added: open a peer session on demand (visible tab or headless), and get back the name that actually addresses it (Sep 2026)
 

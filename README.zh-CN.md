@@ -80,7 +80,7 @@
 
 ## 最新动态
 
-### v2.2.31 — figma-plugin-prototyping 插件写完后问一声，同意就自动导入 Figma 并打开（2026年9月）
+### v2.2.32 — figma-plugin-prototyping 插件写完后问一声，同意就自动导入 Figma 并打开（2026年9月）
 
 ### v2.2.30 — 收录 spawning-peer-sessions：随时开新会话（可见 tab 或纯后台），开完直接给出能寻址的名字（2026年9月）
 
