@@ -33,7 +33,8 @@ Copy `${CLAUDE_PLUGIN_ROOT}/skills/figma-plugin-prototyping/scripts/fake-figma.j
 4. **Components before boards.** Every repeated block is a component with variants (`State=`, `Kind=`, `Theme=`). Boards only place `createInstance()` of those components. Editing the main component must propagate to every board.
 5. **Boards top to bottom, sets on the right.** Overview board first (design notes + how to demo), then screens in reading order, then edge cases (narrow width, long titles). Component sets go in a column to the right of the widest board.
 6. **Wire the demo.** `CHANGE_TO` between sibling variants for in-place state changes; `NAVIGATE` to other top-level boards for page moves; set `flowStartingPoints`. Buttons that would navigate back into their own board get highlight only, no reaction.
-7. **Test, then hand over.** `node --check code.js`, `node --test test.js`, write README, tell the user how to import.
+7. **Test.** `node --check code.js`, `node --test test.js`, write README.
+8. **Ask before opening Figma.** The plugin is finished; ask the user whether to register it with Figma Desktop and launch it, then act on the answer. See Handoff.
 
 ## Plugin rules that bite
 
@@ -68,7 +69,24 @@ Chinese, short. Sections: what it draws (table: board → source component file 
 
 ## Handoff
 
-Tell the user: the manifest path to import, which board to select for the demo, and the acceptance list. Do not open Figma yourself and do not push nodes through the MCP. If the user then wants a screenshot for review, `get_screenshot` on the page they ran it in is fine.
+Tell the user: the manifest path, which board to select for the demo, and the acceptance list. Never push nodes through the MCP. If the user then wants a screenshot for review, `get_screenshot` on the page they ran it in is fine.
+
+Then ask whether to open it — a question, never a default. Opening quits their Figma, which is not something to do unasked:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/skills/figma-plugin-prototyping/scripts/import-into-figma.js" <abs path to manifest.json>
+```
+
+The script adds the plugin to `localFileExtensions` in Figma Desktop's `settings.json` — the same list the Import-plugin-from-manifest menu writes — backs the file up first, and launches Figma. The user still runs it from Plugins > Development.
+
+Two reasons it quits Figma first, and both are why this cannot be done with Figma open:
+
+- Figma rewrites `settings.json` from memory on quit, so an entry written while it runs is erased when the user closes it.
+- Figma caches plugin code per process, so an already-registered plugin keeps running the previous `code.js` until a restart — the user would look at the old prototype and think nothing changed.
+
+It quits gracefully through `osascript` and waits up to 10 seconds, never kills: a killed Figma loses unsaved canvas work. If Figma will not quit, the script says so and stops; do not kill it yourself.
+
+Off macOS the script prints the path for a manual import instead. Re-running on the same manifest skips the write and just restarts Figma, which is the normal way to pick up an edited `code.js`.
 
 ## Example
 
