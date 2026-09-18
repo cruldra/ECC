@@ -1,6 +1,6 @@
 ---
 name: spawning-peer-sessions
-description: Open another Claude Code session on demand and talk to it — delegate a task to a different model, get a second opinion, run a review or acceptance pass in parallel, or hand work to a session that already has the context. Use when the user says 新开会话 / 开个会话 / 让 fable5 跑一下 / 让 gpt56 验一下 / 转给那个会话 / 通知另一个会话, or when this session receives a task from a peer and has to report back. Also covers finding a live session, addressing it, and closing the loop.
+description: Open another Claude Code session on demand and talk to it — delegate a task to a different model, get a second opinion, run a review or acceptance pass in parallel, or hand work to a session that already has the context. Naming a profile or model is always this skill and never the Agent tool: 新开会话 / 新建一个 opus 会话 / 另开个 grok tab / 派一个 gpt56 会话 / 让 fable5 跑一下 / 让 gpt56 验一下 / 找个 xx 会话去做. Only an explicit 子代理 / subagent / Agent 工具 means the Agent tool. Also covers 转给那个会话 / 通知另一个会话, finding a live session, addressing it, and closing the loop when this session receives a task from a peer and has to report back.
 ---
 
 # Spawning peer sessions
@@ -10,6 +10,20 @@ Sessions on one machine can see and message each other. `ListAgents` lists them,
 round. This skill covers the part that is not automatic: opening a new session,
 learning the name that actually addresses it, and closing the loop so nobody has
 to relay by hand.
+
+## Session, not subagent
+
+Naming a model or a profile — 新建一个 opus 会话, 开个 grok tab, 派个 gpt56 会话,
+让 fable5 跑一下 — asks for a **peer session in its own tab**: visible in the
+editor, steerable, and something the user can take over. That is this skill.
+
+The Agent tool is a different animal: an in-process subagent nobody can watch,
+pinned to whatever model its agent type declares. Reaching for it when the user
+named a model produces work in the same repo under a model they did not ask for,
+in a window they cannot open. The phrasing does not have to say "tab" or "peer"
+— a model name in the request is enough.
+
+Only an explicit 子代理 / subagent / Agent 工具 selects the Agent tool.
 
 ## Reuse before spawning
 
@@ -143,6 +157,7 @@ user instead.
 
 | Mistake | Consequence |
 |---------|-------------|
+| Using the Agent tool because the user said 会话/tab without saying "peer" | An in-process subagent on the wrong model, in a window nobody can open |
 | Spawning without `ListAgents` first | A session with the context was already open; user now maintains two |
 | User asks a named model to verify, this session verifies instead | The named model never ran; spawn instead |
 | Guessing between candidate sessions | Wrong session, polluted context |
