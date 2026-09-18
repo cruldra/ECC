@@ -158,60 +158,75 @@ digraph gates {
 
 ## 原型怎么做
 
-公司已经有两份跑着的原型可以照抄，源码位置和线上地址在保险箱的 `prototype-refs.md` 里。下面是从那两份里提炼的做法。
+原型的目的是**对齐双方理解、让客户下决心**，不是证明收益，也不会演进成正式代码。
+做完就扔，正式开发另起项目。
 
-### 技术栈
+### 别从零起：复制脚手架
 
-| 层 | 选型 | 为什么是它 |
-|---|---|---|
-| 框架 | React 19 + TypeScript | 和正式项目同一套，不用换脑子 |
-| 路由 | TanStack Router | 左侧导航按角色分层，路由即菜单 |
-| 构建 | Vite + pnpm | 起得快，改完即见，客户当场提意见当场改 |
-| 样式 | Tailwind 4，或手写一份 `index.css` | 两份现成原型各用一种，都行 |
-| 图标 | lucide-react | 需要时才装 |
-| 检查 | oxlint | 原型不写测试，lint 够用 |
+```bash
+cp -R "${CLAUDE_PLUGIN_ROOT}/skills/closing-custom-dev-deals/prototype-starter" <项目目录>/prototype
+cd <项目目录>/prototype && pnpm install && pnpm dev
+```
+
+React 19 + TypeScript + TanStack Router + Vite + Tailwind 4 + lucide，已经配好能跑能构建。
+路由即菜单，加一屏就在 `src/router.tsx` 的 `SCENES` 加一条。
 
 **明确不要的**：后端、数据库、鉴权、状态管理库、CI、单元测试、错误上报。一样都不要。
+跨页要记住状态就用 `localStorage` 假装有后端。
 
-### 目录骨架
+### 一屏一个场景，每屏四段
 
-```
-src/
-  data/      写死的业务数据，一个主题一个文件（tiers.ts / questions.ts / leads.ts）
-  shell/     Layout 左侧导航、Scene 页面容器、PhoneFrame 手机外壳
-  scenes/    按角色分：h5 用户端 / ai 智能层 / admin 运营后台 / arch 架构与路线
-  lib/       store.ts，useSyncExternalStore + localStorage 撑起跨页流程
-```
+`src/shell/SceneShell.tsx` 把结构写成了组件，少一段编译不过：
 
-四条规矩：
+| 段 | 写什么 | 不要写什么 |
+|---|---|---|
+| **场景** | 谁、在什么时候、在做什么，用他行业的词 | 「用户」「系统」这种抽象词 |
+| **痛点** | 具体发生过的事，带时间地点后果 | 「效率低」「不规范」「体验差」 |
+| **解决方案** | 我们打算让它变成什么样，一句话 | 任何数字承诺 |
+| **可点的交互演示** | 这屏的主角，占最大面积，客户能上手点 | 静态截图、示意图 |
 
-- **数据写死在 `src/data/`**，导出类型加常量数组。改文案就是改这一个文件，客户坐在旁边说一句你改一句
-- **按角色分场景，不按功能分**。客户关心的是"我看到什么、我员工看到什么、后台看到什么"，不是"这是列表页那是详情页"
-- **`lib/store.ts` 用 localStorage 假装有后端**。客户填的表单下一页能看到，演示就成立了
-- **手机端套 `PhoneFrame` 组件**，另开一条 `/m` 路由做全屏版，客户用手机直接打开
+末尾 `questions` 是「请贵司确认」：我们没摸准、要当面问的问题，一条一行。
+**摆出来问，不要替他猜**。空着的地方本身就是情报。
+
+交互演示必须真能点。客户点一下有反应才会相信这事能做成；看一张静态图他只会点头，
+回去继续不下决心。
+
+数据全写死在 `src/data/`，一个主题一个文件，所有示例值界面上带「示例」二字。
+客户坐在旁边说一句你改一句，刷新就生效。
+
+### 红线：不许承诺任何东西
+
+原型里、文案里、当面演示时，一律不许出现：
+
+- **工期承诺** —— 几天上线、几周交付、分几期
+- **省钱金额、人力节省、ROI、回本周期**
+- **编的行业数据**（「行业平均」「通常能提升 30%」）
+- **编的同行案例**
+- 「一定」「保证」「必然」
+
+编的数字交付不了算谁的。需求都没摸清就写这些，等于给自己挖坑。
+**先给解决方案吸引客户下决心，钱和工期在报价阶段谈。**
 
 ### 给客户看
 
-Docker 多阶段构建成 nginx 静态站，部署到公司服务器，反代配一个二级域名：
+用现成脚本，不要手工改 Cloudflare、Caddyfile、重启 frp —— 那些坑脚本里全写明了：
 
-```dockerfile
-FROM node:22-alpine AS builder
-RUN corepack enable && corepack prepare pnpm@latest --activate
-WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
-COPY . .
-RUN pnpm build
-
-FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-RUN echo 'server { listen 80; root /usr/share/nginx/html; location / { try_files $uri $uri/ /index.html; } }' > /etc/nginx/conf.d/default.conf
-EXPOSE 80
+```bash
+S=~/.agents/skills/deploying-to-dify-host/dify-deploy.sh
+$S deploy <name> <sub> <port> <本地目录>
 ```
 
-映射一个未占用的端口，再加一条反代规则指向它。具体主机、端口段、配置文件路径见保险箱的 `prototype-refs.md`。
+一条命令跑完 DNS → frpc → Caddy 证书 → 公网 HTTPS，两分钟内出结果。
+详见 `deploying-to-dify-host` 技能。
 
 给客户的只有一条链接，他什么都不用装，手机也能开。
+
+### 原型是报价的前提
+
+**一条链接 → 客户书面确认页面清单 → 才出报价。**
+
+报价方案的「附录·功能页面总览」必须与原型一一对应。
+原型不是报价之后的活；没看过原型就给固定总价，是在替客户承担他自己都没想清楚的范围。
 
 ## 交付物顺序
 
