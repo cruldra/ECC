@@ -134,5 +134,16 @@ test("SKILL.md asks before opening Figma and explains the quit", () => {
   assert.match(body, /never kills/);
 });
 
+test("SKILL.md keeps analysis off the canvas", () => {
+  const body = fs.readFileSync(
+    path.join(root, "skills", "figma-plugin-prototyping", "SKILL.md"),
+    "utf8"
+  );
+  assert.match(body, /Boards show the result only/);
+  assert.match(body, /问题与改法/);
+  assert.match(body, /The reasoning is the chat reply, not a layer/);
+  assert.ok(!/Overview board first/.test(body), "the notes board should be gone");
+});
+
 console.log(`\nResults: Passed: ${passed}, Failed: ${failed}\n`);
 process.exit(failed > 0 ? 1 : 0);

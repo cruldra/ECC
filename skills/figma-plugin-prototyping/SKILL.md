@@ -31,10 +31,27 @@ Copy `${CLAUDE_PLUGIN_ROOT}/skills/figma-plugin-prototyping/scripts/fake-figma.j
 2. **Read the product's tokens.** Colours, radii, and type sizes come from the app's theme file (`globals.css`, a theme module). Put them in `COLORS` as hex. Never invent a palette.
 3. **List the data first.** Tier tables, sample balances, states, copy. Keep them in constants at the top of `code.js` with a comment naming the source. The drawing functions read from them; tests assert on them.
 4. **Components before boards.** Every repeated block is a component with variants (`State=`, `Kind=`, `Theme=`). Boards only place `createInstance()` of those components. Editing the main component must propagate to every board.
-5. **Boards top to bottom, sets on the right.** Overview board first (design notes + how to demo), then screens in reading order, then edge cases (narrow width, long titles). Component sets go in a column to the right of the widest board.
+5. **Boards top to bottom, sets on the right.** Screens in reading order, then edge cases (narrow width, long titles). Component sets go in a column to the right of the widest board. No overview board, no notes board — see Boards show the result only.
 6. **Wire the demo.** `CHANGE_TO` between sibling variants for in-place state changes; `NAVIGATE` to other top-level boards for page moves; set `flowStartingPoints`. Buttons that would navigate back into their own board get highlight only, no reaction.
 7. **Test.** `node --check code.js`, `node --test test.js`, write README.
 8. **Ask before opening Figma.** The plugin is finished; ask the user whether to register it with Figma Desktop and launch it, then act on the answer. See Handoff.
+
+## Boards show the result only
+
+A board holds the designed interface and nothing else. Every board should look like a screenshot of the finished product.
+
+Never draw onto the canvas:
+
+- a 问题与改法 / 现状 vs 改法 column, or any before-and-after pair
+- an analysis, critique, or list of what is wrong with the current screen
+- design rationale, 设计说明, why-this-works captions, spec callouts
+- an overview board, a legend, a how-to-demo board, a changelog
+
+The reasoning is the chat reply, not a layer. The user looks at the canvas to judge the design; a wall of red commentary next to it makes them read instead of look, and it ages the moment the design changes.
+
+The only text allowed on a board is text that belongs to the product: labels, values, copy, empty states, error messages. Board names carry the screen name and its state (`Prototype / 报名页 · 报名中`), nothing else.
+
+Reproducing a current screen is fine when the user asks to compare — draw it as its own board named `现状`, still with no annotations on it. Put what is wrong with it in the reply.
 
 ## Plugin rules that bite
 
