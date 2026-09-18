@@ -79,7 +79,9 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ## O Que Há de Novo
 
-### v2.2.34 — figma-plugin-prototyping keeps the canvas to the result: no critique columns, no design rationale layers (Sep 2026)
+### v2.2.34 — spawning-peer-sessions draws the line: naming a model means a peer session, never an in-process Agent subagent (Sep 2026)
+
+### v2.2.33 — figma-plugin-prototyping keeps the canvas to the result: no critique columns, no design rationale layers (Sep 2026)
 
 ### v2.2.32 — closing-custom-dev-deals ships a prototype starter: one scene per screen (situation → pain → solution → clickable demo), and bans every timeline or savings promise from the prototype (Sep 2026)
 
