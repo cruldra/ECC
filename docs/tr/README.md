@@ -79,7 +79,7 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ## Yenilikler
 
-### v2.2.30 — spawning-peer-sessions skill added: open a peer session on demand (visible tab or headless), and get back the name that actually addresses it (Sep 2026)
+### v2.2.31 — spawning-peer-sessions skill added: open a peer session on demand (visible tab or headless), and get back the name that actually addresses it (Sep 2026)
 
 ### v2.2.29 — intake form output rules: write it in the working directory, ship a .docx the client can fill in, cover one phase only; release.sh no longer stalls on the English README (Sep 2026)
 

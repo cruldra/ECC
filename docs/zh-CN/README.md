@@ -81,7 +81,7 @@
 
 ## 最新动态
 
-### v2.2.30 — 收录 spawning-peer-sessions：随时开新会话（可见 tab 或纯后台），开完直接给出能寻址的名字（2026年9月）
+### v2.2.31 — 收录 spawning-peer-sessions：随时开新会话（可见 tab 或纯后台），开完直接给出能寻址的名字（2026年9月）
 
 ### v2.2.29 — 摸底表产出规则：写在当前目录、出 Word 给客户填、第一版只收一期；release.sh 不再卡在英文 README（2026年9月）
 
@@ -1337,7 +1337,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 | **上下文文件** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
 | **秘密检测** | 基于钩子                  | beforeSubmitPrompt 钩子 | 基于沙箱 | 基于钩子 |
 | **自动格式化** | PostToolUse 钩子        | afterFileEdit 钩子 | N/A | file.edited 钩子 |
-| **版本** | 插件 | 插件 | 参考配置 | 2.2.30 |
+| **版本** | 插件 | 插件 | 参考配置 | 2.2.31 |
 
 **关键架构决策：**
 
