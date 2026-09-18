@@ -81,7 +81,7 @@
 
 ## 最新动态
 
-### v2.2.32 — closing-custom-dev-deals 带原型脚手架：一屏一场景（场景 → 痛点 → 解决方案 → 可点演示），原型里禁止任何工期和收益承诺（2026年9月）
+### v2.2.33 — closing-custom-dev-deals 带原型脚手架：一屏一场景（场景 → 痛点 → 解决方案 → 可点演示），原型里禁止任何工期和收益承诺（2026年9月）
 
 ### v2.2.31 — figma-plugin-prototyping 插件写完后问一声，同意就自动导入 Figma 并打开（2026年9月）
 
@@ -1341,7 +1341,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 | **上下文文件** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
 | **秘密检测** | 基于钩子                  | beforeSubmitPrompt 钩子 | 基于沙箱 | 基于钩子 |
 | **自动格式化** | PostToolUse 钩子        | afterFileEdit 钩子 | N/A | file.edited 钩子 |
-| **版本** | 插件 | 插件 | 参考配置 | 2.2.32 |
+| **版本** | 插件 | 插件 | 参考配置 | 2.2.33 |
 
 **关键架构决策：**
 

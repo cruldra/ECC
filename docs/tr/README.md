@@ -79,7 +79,7 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ## Yenilikler
 
-### v2.2.32 — closing-custom-dev-deals ships a prototype starter: one scene per screen (situation → pain → solution → clickable demo), and bans every timeline or savings promise from the prototype (Sep 2026)
+### v2.2.33 — closing-custom-dev-deals ships a prototype starter: one scene per screen (situation → pain → solution → clickable demo), and bans every timeline or savings promise from the prototype (Sep 2026)
 
 ### v2.2.31 — figma-plugin-prototyping asks after writing the plugin, and on a yes registers it with Figma Desktop and launches it (Sep 2026)
 
