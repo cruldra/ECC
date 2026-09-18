@@ -80,7 +80,9 @@
 
 ## 最新动态
 
-### v2.2.32 — figma-plugin-prototyping 插件写完后问一声，同意就自动导入 Figma 并打开（2026年9月）
+### v2.2.32 — closing-custom-dev-deals 带原型脚手架：一屏一场景（场景 → 痛点 → 解决方案 → 可点演示），原型里禁止任何工期和收益承诺（2026年9月）
+
+### v2.2.31 — figma-plugin-prototyping 插件写完后问一声，同意就自动导入 Figma 并打开（2026年9月）
 
 ### v2.2.30 — 收录 spawning-peer-sessions：随时开新会话（可见 tab 或纯后台），开完直接给出能寻址的名字（2026年9月）
 
