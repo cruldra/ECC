@@ -80,6 +80,13 @@ person may want to watch, steer, or take over the session — that visibility is
 the whole reason to prefer it. Needs VS Code, the superpowers extension, and a
 workspace folder open in the current window.
 
+The URI is handled by whichever VS Code window was activated last, not by the
+window the script runs in. Switch to another project's window before spawning and
+the tab opens over there — the session's own cwd is still `--cwd`, but the tab is
+filed under the wrong workspace. The script now focuses `--cwd`'s window first, so
+this resolves itself; if a tab still lands in the wrong project, the user moved
+focus during the one-second gap.
+
 `--backend bg` runs `claude --bg`. No editor, works over ssh and on any
 platform, and the session stays addressable after it finishes its turn. Nothing
 to look at: output is reachable only through `claude logs <id>` or

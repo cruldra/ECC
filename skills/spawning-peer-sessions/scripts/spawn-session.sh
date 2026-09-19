@@ -103,6 +103,11 @@ if [ "$BACKEND" = bg ]; then
 else
   command -v code >/dev/null 2>&1 || die "找不到 code 命令，用 --backend bg"
   [ "${TERM_PROGRAM:-}" = vscode ] || die "不在 VS Code 终端里，tab 后端开不出来，用 --backend bg"
+  # URI 由最后激活的 VS Code 窗口接走，跟脚本在哪个终端里跑无关。用户切到别的项目窗口
+  # 之后再 spawn，tab 就开在那个项目里。先把打开 CWD 的窗口拉到前台再发 URI。
+  # 脚本要求在 VS Code 终端里跑，所以一定有窗口开着 CWD，-r 只聚焦，不会误开新目录。
+  code -r "$CWD" >/dev/null 2>&1 || true
+  sleep 1
   code --open-url "vscode://$EXTENSION/create-session?profile=$(urlencode_twice "$PROFILE")&name=$(urlencode_twice "$NAME")&prompt=$(urlencode_twice "$PROMPT")&cwd=$(urlencode_twice "$CWD")"
 fi
 

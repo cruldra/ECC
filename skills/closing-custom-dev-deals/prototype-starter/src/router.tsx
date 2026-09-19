@@ -20,7 +20,7 @@ function RootLayout() {
       <nav className="w-72 shrink-0 flex flex-col border-r border-gray-200 bg-white">
         <div className="border-b border-gray-100 p-6">
           <h1 className="text-lg font-bold text-gray-900">项目名称</h1>
-          <p className="mt-1 text-xs text-gray-500">交互原型 · 用于需求对齐</p>
+          <p className="mt-1 text-xs text-gray-500">交互演示 · 点开即可上手</p>
         </div>
         <div className="flex-1 space-y-1 overflow-y-auto p-3">
           {SCENES.map((scene) => (
@@ -45,7 +45,7 @@ function RootLayout() {
           ))}
         </div>
         <div className="border-t border-gray-100 p-4 text-center text-xs text-gray-400">
-          本原型用于对齐需求，不构成报价或交付承诺
+          本原型不构成报价或交付承诺
         </div>
       </nav>
 

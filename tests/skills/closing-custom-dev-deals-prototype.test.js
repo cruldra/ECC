@@ -55,19 +55,18 @@ test("the Dockerfile's frozen install has a lockfile to freeze against", () => {
   assert.ok(fs.statSync(path.join(starter, "pnpm-lock.yaml")).size > 0);
 });
 
-test("SceneShell requires all four bands plus the questions block", () => {
+test("SceneShell requires every band, and pains pair off against gains", () => {
   const shell = read(starter, "src/shell/SceneShell.tsx");
-  for (const required of ["situation", "pain", "solution", "demo", "questions"]) {
+  for (const required of ["title", "subtitle", "pains", "gains", "demoTitle", "demo"]) {
     assert.match(shell, new RegExp(`\\b${required}\\b`), `SceneShell drops ${required}`);
+    assert.ok(
+      !new RegExp(`\\b${required}\\?:`).test(shell),
+      `${required} must be a required prop, not optional`
+    );
   }
-  for (const label of ["场景", "痛点", "解决方案", "请贵司确认"]) {
-    assert.ok(shell.includes(label), `SceneShell drops the ${label} label`);
+  for (const label of ["现在是这样", "做完之后"]) {
+    assert.ok(shell.includes(label), `SceneShell drops the ${label} column`);
   }
-  assert.strictEqual(
-    /situation\??:/.test(shell) && !/situation\?:/.test(shell),
-    true,
-    "the bands must be required props, not optional"
-  );
 });
 
 test("the example scene goes through SceneShell and is actually clickable", () => {
@@ -106,12 +105,13 @@ test("nothing in the starter promises a timeline, a saving, or an ROI", () => {
   }
 });
 
-test("SKILL.md points at the starter, the four bands, the red line, and the deploy script", () => {
+test("SKILL.md points at the starter, the three bands, the red lines, and the deploy script", () => {
   const body = read(skillDir, "SKILL.md");
   assert.match(body, /prototype-starter/);
-  assert.match(body, /场景.*痛点.*解决方案/s);
-  assert.match(body, /可点的交互演示/);
-  assert.match(body, /请贵司确认/);
+  assert.match(body, /每屏三段/);
+  assert.match(body, /现在是这样.*做完之后/s);
+  assert.match(body, /交互演示工作区/);
+  assert.match(body, /不许出现问号/);
   assert.match(body, /不许承诺任何东西/);
   assert.match(body, /dify-deploy\.sh/);
   assert.ok(!/frpc\.toml/.test(body), "the hand-rolled frp config should be gone");
