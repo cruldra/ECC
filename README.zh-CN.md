@@ -80,7 +80,7 @@
 
 ## 最新动态
 
-### v2.2.34 — spawning-peer-sessions 写死分界：点名模型就是开对等会话，不再被当成 Agent 子代理（2026年9月）
+### v2.2.35 — spawning-peer-sessions 写死分界：点名模型就是开对等会话，不再被当成 Agent 子代理（2026年9月）
 
 ### v2.2.33 — figma-plugin-prototyping 画板只画结果：不再往画布上堆「问题与改法」和设计说明（2026年9月）
 

@@ -81,7 +81,7 @@
 
 ## 最新动态
 
-### v2.2.34 — spawning-peer-sessions 写死分界：点名模型就是开对等会话，不再被当成 Agent 子代理（2026年9月）
+### v2.2.35 — spawning-peer-sessions 写死分界：点名模型就是开对等会话，不再被当成 Agent 子代理（2026年9月）
 
 ### v2.2.33 — figma-plugin-prototyping 画板只画结果：不再往画布上堆「问题与改法」和设计说明（2026年9月）
 
@@ -1345,7 +1345,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 | **上下文文件** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
 | **秘密检测** | 基于钩子                  | beforeSubmitPrompt 钩子 | 基于沙箱 | 基于钩子 |
 | **自动格式化** | PostToolUse 钩子        | afterFileEdit 钩子 | N/A | file.edited 钩子 |
-| **版本** | 插件 | 插件 | 参考配置 | 2.2.34 |
+| **版本** | 插件 | 插件 | 参考配置 | 2.2.35 |
 
 **关键架构决策：**
 
