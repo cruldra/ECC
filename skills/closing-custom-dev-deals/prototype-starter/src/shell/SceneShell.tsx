@@ -43,7 +43,7 @@ export function SceneShell(props: {
   accent?: keyof typeof ACCENTS
   /** 现在怎么出问题的。具体的事，不写「效率低」。三条最好。 */
   pains: PainPoint[]
-  /** 做完之后是什么样。跟痛点一一对上。 */
+  /** 解决方案：这件事做完之后长什么样。跟现状一一对上。 */
   gains: PainPoint[]
   /** 演示区标题，写成甲方看得懂的工作区名字 */
   demoTitle: string
@@ -77,7 +77,7 @@ export function SceneShell(props: {
 
           <div className="rounded-2xl border-l-4 border-l-red-500 bg-white p-6 shadow-sm">
             <h3 className="mb-3 flex items-center gap-2 text-lg font-bold text-red-600">
-              <XCircle size={20} />现在是这样
+              <XCircle size={20} />现状
             </h3>
             <ul className="space-y-3 text-gray-600">
               {pains.map((p) => (
@@ -92,7 +92,7 @@ export function SceneShell(props: {
           <div className="relative overflow-hidden rounded-2xl border-l-4 border-l-emerald-500 bg-white p-6 shadow-sm">
             <div className="absolute -right-4 -bottom-4 opacity-5"><Sparkles size={120} /></div>
             <h3 className="relative z-10 mb-3 flex items-center gap-2 text-lg font-bold text-emerald-600">
-              <CheckCircle2 size={20} />做完之后
+              <CheckCircle2 size={20} />解决方案
             </h3>
             <ul className="relative z-10 space-y-3 text-gray-600">
               {gains.map((g) => (

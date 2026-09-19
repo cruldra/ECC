@@ -5,7 +5,7 @@ import { useGeneration } from '../../shell/useGeneration'
 import { OPTIONS, RESULT_ROWS, STEPS } from '../../data/scene1'
 
 /**
- * 场景模板。照着改：换掉抬头三句、痛点与做完之后各三条、演示里的三段。
+ * 场景模板。照着改：换掉抬头三句、现状与解决方案各三条、演示里的三段。
  *
  * 演示固定三段：填条件 → 一步步跑 → 交出东西。
  * 客户点一下、看着它跑完、看见成果落在纸面上，他才相信这事能做成。

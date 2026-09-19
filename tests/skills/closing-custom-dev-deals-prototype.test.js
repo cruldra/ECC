@@ -64,7 +64,7 @@ test("SceneShell requires every band, and pains pair off against gains", () => {
       `${required} must be a required prop, not optional`
     );
   }
-  for (const label of ["现在是这样", "做完之后"]) {
+  for (const label of ["现状", "解决方案"]) {
     assert.ok(shell.includes(label), `SceneShell drops the ${label} column`);
   }
 });
@@ -109,7 +109,7 @@ test("SKILL.md points at the starter, the three bands, the red lines, and the de
   const body = read(skillDir, "SKILL.md");
   assert.match(body, /prototype-starter/);
   assert.match(body, /每屏三段/);
-  assert.match(body, /现在是这样.*做完之后/s);
+  assert.match(body, /现状 \/ 解决方案/);
   assert.match(body, /交互演示工作区/);
   assert.match(body, /不许出现问号/);
   assert.match(body, /不许承诺任何东西/);
