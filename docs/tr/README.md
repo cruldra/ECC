@@ -79,7 +79,9 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ## Yenilikler
 
-### v2.2.37 — the four-gate diagram switches to mermaid so it renders in the console and on GitHub (Sep 2026)
+### v2.2.37 — closing-custom-dev-deals ships an online intake service: the client fills three steps from one link, no documents changing hands (Sep 2026)
+
+### v2.2.36 — the four-gate diagram switches to mermaid so it renders in the console and on GitHub (Sep 2026)
 
 ### v2.2.35 — the prototype settles on three bands: header, current state vs solution, and the demo workspace — with no open questions left on screen (Sep 2026)
 
