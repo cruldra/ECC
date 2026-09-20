@@ -12,11 +12,18 @@ const {
 } = require('./claude-settings');
 
 const EXCLUDED_GENERATED_SOURCE_SUFFIXES = ['/ecc-install-state.json', '/ecc/install-state.json'];
+// Dependency trees and build output are reproducible from the lockfile; copying
+// them would put tens of thousands of files into every install plan.
 const IGNORED_DIRECTORY_NAMES = new Set([
   'node_modules',
   '.git',
   '__pycache__',
   '.pytest_cache',
+  '.venv',
+  'venv',
+  '.ruff_cache',
+  '.mypy_cache',
+  'dist',
 ]);
 const IGNORED_FILE_EXTENSIONS = new Set(['.pyc', '.pyo', '.pyd']);
 

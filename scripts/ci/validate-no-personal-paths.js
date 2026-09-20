@@ -67,6 +67,8 @@ function findLeaks(content) {
   return leaks;
 }
 
+const SKIP_DIRS = new Set(['node_modules', '.git', '.venv', 'venv', '__pycache__', 'dist', '.pytest_cache', '.ruff_cache', '.mypy_cache']);
+
 function collectFiles(targetPath, out) {
   if (!fs.existsSync(targetPath)) return;
   const stat = fs.statSync(targetPath);
@@ -76,7 +78,10 @@ function collectFiles(targetPath, out) {
   }
 
   for (const entry of fs.readdirSync(targetPath)) {
-    if (entry === 'node_modules' || entry === '.git') continue;
+    // Dependency trees are not ours to police: an installed wheel records the
+    // machine that built it, so .venv is full of /Users/runner paths that no
+    // amount of repository hygiene removes. None of these are committed.
+    if (SKIP_DIRS.has(entry)) continue;
     collectFiles(path.join(targetPath, entry), out);
   }
 }

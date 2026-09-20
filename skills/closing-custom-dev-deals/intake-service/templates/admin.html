@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>提交记录</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-900 antialiased">
+  <div class="mx-auto max-w-5xl px-6 py-10">
+    <h1 class="text-2xl font-semibold">提交记录</h1>
+    <p class="mt-1 text-sm text-slate-500">共 {{ rows|length }} 份</p>
+    {% if rows %}
+    <div class="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-left text-xs text-slate-500">
+          <tr>
+            <th class="px-4 py-3">公司</th>
+            <th class="px-4 py-3">行业</th>
+            <th class="px-4 py-3">规模</th>
+            <th class="px-4 py-3">岗位</th>
+            <th class="px-4 py-3">场景</th>
+            <th class="px-4 py-3">提交时间</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for row in rows %}
+          <tr class="hover:bg-slate-50">
+            <td class="px-4 py-3">
+              <a class="font-medium text-blue-600 hover:underline" href="/admin/{{ row.id }}">{{ row.company }}</a>
+              <div class="text-xs text-slate-400">{{ row.city }}</div>
+            </td>
+            <td class="px-4 py-3">{{ row.industry or "—" }}</td>
+            <td class="px-4 py-3">{{ row.headcount or "—" }}</td>
+            <td class="px-4 py-3">{{ row.roles|length }}</td>
+            <td class="px-4 py-3">{{ row.scenes|length }}</td>
+            <td class="px-4 py-3 text-slate-500">{{ row.created_at[:16].replace("T", " ") }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="mt-6 rounded-2xl border border-dashed border-slate-300 bg-white/60 p-10 text-center text-slate-400">
+      还没有人提交。
+    </p>
+    {% endif %}
+  </div>
+</body>
+</html>

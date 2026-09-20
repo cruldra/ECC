@@ -1,6 +1,6 @@
 ---
 name: spawning-peer-sessions
-description: Open another Claude Code session on demand and talk to it — delegate a task to a different model, get a second opinion, run a review or acceptance pass in parallel, or hand work to a session that already has the context. Naming a profile or model is always this skill and never the Agent tool: 新开会话 / 新建一个 opus 会话 / 另开个 grok tab / 派一个 gpt56 会话 / 让 fable5 跑一下 / 让 gpt56 验一下 / 找个 xx 会话去做. Only an explicit 子代理 / subagent / Agent 工具 means the Agent tool. Also covers 转给那个会话 / 通知另一个会话, finding a live session, addressing it, and closing the loop when this session receives a task from a peer and has to report back.
+description: "Open another Claude Code session on demand and talk to it — delegate a task to a different model, get a second opinion, run a review or acceptance pass in parallel, or hand work to a session that already has the context. Naming a profile or model is always this skill and never the Agent tool: 新开会话 / 新建一个 opus 会话 / 另开个 grok tab / 派一个 gpt56 会话 / 让 fable5 跑一下 / 让 gpt56 验一下 / 找个 xx 会话去做. Only an explicit 子代理 / subagent / Agent 工具 means the Agent tool. Also covers 转给那个会话 / 通知另一个会话, finding a live session, addressing it, and closing the loop when this session receives a task from a peer and has to report back."
 ---
 
 # Spawning peer sessions

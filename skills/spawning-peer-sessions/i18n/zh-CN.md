@@ -1,6 +1,6 @@
 ---
 name: spawning-peer-sessions
-description: 按需开另一个 Claude Code 会话并与它对话——把任务派给不同的模型、征求第二意见、并行跑一轮评审或验收，或把工作交给已有上下文的会话。点名 profile 或模型永远是本技能而绝不是 Agent 工具：新开会话 / 新建一个 opus 会话 / 另开个 grok tab / 派一个 gpt56 会话 / 让 fable5 跑一下 / 让 gpt56 验一下 / 找个 xx 会话去做。只有明确说出 子代理 / subagent / Agent 工具 才指 Agent 工具。本技能另覆盖 转给那个会话 / 通知另一个会话、找到在跑的会话、对其寻址，以及本会话收到对等会话任务后回报闭环的情形。
+description: "按需开另一个 Claude Code 会话并与它对话——把任务派给不同的模型、征求第二意见、并行跑一轮评审或验收，或把工作交给已有上下文的会话。点名 profile 或模型永远是本技能而绝不是 Agent 工具：新开会话 / 新建一个 opus 会话 / 另开个 grok tab / 派一个 gpt56 会话 / 让 fable5 跑一下 / 让 gpt56 验一下 / 找个 xx 会话去做。只有明确说出 子代理 / subagent / Agent 工具 才指 Agent 工具。本技能另覆盖 转给那个会话 / 通知另一个会话、找到在跑的会话、对其寻址，以及本会话收到对等会话任务后回报闭环的情形。"
 locale: zh-CN
 source_hash: 82dfb389df0d15b7318dfc3b218c4316eb3ec0deb645d300c5c297234a02c1d3
 translated_at: 2026-09-18T17:10:57Z

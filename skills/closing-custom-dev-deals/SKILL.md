@@ -81,8 +81,28 @@ flowchart TB
 因为他也不知道对不对。等原型做出来他才说"不是这个意思"。**摸底就是把这一轮
 返工提到写字之前。**
 
-**发什么**：`intake-template.md`。发之前按客户行业改一遍例子和用词 —— 第 8 题的
-示例必须换成他那行的事，否则他照着抄。
+**发什么**：一条链接。`intake-service/` 是跑着的收集表单（FastAPI + Lit），
+客户在手机上三步填完：企业信息 / 关键岗位与流程 / 期望 AI 赋能的场景。
+岗位和场景各预置两个位子，客户自己加。提交落库，`/admin` 看。
+
+```bash
+cd "${CLAUDE_PLUGIN_ROOT}/skills/closing-custom-dev-deals/intake-service"
+uv sync && cp .env.example .env && uv run python main.py
+```
+
+上公网用 `deploying-to-dify-host` 的 `dify-deploy.sh`：
+
+```bash
+~/.agents/skills/deploying-to-dify-host/dify-deploy.sh deploy client-intake shoudan 8000 .
+```
+
+`/admin` 和读取接口走 HTTP Basic，账号密码从 `.env` 的 `ADMIN_USER` / `ADMIN_PASSWORD` 来，
+**不进仓库**。没设密码后台直接关掉（503），不会默认敞开。提交接口对客户开放。
+
+**只有公司名称必填，其余留空是有效信息。** 空着的地方当面问，别逼客户编。
+输入框里不写引导语 —— 写了客户读起来像在被套信息。
+
+`intake-template.md` 是同一套题的纸质版，客户不方便在线填时用。
 
 **产出放哪**：写在当前工作目录，或者操作人指定的目录。**不要自己另起一个目录**
 （`~/Sources/deals/<客户>/` 这种），也不要为了归档在别处再留一份。不知道放哪就问，
