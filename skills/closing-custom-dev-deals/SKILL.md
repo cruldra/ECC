@@ -44,23 +44,28 @@ bash "${CLAUDE_PLUGIN_ROOT}/skills/closing-custom-dev-deals/scripts/vault.sh" sh
 
 闸门 0 只在需求不明确时走。其余每一道不通过，不进入下一道。
 
-```dot
-digraph gates {
-  rankdir=TB; node [shape=box];
-  G0 [label="需求清楚吗？" shape=diamond];
-  INTAKE [label="发需求摸底表\n+ 一次当面沟通" shape=box style=dashed];
-  G1 [label="闸门1 · 需求可估算？" shape=diamond];
-  G2 [label="闸门2 · 范围可锁定？" shape=diamond];
-  G3 [label="闸门3 · 产能单价达标？" shape=diamond];
-  G4 [label="闸门4 · 风险可转移？" shape=diamond];
-  OUT [label="不接 / 先补前置条件" style=dashed];
-  SIGN [label="签约"];
-  G0 -> G1 [label="是"]; G0 -> INTAKE [label="否"]; INTAKE -> G1;
-  G1 -> G2 [label="是"]; G1 -> OUT [label="否"];
-  G2 -> G3 [label="是"]; G2 -> OUT [label="否"];
-  G3 -> G4 [label="是"]; G3 -> OUT [label="否"];
-  G4 -> SIGN [label="是"]; G4 -> OUT [label="否"];
-}
+```mermaid
+flowchart TB
+  G0{需求清楚吗？}
+  INTAKE[/发需求摸底表<br>+ 一次当面沟通/]
+  G1{闸门1 · 需求可估算？}
+  G2{闸门2 · 范围可锁定？}
+  G3{闸门3 · 产能单价达标？}
+  G4{闸门4 · 风险可转移？}
+  OUT[不接 / 先补前置条件]
+  SIGN([签约])
+
+  G0 -->|是| G1
+  G0 -->|否| INTAKE
+  INTAKE --> G1
+  G1 -->|是| G2
+  G1 -->|否| OUT
+  G2 -->|是| G3
+  G2 -->|否| OUT
+  G3 -->|是| G4
+  G3 -->|否| OUT
+  G4 -->|是| SIGN
+  G4 -->|否| OUT
 ```
 
 ### 闸门 0 · 需求不明确时先摸底（只在需要时走）
