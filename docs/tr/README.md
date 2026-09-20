@@ -79,7 +79,7 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ## Yenilikler
 
-### v2.2.35 — the prototype settles on three bands: header, current state vs solution, and the demo workspace — with no open questions left on screen (Sep 2026)
+### v2.2.36 — the prototype settles on three bands: header, current state vs solution, and the demo workspace — with no open questions left on screen (Sep 2026)
 
 ### v2.2.34 — spawning-peer-sessions draws the line: naming a model means a peer session, never an in-process Agent subagent (Sep 2026)
 
