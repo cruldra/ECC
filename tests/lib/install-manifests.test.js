@@ -698,7 +698,7 @@ function runTests() {
     );
   })) passed++; else failed++;
 
-  if (test('skips a requested module when its dependency chain does not support the target', () => {
+  if (test('installs a requested module even when a dependency does not support the target', () => {
     const repoRoot = createTestRepo();
     try {
       writeJson(path.join(repoRoot, 'manifests', 'install-modules.json'), {
@@ -735,9 +735,11 @@ function runTests() {
         }
       });
 
+      // The dependency has no surface on this target. Dropping the parent over
+      // that is how codex installs silently lost every language skill.
       const plan = resolveInstallPlan({ repoRoot, profileId: 'core', target: 'claude' });
-      assert.deepStrictEqual(plan.selectedModuleIds, []);
-      assert.deepStrictEqual(plan.skippedModuleIds, ['parent']);
+      assert.deepStrictEqual(plan.selectedModuleIds, ['parent']);
+      assert.deepStrictEqual(plan.skippedModuleIds, ['child']);
     } finally {
       cleanupTestRepo(repoRoot);
     }

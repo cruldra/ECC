@@ -624,6 +624,8 @@ function resolveInstallPlan(options = {}) {
 
   const selectedIds = new Set();
   const skippedTargetIds = new Set();
+  // Distinguishes "this target has no such surface" from "resolution failed".
+  const UNSUPPORTED_DEPENDENCY = 'unsupported-dependency';
   const excludedIds = new Set([
     ...excludedModuleIds,
     ...targetDefaultExclusions.map(exclusion => exclusion.moduleId),
@@ -654,12 +656,12 @@ function resolveInstallPlan(options = {}) {
       );
 
     if (!supportsTarget) {
-      if (dependencyOf) {
-        skippedTargetIds.add(rootRequesterId || dependencyOf);
-        return false;
-      }
+      // A dependency the target cannot take is not a reason to drop the module
+      // that wants it. framework-language depends on rules-core, and codex has
+      // no rules surface — before this, every codex install silently lost the
+      // 70-odd language skills. User exclusions still fail loudly above.
       skippedTargetIds.add(moduleId);
-      return false;
+      return dependencyOf ? UNSUPPORTED_DEPENDENCY : false;
     }
 
     if (resolvedIds.has(moduleId)) {
@@ -677,6 +679,9 @@ function resolveInstallPlan(options = {}) {
         moduleId,
         rootRequesterId || moduleId
       );
+      if (dependencyResolved === UNSUPPORTED_DEPENDENCY) {
+        continue;
+      }
       if (!dependencyResolved) {
         visitingIds.delete(moduleId);
         if (!dependencyOf) {
