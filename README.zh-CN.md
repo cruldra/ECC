@@ -80,7 +80,7 @@
 
 ## 最新动态
 
-### v2.2.38 — intake-service 的容器构建修好并已上线；Dockerfile 只装依赖不把应用当包装（2026年9月）
+### v2.2.39 — intake-service 的容器构建修好并已上线；Dockerfile 只装依赖不把应用当包装（2026年9月）
 
 ### v2.2.37 — closing-custom-dev-deals 带上在线收集表：客户点链接三步填完，不再来回传文件（2026年9月）
 
