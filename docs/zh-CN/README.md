@@ -81,7 +81,7 @@
 
 ## 最新动态
 
-### v2.2.37 — closing-custom-dev-deals 带上在线收集表：客户点链接三步填完，不再来回传文件（2026年9月）
+### v2.2.38 — closing-custom-dev-deals 带上在线收集表：客户点链接三步填完，不再来回传文件（2026年9月）
 
 ### v2.2.36 — 四道闸门图改用 mermaid，控制台和 GitHub 都能渲染出来（2026年9月）
 
@@ -1351,7 +1351,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 | **上下文文件** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
 | **秘密检测** | 基于钩子                  | beforeSubmitPrompt 钩子 | 基于沙箱 | 基于钩子 |
 | **自动格式化** | PostToolUse 钩子        | afterFileEdit 钩子 | N/A | file.edited 钩子 |
-| **版本** | 插件 | 插件 | 参考配置 | 2.2.37 |
+| **版本** | 插件 | 插件 | 参考配置 | 2.2.38 |
 
 **关键架构决策：**
 
