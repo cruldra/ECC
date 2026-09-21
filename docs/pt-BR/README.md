@@ -79,7 +79,9 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ## O Que Há de Novo
 
-### v2.2.39 — the intake service's container build is fixed and live; the Dockerfile installs dependencies without treating the app as a package (Sep 2026)
+### v2.2.39 — install resolution fixed: a dependency the target cannot take no longer drops the module that wants it; codex installs had been silently losing 76 skills (Sep 2026)
+
+### v2.2.38 — the intake service's container build is fixed and live; the Dockerfile installs dependencies without treating the app as a package (Sep 2026)
 
 ### v2.2.37 — closing-custom-dev-deals ships an online intake service: the client fills three steps from one link, no documents changing hands (Sep 2026)
 
