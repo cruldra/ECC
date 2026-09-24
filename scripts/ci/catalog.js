@@ -21,6 +21,7 @@ const AGENTS_PATH = path.join(ROOT, 'AGENTS.md');
 const README_ZH_CN_PATH = path.join(ROOT, 'README.zh-CN.md');
 const DOCS_ZH_CN_README_PATH = path.join(ROOT, 'docs', 'zh-CN', 'README.md');
 const DOCS_ZH_CN_AGENTS_PATH = path.join(ROOT, 'docs', 'zh-CN', 'AGENTS.md');
+const DOCS_TR_AGENTS_PATH = path.join(ROOT, 'docs', 'tr', 'AGENTS.md');
 const PLUGIN_JSON_PATH = path.join(ROOT, '.claude-plugin', 'plugin.json');
 const MARKETPLACE_JSON_PATH = path.join(ROOT, '.claude-plugin', 'marketplace.json');
 const WRITE_MODE = process.argv.includes('--write');
@@ -253,6 +254,61 @@ function parseAgentsDocExpectations(agentsContent) {
       mode: 'exact',
       regex: /^\s*commands\/\s*[—–-]\s*(\d+)\s+slash commands\s*$/im,
       source: 'AGENTS.md project structure'
+    }
+  ];
+
+  for (const pattern of structurePatterns) {
+    const match = agentsContent.match(pattern.regex);
+    if (!match) {
+      throw new Error(`${pattern.source} is missing the ${pattern.category} entry`);
+    }
+
+    expectations.push({
+      category: pattern.category,
+      mode: pattern.mode === 'minimum' && match[2] ? 'minimum' : pattern.mode,
+      expected: Number(match[1]),
+      source: `${pattern.source} (${pattern.category})`
+    });
+  }
+
+  return expectations;
+}
+
+function parseTrAgentsDocExpectations(agentsContent) {
+  const summaryMatch = agentsContent.match(/(\d+)\s+özel agent,\s*(\d+)(\+)?\s+skill,\s*(\d+)\s+command/i);
+  if (!summaryMatch) {
+    throw new Error('docs/tr/AGENTS.md is missing the catalog summary line');
+  }
+
+  const expectations = [
+    { category: 'agents', mode: 'exact', expected: Number(summaryMatch[1]), source: 'docs/tr/AGENTS.md summary' },
+    {
+      category: 'skills',
+      mode: summaryMatch[3] ? 'minimum' : 'exact',
+      expected: Number(summaryMatch[2]),
+      source: 'docs/tr/AGENTS.md summary'
+    },
+    { category: 'commands', mode: 'exact', expected: Number(summaryMatch[4]), source: 'docs/tr/AGENTS.md summary' }
+  ];
+
+  const structurePatterns = [
+    {
+      category: 'agents',
+      mode: 'exact',
+      regex: /^\s*agents\/\s*[—–-]\s*(\d+)\s+özel subagent\s*$/im,
+      source: 'docs/tr/AGENTS.md project structure'
+    },
+    {
+      category: 'skills',
+      mode: 'minimum',
+      regex: /^\s*skills\/\s*[—–-]\s*(\d+)(\+)?\s+iş akışı skillleri ve alan bilgisi\s*$/im,
+      source: 'docs/tr/AGENTS.md project structure'
+    },
+    {
+      category: 'commands',
+      mode: 'exact',
+      regex: /^\s*commands\/\s*[—–-]\s*(\d+)\s+slash command\s*$/im,
+      source: 'docs/tr/AGENTS.md project structure'
     }
   ];
 
@@ -534,6 +590,38 @@ function syncZhAgents(content, catalog) {
   return nextContent;
 }
 
+function syncTrAgents(content, catalog) {
+  let nextContent = content;
+
+  nextContent = replaceOrThrow(
+    nextContent,
+    /(\d+)(\s+özel agent,\s*)(\d+)(\+?)(\s+skill,\s*)(\d+)(\s+command)/i,
+    (_, __, agentsSuffix, ___, skillsPlus, skillsSuffix, ____, commandsSuffix) =>
+      `${catalog.agents.count}${agentsSuffix}${catalog.skills.count}${skillsPlus}${skillsSuffix}${catalog.commands.count}${commandsSuffix}`,
+    'docs/tr/AGENTS.md summary'
+  );
+  nextContent = replaceOrThrow(
+    nextContent,
+    /^(\s*agents\/\s*[—–-]\s*)(\d+)(\s+özel subagent\s*)$/im,
+    (_, prefix, __, suffix) => `${prefix}${catalog.agents.count}${suffix}`,
+    'docs/tr/AGENTS.md project structure (agents)'
+  );
+  nextContent = replaceOrThrow(
+    nextContent,
+    /^(\s*skills\/\s*[—–-]\s*)(\d+)(\+?)(\s+iş akışı skillleri ve alan bilgisi\s*)$/im,
+    (_, prefix, __, plus, suffix) => `${prefix}${catalog.skills.count}${plus}${suffix}`,
+    'docs/tr/AGENTS.md project structure (skills)'
+  );
+  nextContent = replaceOrThrow(
+    nextContent,
+    /^(\s*commands\/\s*[—–-]\s*)(\d+)(\s+slash command\s*)$/im,
+    (_, prefix, __, suffix) => `${prefix}${catalog.commands.count}${suffix}`,
+    'docs/tr/AGENTS.md project structure (commands)'
+  );
+
+  return nextContent;
+}
+
 function syncCatalogDescription(content, catalog, source, getDescription, setDescription) {
   let parsed;
   try {
@@ -566,6 +654,7 @@ function createDocumentSpecs(paths = {}) {
     zhRootReadmePath = README_ZH_CN_PATH,
     zhDocsReadmePath = DOCS_ZH_CN_README_PATH,
     zhDocsAgentsPath = DOCS_ZH_CN_AGENTS_PATH,
+    trDocsAgentsPath = DOCS_TR_AGENTS_PATH,
     pluginJsonPath = PLUGIN_JSON_PATH,
     marketplaceJsonPath = MARKETPLACE_JSON_PATH,
   } = paths;
@@ -595,6 +684,11 @@ function createDocumentSpecs(paths = {}) {
       filePath: zhDocsAgentsPath,
       parseExpectations: parseZhAgentsDocExpectations,
       syncContent: syncZhAgents,
+    },
+    {
+      filePath: trDocsAgentsPath,
+      parseExpectations: parseTrAgentsDocExpectations,
+      syncContent: syncTrAgents,
     },
     {
       filePath: pluginJsonPath,
@@ -636,6 +730,7 @@ function createDocumentSpecsForRoot(root) {
     zhRootReadmePath: path.join(root, 'README.zh-CN.md'),
     zhDocsReadmePath: path.join(root, 'docs', 'zh-CN', 'README.md'),
     zhDocsAgentsPath: path.join(root, 'docs', 'zh-CN', 'AGENTS.md'),
+    trDocsAgentsPath: path.join(root, 'docs', 'tr', 'AGENTS.md'),
     pluginJsonPath: path.join(root, '.claude-plugin', 'plugin.json'),
     marketplaceJsonPath: path.join(root, '.claude-plugin', 'marketplace.json'),
   });
@@ -744,6 +839,7 @@ module.exports = {
   parseAgentsDocExpectations,
   parseCatalogDescriptionExpectations,
   parseReadmeExpectations,
+  parseTrAgentsDocExpectations,
   parseZhAgentsDocExpectations,
   parseZhDocsReadmeExpectations,
   parseZhRootReadmeExpectations,
@@ -751,6 +847,7 @@ module.exports = {
   syncCatalogDescription,
   syncEnglishAgents,
   syncEnglishReadme,
+  syncTrAgents,
   syncZhAgents,
   syncZhDocsReadme,
   syncZhRootReadme,

@@ -142,6 +142,21 @@ commands/ - ${counts.commands} 个斜杠命令
 `);
 }
 
+function writeTrAgents(root, counts, options = {}) {
+  const plus = options.skillsMinimum ? '+' : '';
+  const dir = path.join(root, 'docs', 'tr');
+  fs.mkdirSync(dir, { recursive: true });
+
+  fs.writeFileSync(path.join(dir, 'AGENTS.md'), `Bu, yazılım geliştirme için ${counts.agents} özel agent, ${counts.skills}${plus} skill, ${counts.commands} command ve otomatik hook iş akışları sağlayan bir eklentidir.
+
+\`\`\`
+agents/          — ${counts.agents} özel subagent
+skills/          — ${counts.skills}${plus} iş akışı skillleri ve alan bilgisi
+commands/        — ${counts.commands} slash command
+\`\`\`
+`);
+}
+
 function writeCatalogFixture(root, options = {}) {
   const actualCounts = options.actualCounts || { agents: 1, skills: 1, commands: 1 };
   const documentedCounts = options.documentedCounts || actualCounts;
@@ -161,6 +176,7 @@ function writeCatalogFixture(root, options = {}) {
   writeZhRootReadme(root, documentedCounts);
   writeZhDocsReadme(root, documentedCounts, { unrelatedSkillsCount });
   writeZhAgents(root, documentedCounts, { skillsMinimum });
+  writeTrAgents(root, documentedCounts, { skillsMinimum });
   writePluginMetadata(root, documentedCounts);
 }
 
@@ -229,6 +245,8 @@ function runTests() {
       assert.ok(formatted.includes('README.zh-CN.md quick-start summary'));
       assert.ok(formatted.includes('docs/zh-CN/README.md parity table'));
       assert.ok(formatted.includes('docs/zh-CN/AGENTS.md project structure'));
+      assert.ok(formatted.includes('docs/tr/AGENTS.md summary'));
+      assert.ok(formatted.includes('docs/tr/AGENTS.md project structure'));
     } finally {
       cleanupTestDir(testDir);
     }
@@ -252,6 +270,7 @@ function runTests() {
       const agentsDoc = fs.readFileSync(path.join(testDir, 'AGENTS.md'), 'utf8');
       const zhReadme = fs.readFileSync(path.join(testDir, 'docs', 'zh-CN', 'README.md'), 'utf8');
       const zhAgentsDoc = fs.readFileSync(path.join(testDir, 'docs', 'zh-CN', 'AGENTS.md'), 'utf8');
+      const trAgentsDoc = fs.readFileSync(path.join(testDir, 'docs', 'tr', 'AGENTS.md'), 'utf8');
       const pluginJson = fs.readFileSync(path.join(testDir, '.claude-plugin', 'plugin.json'), 'utf8');
       const marketplaceJson = fs.readFileSync(path.join(testDir, '.claude-plugin', 'marketplace.json'), 'utf8');
 
@@ -264,6 +283,10 @@ function runTests() {
       assert.ok(zhReadme.includes('| 技能 | 42 | .agents/skills/ |'));
       assert.ok(zhAgentsDoc.includes('提供 1 个专业代理、1+ 项技能、1 条命令'));
       assert.ok(zhAgentsDoc.includes('skills/ - 1+ 个工作流技能和领域知识'));
+      assert.ok(trAgentsDoc.includes('1 özel agent, 1+ skill, 1 command'));
+      assert.ok(trAgentsDoc.includes('agents/          — 1 özel subagent'));
+      assert.ok(trAgentsDoc.includes('skills/          — 1+ iş akışı skillleri ve alan bilgisi'));
+      assert.ok(trAgentsDoc.includes('commands/        — 1 slash command'));
       assert.ok(pluginJson.includes('1 agents, 1 skills, 1 legacy command shims'));
       assert.ok(marketplaceJson.includes('1 agents, 1 skills, 1 legacy command shims'));
     } finally {
