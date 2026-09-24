@@ -79,7 +79,9 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ## Yenilikler
 
-### v2.2.40 — install resolution fixed: a dependency the target cannot take no longer drops the module that wants it; codex installs had been silently losing 76 skills (Sep 2026)
+### v2.2.40 — new wechat-developing skill: WeChat ecosystem field notes, one file per area, starting with 公众号 H5 share signing, the API IP whitelist, and ICP interception (Sep 2026)
+
+### v2.2.39 — install resolution fixed: a dependency the target cannot take no longer drops the module that wants it; codex installs had been silently losing 76 skills (Sep 2026)
 
 ### v2.2.38 — the intake service's container build is fixed and live; the Dockerfile installs dependencies without treating the app as a package (Sep 2026)
 
