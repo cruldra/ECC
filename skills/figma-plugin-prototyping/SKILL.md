@@ -58,12 +58,44 @@ Reproducing a current screen is fine when the user asks to compare — draw it a
 - **No `id` in `manifest.json`** for a local plugin. Private `setPluginData` throws without an id; use `setSharedPluginData(NAMESPACE, key, value)` for all node metadata. Never fabricate an id.
 - `documentAccess: "dynamic-page"`, `editorType: ["figma"]`, `networkAccess.allowedDomains: ["none"]`. No UI, no network, no product data.
 - **Fonts before anything else.** `listAvailableFontsAsync()`, pick the first available CJK family from `PingFang SC` → `Noto Sans CJK SC` → `Noto Sans SC` → `Source Han Sans SC`, load only the styles used (Regular, Medium; a display face for big numbers), and throw *before creating the page* when none exists. Never substitute a random font or download one.
-- **Set `fontName` before `characters`.** Paragraph text: `textAutoResize = "HEIGHT"` + `layoutSizingHorizontal = "FILL"`. Labels and values: `WIDTH_AND_HEIGHT` (hug). Single-line: `textTruncation = "ENDING"`, `maxLines = 1`.
+- **Text order: `fontName` → `characters` → append → `textAutoResize` → FILL.** Paragraph text: `textAutoResize = "HEIGHT"` + `layoutSizingHorizontal = "FILL"`. Labels and values: `WIDTH_AND_HEIGHT` (hug). Single-line: `textTruncation = "ENDING"`, `maxLines = 1`. Setting `"HEIGHT"` before the characters on a fresh node freezes its width near 0 and every character wraps onto its own line; the fake does not catch this.
+- **Latin monospace + Chinese: write in the CJK font first.** A mono font (JetBrains Mono, SF Mono, Menlo) has no Chinese glyphs. Putting Chinese into a text whose font is mono makes Figma look up a fallback for every glyph, tens of milliseconds per text layer. Set the CJK font, set `characters`, then `setRangeFontName` the non-Chinese runs to mono. Route every write — new text and instance overrides — through one `writeText(ctx, node, characters, font)`.
+- **Figma scans `code.js` before loading it.** Text that looks like a dynamic import (`import` followed by `(`) or an HTML comment opener/closer anywhere in the file, even inside a string or comment, makes Figma refuse the plugin with a bare "An error occurred". Escape the parenthesis as `\u0028` in source snapshots and keep a test that scans `code.js` for both patterns.
+- **Frame-only and text-only properties.** `layoutMode`, `padding*`, `itemSpacing`, the sizing modes exist only on frames; `fontSize`, `lineHeight`, `textAutoResize`, `maxLines` only on text. Setting them on the wrong node throws "object is not extensible". Wrap a text in a frame to pad it. The shared `fake-figma.js` throws the same error.
 - **Auto layout everywhere.** Fixed width on the board and on table columns; everything else hugs or fills. Text wrap grows the parent. `clipsContent = false` so badges can overhang.
 - **Reactions.** `setReactionsAsync`. `NAVIGATE` only to a frame whose parent is the page, with `resetInteractiveComponents: true`; Figma rejects a jump back into the source's own top-level frame. `CHANGE_TO` only to a sibling inside the same component set; `SMART_ANIMATE` 160 ms.
-- **Icons** are inline lucide SVG paths through `createNodeFromSvg`. Keep a small `LUCIDE` map in `code.js`; add paths as needed.
+- **Icons** are inline lucide SVG paths through `createNodeFromSvg`. Keep a small `LUCIDE` map in `code.js`; add paths as needed. When the product itself uses lucide, copy the shape data from its `node_modules/lucide-react/dist/esm/icons/<name>.mjs` (`__iconNode`) so the prototype and the product show the same glyphs.
+- **After building, select nothing.** Selecting a board expands it layer by layer in the Layers panel. Set `expanded = false` on every top-level node and only `scrollAndZoomIntoView([start])`.
+- **Layer budget.** Keep the page under about 3000 layers outside instances, with a test that counts them. When over, share structure: a whole sidebar, a toolbar, a filter chip, a title bar keyed only by state with text overrides. Never raise the threshold to pass.
 - **Never delete or overwrite.** New page every run; suffix a space and `2`, `3` when the name exists. A failed run keeps the partial page and reports the failing stage in `closePlugin`.
 - **Page limits.** Starter files cap page count. Report it; do not free space by removing pages.
+
+## When generation is slow
+
+Measure in real Figma; the fake cannot tell you. The same build took 1.8 s in the fake and 28 s in Figma, and the one change made on a guess broke the layout without saving time.
+
+1. **Stage timings are always on.** `run()` records a mark per `stage()` and puts `用时 N 秒（stage a、stage b …）` into `closePlugin` (the template does this). Ask the user to paste that line.
+2. **When a stage is slow, break it down.** Add an accumulator and wrap the suspects:
+
+   ```js
+   let clock = null;                                   // new Map() at the start of build()
+   function timed(label, fn) {
+     if (!clock) return fn();
+     const start = Date.now();
+     try { return fn(); } finally { clock.set(label, (clock.get(label) || 0) + Date.now() - start); }
+   }
+   const measured = (label, fn) => function (...args) { return timed(`操作 · ${label}`, () => fn.apply(this, args)); };
+   const text = measured("建文字层", function text(ctx, parent, name, characters, o = {}) { /* … */ });
+   ```
+
+   Wrap each component set (`make(name, …)`) and each board with `timed(name, …)`, and the helpers with `measured`: text creation, range fills, range fonts, find-by-name, `createNodeFromSvg`, `combineAsVariants`. Print the six slowest blocks and every operation in the closing message, then fix what the numbers point at.
+3. **What paid off, measured on a 24-board page (27.8 s → 14.5 s):**
+   - Chinese written into a mono font was the largest cost: text creation 10.6 s → 2.5 s after writing in the CJK font first (see Plugin rules).
+   - `setRangeFills` re-lays out the whole text on every call: about 7 ms per call on a 4000-character source against 0.7 ms on a short one. Split long code into text chunks of about 8 lines, stacked with no gap, so it still looks like one block. Compute the highlighting once on the whole source, so multi-line comments stay coloured, then slice the ranges per chunk. Range fills fell from 4.6 s to 1.6 s.
+   - Merge adjacent same-colour ranges, including across whitespace, and skip ranges in the base colour: fewer calls for the same picture.
+   - Send all `setReactionsAsync` calls, then `await Promise.all`, instead of awaiting each one.
+   - Never read `width` / `height` / `x` / `y` inside helpers. Each read forces a full auto-layout pass. Read geometry once, when placing boards.
+4. **What did not pay off:** reordering text property writes. It saved nothing and, done wrong, collapsed every filled text to one character per line.
 
 ## Tests (`test.js`)
 
@@ -76,7 +108,10 @@ Reproducing a current screen is fine when the user asks to compare — draw it a
 - link count equals the design (count them in a comment), `NAVIGATE` targets the right board, `CHANGE_TO` targets the sibling;
 - no two top-level blocks overlap;
 - running twice numbers the page and leaves user edits alone;
-- missing CJK font fails before a page exists; page limit and reaction failures name their stage.
+- missing CJK font fails before a page exists; page limit and reaction failures name their stage;
+- `code.js` passes the load-time scan (no dynamic-import-looking text, no HTML comment markers);
+- the page stays under the layer budget;
+- mixed Chinese/code text is written in the CJK font with only the non-Chinese runs in mono (run the fake with a mono font in its font list).
 
 Update `EXPECTED_LINKS` when wiring changes. Green tests do not prove the visual result; say so in the README.
 

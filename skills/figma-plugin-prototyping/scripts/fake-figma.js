@@ -6,6 +6,11 @@ const LAYOUT_KEYS = [
   "paddingLeft", "paddingRight", "paddingTop", "paddingBottom", "itemSpacing",
   "fontSize", "lineHeight", "textAutoResize", "maxLines",
 ];
+// 真 Figma 里这些属性只有自动排版容器有、或只有文字有；给别的图层设会抛 "object is not extensible"。
+const FRAME_ONLY = new Set(["layoutMode", "primaryAxisSizingMode", "counterAxisSizingMode",
+  "paddingLeft", "paddingRight", "paddingTop", "paddingBottom", "itemSpacing"]);
+const TEXT_ONLY = new Set(["fontSize", "lineHeight", "textAutoResize", "maxLines"]);
+const FRAME_TYPES = new Set(["FRAME", "COMPONENT", "INSTANCE", "COMPONENT_SET"]);
 const SKIP_COPY = new Set(["id", "parent", "children", "_rev", "_cachedRev", "_val", "_mark", "_flowRev", "_flowCache"]);
 
 // 模拟 Figma 文档树与自动排版的尺寸推算, 检查结构、变体配对、实例复用与连线;
@@ -27,7 +32,7 @@ function fakeFigma(options = {}) {
   };
   const dirty = (node) => { mark(node, ++stamp); };
   const fontKey = (font) => `${font.family}/${font.style}`;
-  const cjk = /[　-鿿＀-￯]/;
+  const cjk = /[\u3000-\u9fff\uff00-\uffef]/;
   const textWidth = (node) => {
     let width = 0;
     for (const char of node._characters) width += cjk.test(char) ? node.fontSize : node.fontSize * 0.55;
@@ -66,6 +71,8 @@ function fakeFigma(options = {}) {
       this.maxLines = undefined;
       this.data = {};
       this.reactions = [];
+      this.rangeFills = [];
+      this.rangeFonts = [];
       this.flowStartingPoints = [];
       this._rev = 0;
       this._mark = 0;
@@ -77,12 +84,19 @@ function fakeFigma(options = {}) {
         let value = this[key];
         Object.defineProperty(this, key, {
           get() { return value; },
-          set(next) { if (value !== next) { value = next; dirty(this); } },
+          set(next) {
+            if (value === next) return;
+            if (this._sealed && ((FRAME_ONLY.has(key) && !FRAME_TYPES.has(this.type)) || (TEXT_ONLY.has(key) && this.type !== "TEXT")))
+              throw new TypeError(`object is not extensible: ${this.type} has no ${key} (${this.name})`);
+            value = next;
+            dirty(this);
+          },
           enumerable: true,
           configurable: true,
         });
       }
       nodes.set(this.id, this);
+      this._sealed = true;
     }
     _memo(slot, compute) {
       if (this._cachedRev[slot] === this._rev) return this._val[slot];
@@ -169,6 +183,15 @@ function fakeFigma(options = {}) {
       if (this._characters !== value) { this._characters = value; dirty(this); }
     }
     get characters() { return this._characters; }
+    setRangeFills(start, end, fills) {
+      assert.ok(this.type === "TEXT" && start >= 0 && start < end && end <= this._characters.length, `Text range out of bounds: ${this.name}`);
+      this.rangeFills.push({ start, end, fills });
+    }
+    setRangeFontName(start, end, font) {
+      assert.ok(this.type === "TEXT" && start >= 0 && start < end && end <= this._characters.length, `Text range out of bounds: ${this.name}`);
+      assert.ok(loaded.has(fontKey(font)), `Load font before setting a text range: ${this.name}`);
+      this.rangeFonts.push({ start, end, font });
+    }
     resize(width, height) {
       assert.ok(width > 0 && height > 0 && Number.isFinite(width + height), `Node dimensions must be positive: ${this.name}`);
       if (this._width !== width || this._height !== height) { this._width = width; this._height = height; dirty(this); }
@@ -206,10 +229,12 @@ function fakeFigma(options = {}) {
       assert.equal(this.type, "COMPONENT");
       const copy = (source) => {
         const node = new Node(source.type);
+        node._sealed = false;
         for (const key of Object.keys(source)) {
           if (SKIP_COPY.has(key)) continue;
           node[key] = structuredClone(source[key]);
         }
+        node._sealed = true;
         for (const child of source.children) node.appendChild(copy(child));
         return node;
       };
@@ -245,7 +270,7 @@ function fakeFigma(options = {}) {
   }
 
   const api = {
-    nodes, connected: 0, loaded, messages: [], layoutComputes: 0,
+    nodes, connected: 0, loaded, messages: [], notices: [], layoutComputes: 0,
     root: new Node("DOCUMENT"),
     async listAvailableFontsAsync() {
       return (options.fonts || [{ family: "Inter", style: "Regular" },
@@ -271,6 +296,10 @@ function fakeFigma(options = {}) {
     },
     viewport: { scrollAndZoomIntoView(selection) { assert.ok(selection.length > 0); } },
     closePlugin(message) { this.messages.push(message); },
+    notify(message) {
+      this.notices.push(message);
+      return { cancel() {} };
+    },
   };
   for (const type of ["Frame", "Component", "Text", "Vector", "Ellipse", "Rectangle"]) {
     api[`create${type}`] = () => {

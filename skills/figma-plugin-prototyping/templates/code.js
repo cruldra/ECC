@@ -1,4 +1,5 @@
 // <Feature> Design Lab — local Figma Desktop development plugin.
+/* global figma */
 // Creates a fresh page in the current Design file and generates editable
 // component sets plus prototype boards with click-through flows.
 // Uses only the Figma Plugin API: no network, no product data, no MCP.
@@ -98,7 +99,12 @@ function append(parent, node, fill = false) {
   return node;
 }
 
-/** Text. Default: fills the parent width and grows in height. `hug`: both axes hug (labels, values). */
+/**
+ * Text. Default: fills the parent width and grows in height. `hug`: both axes hug (labels, values).
+ * Never read the parent's width here: every geometry read forces Figma to lay out the whole auto-layout tree.
+ * Keep this order: fontName → characters → append → textAutoResize → FILL. Setting textAutoResize = "HEIGHT"
+ * before the characters freezes the width of the fresh node near 0 and every character wraps onto its own line.
+ */
 function text(ctx, parent, name, characters, o = {}) {
   const node = ctx.api.createText();
   node.name = name;
@@ -114,7 +120,6 @@ function text(ctx, parent, name, characters, o = {}) {
     node.textAutoResize = "WIDTH_AND_HEIGHT";
     return node;
   }
-  node.resize(Math.max(1, parent.width - parent.paddingLeft - parent.paddingRight), node.height);
   node.textAutoResize = "HEIGHT";
   node.layoutSizingHorizontal = "FILL";
   if (o.singleLine) {
@@ -299,11 +304,14 @@ async function build(api, stage = () => {}) {
   const detail = detailBoard(ctx, page);
 
   stage("连接演示入口");
+  // Reactions are independent: send them all, then wait once, instead of one round trip each
   const [first, second] = STATES.map((state) => components.cards.get(state.key));
-  await connect(first.toggle, second.node, "CHANGE_TO");
-  await connect(second.toggle, first.node, "CHANGE_TO");
-  for (const item of components.cards.values()) await connect(item.open, detail.screen, "NAVIGATE");
-  await connect(detail.back, list.screen, "NAVIGATE");
+  await Promise.all([
+    connect(first.toggle, second.node, "CHANGE_TO"),
+    connect(second.toggle, first.node, "CHANGE_TO"),
+    ...[...components.cards.values()].map((item) => connect(item.open, detail.screen, "NAVIGATE")),
+    connect(detail.back, list.screen, "NAVIGATE"),
+  ]);
 
   stage("排布画板");
   const screens = [overview, list.screen, detail.screen];
@@ -320,16 +328,28 @@ async function build(api, stage = () => {}) {
     setY += set.height + 64;
   }
   page.flowStartingPoints = [{ nodeId: list.screen.id, name: "从列表进入" }];
-  page.selection = [list.screen];
-  api.viewport.scrollAndZoomIntoView(page.selection);
+  // Selecting a board expands it layer by layer in the Layers panel: select nothing and collapse the top level
+  for (const node of page.children) node.expanded = false;
+  api.viewport.scrollAndZoomIntoView([list.screen]);
   return { page, components, overview, list, detail, screens };
+}
+
+/** How long each stage took, shown in the closing message: real Figma timings cannot be reproduced offline. */
+function timingText(marks, end) {
+  const seconds = (ms) => (ms / 1000).toFixed(1);
+  const parts = marks.map(([name, at], index) => `${name} ${seconds((marks[index + 1] ? marks[index + 1][1] : end) - at)}`);
+  return `用时 ${seconds(end - marks[0][1])} 秒（${parts.join("、")}）`;
 }
 
 async function run(api) {
   let currentStage = "初始化";
+  const marks = [];
   try {
-    await build(api, (stage) => { currentStage = stage; });
-    api.closePlugin("已生成可编辑组件与演示画板；选中画板后点演示按钮。");
+    await build(api, (stage) => {
+      currentStage = stage;
+      marks.push([stage, Date.now()]);
+    });
+    api.closePlugin(`已生成可编辑组件与演示画板，${timingText(marks, Date.now())}；选中画板后点演示按钮。`);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     api.closePlugin(`生成失败（${currentStage}）：${message}。已有设计未删除；本次未完成页面保留供检查。`);
