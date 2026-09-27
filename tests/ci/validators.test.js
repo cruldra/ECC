@@ -277,6 +277,12 @@ function writeCatalogFixture(testDir, options = {}) {
       'skills/          — 1 个工作流技能和领域知识',
       'commands/        — 1 个斜杠命令',
     ],
+    trAgentsSummaryCounts = { agents: 1, skills: 1, commands: 1 },
+    trAgentsStructureLines = [
+      'agents/          — 1 özel subagent',
+      'skills/          — 1 iş akışı skillleri ve alan bilgisi',
+      'commands/        — 1 slash command',
+    ],
     pluginCounts = { agents: 1, skills: 1, commands: 1 },
     marketplaceCounts = { agents: 1, skills: 1, commands: 1 },
   } = options;
@@ -286,6 +292,7 @@ function writeCatalogFixture(testDir, options = {}) {
   const zhRootReadmePath = path.join(testDir, 'README.zh-CN.md');
   const zhDocsReadmePath = path.join(testDir, 'docs', 'zh-CN', 'README.md');
   const zhAgentsPath = path.join(testDir, 'docs', 'zh-CN', 'AGENTS.md');
+  const trAgentsPath = path.join(testDir, 'docs', 'tr', 'AGENTS.md');
   const pluginJsonPath = path.join(testDir, '.claude-plugin', 'plugin.json');
   const marketplaceJsonPath = path.join(testDir, '.claude-plugin', 'marketplace.json');
 
@@ -293,6 +300,7 @@ function writeCatalogFixture(testDir, options = {}) {
   fs.mkdirSync(path.join(testDir, 'commands'), { recursive: true });
   fs.mkdirSync(path.join(testDir, 'skills', 'demo-skill'), { recursive: true });
   fs.mkdirSync(path.join(testDir, 'docs', 'zh-CN'), { recursive: true });
+  fs.mkdirSync(path.join(testDir, 'docs', 'tr'), { recursive: true });
   fs.mkdirSync(path.join(testDir, '.claude-plugin'), { recursive: true });
 
   fs.writeFileSync(path.join(testDir, 'agents', 'planner.md'), '---\nmodel: sonnet\ntools: Read\n---\n# Planner');
@@ -304,6 +312,7 @@ function writeCatalogFixture(testDir, options = {}) {
   fs.writeFileSync(zhRootReadmePath, `**完成！** 你现在可以使用 ${zhRootReadmeCounts.agents} 个代理、${zhRootReadmeCounts.skills} 个技能和 ${zhRootReadmeCounts.commands} 个命令。\n`);
   fs.writeFileSync(zhDocsReadmePath, `**搞定！** 你现在可以使用 ${zhDocsReadmeCounts.agents} 个智能体、${zhDocsReadmeCounts.skills} 项技能和 ${zhDocsReadmeCounts.commands} 个命令了。\n| 功能特性 | Claude Code | OpenCode | 状态 |\n|---------|-------------|----------|--------|\n| 智能体 | \u2705 ${zhDocsTableCounts.agents} 个 | \u2705 12 个 | **Claude Code 领先** |\n| 命令 | \u2705 ${zhDocsTableCounts.commands} 个 | \u2705 31 个 | **Claude Code 领先** |\n| 技能 | \u2705 ${zhDocsTableCounts.skills} 项 | \u2705 37 项 | **Claude Code 领先** |\n\n| 功能特性 | 数量 | 格式 |\n|-----------|-------|---------|\n| 技能 | ${zhDocsUnrelatedSkillsCount} | .agents/skills/ |\n\n## 跨工具功能对等\n\n| 功能特性 | Claude Code | Cursor IDE | Codex CLI | OpenCode |\n|---------|------------|------------|-----------|----------|\n| **智能体** | ${zhDocsParityCounts.agents} | 共享 (AGENTS.md) | 共享 (AGENTS.md) | 12 |\n| **命令** | ${zhDocsParityCounts.commands} | 共享 | 基于指令 | 31 |\n| **技能** | ${zhDocsParityCounts.skills} | 共享 | 10 (原生格式) | 37 |\n`);
   fs.writeFileSync(zhAgentsPath, `这是一个**生产就绪的 AI 编码插件**，提供 ${zhAgentsSummaryCounts.agents} 个专业代理、${zhAgentsSummaryCounts.skills} 项技能、${zhAgentsSummaryCounts.commands} 条命令以及自动化钩子工作流，用于软件开发。\n\n\`\`\`\n${zhAgentsStructureLines.join('\n')}\n\`\`\`\n`);
+  fs.writeFileSync(trAgentsPath, `Bu, yazılım geliştirme için ${trAgentsSummaryCounts.agents} özel agent, ${trAgentsSummaryCounts.skills} skill, ${trAgentsSummaryCounts.commands} command ve otomatik hook iş akışları sağlayan bir eklentidir.\n\n\`\`\`\n${trAgentsStructureLines.join('\n')}\n\`\`\`\n`);
   fs.writeFileSync(pluginJsonPath, JSON.stringify({
     name: 'ecc',
     description: `Battle-tested plugin — ${pluginCounts.agents} agents, ${pluginCounts.skills} skills, ${pluginCounts.commands} legacy command shims`,
@@ -315,7 +324,7 @@ function writeCatalogFixture(testDir, options = {}) {
     }],
   }, null, 2));
 
-  return { readmePath, agentsPath, zhRootReadmePath, zhDocsReadmePath, zhAgentsPath, pluginJsonPath, marketplaceJsonPath };
+  return { readmePath, agentsPath, zhRootReadmePath, zhDocsReadmePath, zhAgentsPath, trAgentsPath, pluginJsonPath, marketplaceJsonPath };
 }
 
 function runTests() {
@@ -634,6 +643,9 @@ function runTests() {
     assert.ok(zhDocsReadme.includes('| **智能体** | 1 | 共享 (AGENTS.md) | 共享 (AGENTS.md) | 12 |'), 'Should sync docs/zh-CN/README parity table');
     assert.ok(zhAgentsDoc.includes('提供 1 个专业代理、1 项技能、1 条命令'), 'Should sync docs/zh-CN/AGENTS summary');
     assert.ok(zhAgentsDoc.includes('commands/        — 1 个斜杠命令'), 'Should sync docs/zh-CN/AGENTS structure');
+    const trAgentsDoc = fs.readFileSync(path.join(testDir, 'docs', 'tr', 'AGENTS.md'), 'utf8');
+    assert.ok(trAgentsDoc.includes('1 özel agent, 1 skill, 1 command'), 'Should sync docs/tr/AGENTS summary');
+    assert.ok(trAgentsDoc.includes('commands/        — 1 slash command'), 'Should sync docs/tr/AGENTS structure');
     assert.ok(pluginJson.includes('1 agents, 1 skills, 1 legacy command shims'), 'Should sync plugin manifest catalog description');
     assert.ok(marketplaceJson.includes('1 agents, 1 skills, 1 legacy command shims'), 'Should sync marketplace plugin catalog description');
 

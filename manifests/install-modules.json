@@ -227,7 +227,8 @@
         "skills/react-native-patterns",
         "skills/tinystruct-patterns",
         "skills/vite-patterns",
-        "skills/wechat-developing"
+        "skills/wechat-developing",
+        "skills/writing-code-comments"
       ],
       "targets": [
         "claude",

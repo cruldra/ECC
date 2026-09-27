@@ -164,6 +164,7 @@ skills:
   - videodb
   - visa-doc-translate
   - wechat-developing
+  - writing-code-comments
   - x-api
 commands:
   - aside
