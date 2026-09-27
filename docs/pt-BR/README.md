@@ -79,7 +79,7 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ## O Que Há de Novo
 
-### v2.2.40 — new wechat-developing skill: WeChat ecosystem field notes, one file per area, starting with 公众号 H5 share signing, the API IP whitelist, and ICP interception (Sep 2026)
+### v2.2.41 — new wechat-developing skill: WeChat ecosystem field notes, one file per area, starting with 公众号 H5 share signing, the API IP whitelist, and ICP interception (Sep 2026)
 
 ### v2.2.39 — install resolution fixed: a dependency the target cannot take no longer drops the module that wants it; codex installs had been silently losing 76 skills (Sep 2026)
 
