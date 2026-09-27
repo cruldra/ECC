@@ -3555,7 +3555,11 @@ async function runTests() {
           {
             HOME: homeDir,
             USERPROFILE: homeDir,
-            CLAUDE_PROJECT_DIR: projectDir
+            CLAUDE_PROJECT_DIR: projectDir,
+            ECC_SKIP_OBSERVE: '0',
+            ECC_HOOK_PROFILE: 'standard',
+            XDG_DATA_HOME: '',
+            CLV2_HOMUNCULUS_DIR: ''
           },
           projectDir
         );

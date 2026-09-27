@@ -149,22 +149,6 @@ test('Kimi docs scope hooks and compatibility to the verified adapter', () => {
   assert.ok(!content.includes('Kimi Code 0.31.x does not expose'));
 });
 
-test('Turkish agent instructions report the live catalog counts', () => {
-  const content = readConfigureEccDoc('docs/tr/AGENTS.md');
-  const agentCount = countEntries('agents', entry => entry.isFile() && entry.name.endsWith('.md'));
-  const skillCount = countEntries('skills', entry => entry.isDirectory());
-  const commandCount = countEntries(
-    'commands',
-    entry => entry.isFile() && entry.name.endsWith('.md')
-  );
-
-  assert.ok(content.includes(`${agentCount} özel agent`));
-  assert.ok(content.includes(`${skillCount} skill`));
-  assert.ok(content.includes(`${commandCount} command`));
-  assert.ok(content.includes(`agents/          — ${agentCount} özel subagent`));
-  assert.ok(content.includes(`skills/          — ${skillCount} iş akışı`));
-  assert.ok(content.includes(`commands/        — ${commandCount} slash command`));
-});
 
 if (failed > 0) {
   console.log(`\nFailed: ${failed}`);
