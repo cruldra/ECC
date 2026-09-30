@@ -334,6 +334,70 @@ async function build(api, stage = () => {}) {
   return { page, components, overview, list, detail, screens };
 }
 
+// ─── Layout check ────────────────────────────────────────────────────────────
+
+/** How far `inner` sticks out of `outer`; `pad` shrinks `outer` to its content box. 0 when it fits. */
+function overhang(outer, inner, pad = [0, 0, 0, 0]) {
+  const [top, right, bottom, left] = pad;
+  return Math.max(0,
+    outer.x + left - inner.x,
+    inner.x + inner.width - (outer.x + outer.width - right),
+    outer.y + top - inner.y,
+    inner.y + inner.height - (outer.y + outer.height - bottom));
+}
+
+/**
+ * Everything on the finished page that does not fit, one line each:
+ * - a clipping frame whose content sticks out of it: Figma hides that part and the canvas never scrolls;
+ * - an auto-layout child that sticks out of the room its container leaves (wider than a column, taller than a fixed height).
+ * Real Figma measures real text here, the fake only estimates it. Call it once, after the last write:
+ * geometry reads between writes force a layout pass each, reads after the last write share one.
+ */
+function layoutCheck(roots) {
+  const found = [];
+  const boxes = new Map();
+  const box = (node) => {
+    if (!boxes.has(node)) boxes.set(node, node.absoluteBoundingBox);
+    return boxes.get(node);
+  };
+  const shown = (node) => (node.children || []).filter((child) => child.visible);
+  const report = (root, node, what, px) => found.push(`${node === root ? root.name : `${root.name} › ${node.name}`} ${what} ${Math.round(px)}px`);
+  const cut = (frame) => {
+    let worst = 0;
+    const walk = (node) => {
+      for (const child of shown(node)) {
+        worst = Math.max(worst, overhang(box(frame), box(child)));
+        if (!child.clipsContent) walk(child);
+      }
+    };
+    walk(frame);
+    return worst;
+  };
+  const visit = (root, node) => {
+    const kids = shown(node);
+    if (node.clipsContent) {
+      const px = cut(node);
+      if (px > 0.5) report(root, node, "被裁", px);
+    } else if (node.layoutMode === "HORIZONTAL" || node.layoutMode === "VERTICAL") {
+      const pad = [node.paddingTop, node.paddingRight, node.paddingBottom, node.paddingLeft];
+      for (const child of kids) {
+        if (child.layoutPositioning === "ABSOLUTE") continue;
+        const px = overhang(box(node), box(child), pad);
+        if (px > 0.5) report(root, child, `超出 ${node.name}`, px);
+      }
+    }
+    for (const child of kids) visit(root, child);
+  };
+  for (const root of roots) if (root.visible) visit(root, root);
+  return found;
+}
+
+/** The layout line of the closing message: the count and the first few; every line goes to the console. */
+function layoutText(misfits) {
+  if (!misfits.length) return "排版检查：没有放不下的";
+  return `排版检查：${misfits.length} 处放不下（${misfits.slice(0, 3).join("；")}${misfits.length > 3 ? " …" : ""}），全部明细在开发者控制台`;
+}
+
 /** How long each stage took, shown in the closing message: real Figma timings cannot be reproduced offline. */
 function timingText(marks, end) {
   const seconds = (ms) => (ms / 1000).toFixed(1);
@@ -344,12 +408,16 @@ function timingText(marks, end) {
 async function run(api) {
   let currentStage = "初始化";
   const marks = [];
+  const stage = (name) => {
+    currentStage = name;
+    marks.push([name, Date.now()]);
+  };
   try {
-    await build(api, (stage) => {
-      currentStage = stage;
-      marks.push([stage, Date.now()]);
-    });
-    api.closePlugin(`已生成可编辑组件与演示画板，${timingText(marks, Date.now())}；选中画板后点演示按钮。`);
+    const { page } = await build(api, stage);
+    stage("排版检查");
+    const misfits = layoutCheck(page.children);
+    for (const line of misfits) console.warn(`排版检查：${line}`);
+    api.closePlugin(`已生成可编辑组件与演示画板，${layoutText(misfits)}；${timingText(marks, Date.now())}；选中画板后点演示按钮。`);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     api.closePlugin(`生成失败（${currentStage}）：${message}。已有设计未删除；本次未完成页面保留供检查。`);
@@ -357,6 +425,6 @@ async function run(api) {
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { build, run, nextPageName, STATES, PAGE_NAME, NAMESPACE };
+  module.exports = { build, run, layoutCheck, nextPageName, STATES, PAGE_NAME, NAMESPACE };
 }
 if (typeof figma !== "undefined") void run(figma);

@@ -119,3 +119,94 @@ test("measuring every node is linear even with nested hug and fill", async () =>
   assert.ok(work <= nodes * 8, `layout work ${work} for ${nodes} nodes`);
   assert.ok(Number.isFinite(page.children[0].height));
 });
+
+async function freshPage() {
+  const api = fakeFigma();
+  const page = api.createPage();
+  await api.setCurrentPageAsync(page);
+  return { api, page };
+}
+
+function box(api, parent, name, width, height) {
+  const node = api.createFrame();
+  node.name = name;
+  node.resize(width, height);
+  parent.appendChild(node);
+  return node;
+}
+
+test("absoluteBoundingBox places auto-layout children by padding, gap and alignment", async () => {
+  const { api, page } = await freshPage();
+  const column = box(api, page, "column", 200, 10);
+  column.x = 100;
+  column.y = 50;
+  column.layoutMode = "VERTICAL";
+  column.primaryAxisSizingMode = "AUTO";
+  column.paddingTop = column.paddingLeft = column.paddingRight = column.paddingBottom = 10;
+  column.itemSpacing = 8;
+  column.counterAxisAlignItems = "CENTER";
+  const first = box(api, column, "first", 50, 20);
+  const second = box(api, column, "second", 80, 30);
+  const pinned = box(api, column, "pinned", 10, 10);
+  pinned.layoutPositioning = "ABSOLUTE";
+  pinned.x = 190;
+  pinned.y = -5;
+  assert.deepEqual(column.absoluteBoundingBox, { x: 100, y: 50, width: 200, height: 78 });
+  assert.deepEqual(first.absoluteBoundingBox, { x: 175, y: 60, width: 50, height: 20 });
+  assert.deepEqual(second.absoluteBoundingBox, { x: 160, y: 88, width: 80, height: 30 });
+  assert.deepEqual(pinned.absoluteBoundingBox, { x: 290, y: 45, width: 10, height: 10 });
+
+  const row = box(api, page, "row", 300, 40);
+  row.layoutMode = "HORIZONTAL";
+  row.primaryAxisAlignItems = "SPACE_BETWEEN";
+  row.counterAxisAlignItems = "MAX";
+  box(api, row, "left", 60, 10);
+  const right = box(api, row, "right", 40, 20);
+  assert.deepEqual(right.absoluteBoundingBox, { x: 260, y: 20, width: 40, height: 20 });
+});
+
+test("a fixed-width row with wrap breaks into lines and grows in height", async () => {
+  const { api, page } = await freshPage();
+  const row = box(api, page, "row", 100, 1);
+  row.layoutMode = "HORIZONTAL";
+  row.counterAxisSizingMode = "AUTO";
+  row.layoutWrap = "WRAP";
+  row.itemSpacing = 10;
+  row.counterAxisSpacing = 4;
+  const chips = ["a", "b", "c"].map((name) => box(api, row, name, 40, 20));
+  assert.equal(row.height, 44);
+  assert.deepEqual(chips.map((chip) => [chip.absoluteBoundingBox.x, chip.absoluteBoundingBox.y]), [[0, 0], [50, 0], [0, 24]]);
+});
+
+test("new frames clip their content, as in Figma", async () => {
+  const { api } = await freshPage();
+  assert.equal(api.createFrame().clipsContent, true);
+  assert.equal(api.createComponent().clipsContent, true);
+  assert.equal(api.createText().clipsContent, undefined);
+});
+
+test("wrap and alignment are frame-only, like the rest of auto layout", async () => {
+  const { api } = await freshPage();
+  const label = api.createText();
+  assert.throws(() => { label.layoutWrap = "WRAP"; }, /object is not extensible/);
+  assert.throws(() => { label.counterAxisAlignItems = "CENTER"; }, /object is not extensible/);
+});
+
+test("text with line breaks is as wide as its longest line and one line taller per break", async () => {
+  const { api, page } = await freshPage();
+  await api.loadFontAsync({ family: "Inter", style: "Regular" });
+  const make = (autoResize) => {
+    const node = api.createText();
+    node.fontName = { family: "Inter", style: "Regular" };
+    node.characters = "ab\nabcd\n中文";
+    page.appendChild(node);
+    node.textAutoResize = autoResize;
+    return node;
+  };
+  const hug = make("WIDTH_AND_HEIGHT");
+  assert.equal(hug.width, Math.round(4 * 14 * 0.55));
+  assert.equal(hug.height, 3 * 20);
+  const wrapped = make("HEIGHT");
+  wrapped.resize(20, 20);
+  assert.equal(wrapped.height, (1 + 2 + 2) * 20);
+});

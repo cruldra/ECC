@@ -2,7 +2,7 @@ const assert = require("node:assert/strict");
 const { test } = require("node:test");
 const fs = require("node:fs");
 const path = require("node:path");
-const { build, run, nextPageName, STATES, PAGE_NAME, NAMESPACE } = require("./code.js");
+const { build, run, layoutCheck, nextPageName, STATES, PAGE_NAME, NAMESPACE } = require("./code.js");
 const { fakeFigma } = require("../../figma-lab/fake-figma");
 
 function action(node) { return node.reactions[0].actions[0]; }
@@ -57,6 +57,44 @@ test("boards and sets sit on the page without overlapping", async () => {
     }
   }
   assert.equal(result.page.flowStartingPoints[0].nodeId, result.list.screen.id);
+});
+
+test("everything fits: no board or set clips its content, no child sticks out of its container", async () => {
+  const api = fakeFigma();
+  const result = await build(api);
+  assert.deepEqual(layoutCheck(result.page.children), []);
+});
+
+test("the layout check reports clipped content and children that stick out", async () => {
+  const api = fakeFigma();
+  const page = api.createPage();
+  await api.setCurrentPageAsync(page);
+  const window = api.createFrame();
+  window.name = "Prototype / Window";
+  window.layoutMode = "VERTICAL";
+  window.resize(400, 300);
+  page.appendChild(window);
+  const content = api.createFrame();
+  content.name = "Content";
+  content.resize(400, 488);
+  window.appendChild(content);
+  const row = api.createFrame();
+  row.name = "Row";
+  row.clipsContent = false;
+  row.layoutMode = "HORIZONTAL";
+  row.resize(120, 20);
+  content.appendChild(row);
+  const label = api.createFrame();
+  label.name = "Label";
+  label.resize(150, 20);
+  row.appendChild(label);
+  assert.deepEqual(layoutCheck([window]), ["Prototype / Window 被裁 188px", "Prototype / Window › Label 超出 Row 30px"]);
+});
+
+test("the closing message carries the layout check", async () => {
+  const api = fakeFigma();
+  await run(api);
+  assert.match(api.messages[0], /排版检查：没有放不下的/);
 });
 
 test("running twice numbers the new page and keeps the old one intact", async () => {
