@@ -38,12 +38,17 @@ function cleanupTempDir(dirPath) {
   fs.rmSync(dirPath, { recursive: true, force: true });
 }
 
+const ISOLATED_HOME = createTempDir('ecc-state-home-');
+process.on('exit', () => cleanupTempDir(ISOLATED_HOME));
+
 function runNode(scriptPath, args = [], options = {}) {
   return spawnSync('node', [scriptPath, ...args], {
     encoding: 'utf8',
     cwd: options.cwd || process.cwd(),
     env: {
       ...process.env,
+      HOME: ISOLATED_HOME,
+      USERPROFILE: ISOLATED_HOME,
       ...(options.env || {}),
     },
   });
