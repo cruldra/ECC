@@ -5,7 +5,7 @@ argument-hint: "<bugsink url> [how many issues]"
 
 # Bugsink Command
 
-Thin entry over the `bugsink` skill. Follow that skill.
+Thin entry over the `ecc:bugsink` skill. Invoke it with `Skill(ecc:bugsink)` and follow it.
 
 **Input**: `$ARGUMENTS`
 

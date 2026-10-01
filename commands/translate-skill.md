@@ -5,7 +5,7 @@ argument-hint: "[skill-id]"
 
 # Translate Skill Command
 
-Thin entry over the `translate-skill` skill. Follow that skill.
+Thin entry over the `ecc:translate-skill` skill. Invoke it with `Skill(ecc:translate-skill)` and follow it.
 
 **Input**: `$ARGUMENTS` is the skill folder name (for example `grilling`).
 
