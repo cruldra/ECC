@@ -81,7 +81,7 @@
 
 ## 最新动态
 
-### v2.2.43 — writing-code-comments：解释代码用一句大白话；重写注释不看旧注释，从代码重写（2026年10月）
+### v2.2.44 — writing-code-comments：解释代码用一句大白话；重写注释不看旧注释，从代码重写（2026年10月）
 
 ### v2.2.42 — 画原型先问用 Figma 插件还是 OpenPencil；OpenPencil 走 op 命令行，不开窗口画、导图自查（2026年10月）
 
@@ -1363,7 +1363,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 | **上下文文件** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
 | **秘密检测** | 基于钩子                  | beforeSubmitPrompt 钩子 | 基于沙箱 | 基于钩子 |
 | **自动格式化** | PostToolUse 钩子        | afterFileEdit 钩子 | N/A | file.edited 钩子 |
-| **版本** | 插件 | 插件 | 参考配置 | 2.2.43 |
+| **版本** | 插件 | 插件 | 参考配置 | 2.2.44 |
 
 **关键架构决策：**
 
