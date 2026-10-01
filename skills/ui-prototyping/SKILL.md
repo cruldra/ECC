@@ -35,7 +35,7 @@ Then read only that tool's reference:
 2. **Read the product's tokens.** Colours, radii, and type sizes come from the app's theme file (`globals.css`, a theme module). Put them in constants as hex. Never invent a palette.
 3. **List the data first.** Tier tables, sample balances, states, copy. Keep them in constants at the top of the drawing source with a comment naming the source. The drawing code reads from them.
 4. **Boards in reading order.** Screens top to bottom or left to right, then edge cases (narrow width, long titles). No overview board, no notes board.
-5. **Ask before opening the app.** When the boards are done, ask whether to open them in Figma or OpenPencil. Never open, quit, or restart the user's app unasked.
+5. **Opening the app.** OpenPencil: when the boards are done and saved, open the `.op` in OpenPencil without asking (see `references/openpencil.md`). Figma: ask whether to open it. OpenPencil editor already open when work starts: close it first (`op` runs much slower against the desktop editor), draw headless, then reopen the file when done. Never quit or restart Figma unasked.
 
 ### 3. Boards show the result only
 
@@ -56,6 +56,6 @@ Reproducing a current screen is fine when the user asks to compare — draw it a
 
 ## Examples
 
-**Tool not named.** User: "会员中心要加个额度进度条，会员 / 非会员 / 扣款失败三种，画个原型看看。" Ask Figma 插件 or OpenPencil. On Figma 插件, follow `references/figma-plugin.md`. On OpenPencil, follow `references/openpencil.md`: `build.js` draws three boards, each exported to PNG and checked, then ask whether to open `membership.op`.
+**Tool not named.** User: "会员中心要加个额度进度条，会员 / 非会员 / 扣款失败三种，画个原型看看。" Ask Figma 插件 or OpenPencil. On Figma 插件, follow `references/figma-plugin.md`. On OpenPencil, follow `references/openpencil.md`: `build.js` draws three boards, each exported to PNG and checked, then open `membership.op` in OpenPencil.
 
 **Tool named.** User: "用 openpencil 画一下报名页的报名中和已截止两个状态。" Skip the question and follow `references/openpencil.md`.

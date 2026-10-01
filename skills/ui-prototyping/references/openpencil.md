@@ -1,6 +1,6 @@
 # OpenPencil Route
 
-Prototype = a `build.js` script in the repo that the `op` command line runs against an OpenPencil document (`.op`). Boards are drawn headless, without a window, then exported to PNG and checked by eye. The user opens the `.op` in OpenPencil only when asked.
+Prototype = a `build.js` script in the repo that the `op` command line runs against an OpenPencil document (`.op`). Boards are drawn headless, without a window, then exported to PNG and checked by eye. When the boards are done, the `.op` is opened in OpenPencil for the user.
 
 Verified against OpenPencil 0.8.4 (`op --version`).
 
@@ -39,7 +39,7 @@ docs/prototype/<feature>/openpencil/
 
 Do the shared steps in `SKILL.md` first (decision, tokens, data). Then:
 
-1. **Check for a running editor.** `"$OP" status`. If it says `"running": true`, do not stop or restart it. Ask whether to draw into it or wait until it is closed. Read the issue's relevant pages, components, and theme files; avoid scanning unrelated source trees for Chinese text or guessing directories.
+1. **Close a running editor.** `"$OP" status`. If it says `"running": true`, run `"$OP" stop` without asking: every `op` command is far slower while the desktop editor is open, and the user wants it closed during drawing and reopened at the end (step 8). Do every edit, including small fixes after review, in the headless instance, never in the desktop editor. Read the issue's relevant pages, components, and theme files; avoid scanning unrelated source trees for Chinese text or guessing directories.
 2. **Start headless on the file.**
 
    ```bash
@@ -52,8 +52,8 @@ Do the shared steps in `SKILL.md` first (decision, tokens, data). Then:
 4. **Run it.** `"$OP" design @build.js`. It prints `{"results":[{"binding":…,"nodeId":"n1"},…]}`; record the root node ids as the board ids.
 5. **Fix layout.** `"$OP" design:refine --root-id <id>` on each board, as the official reference requires.
 6. **Check every board.** `"$OP" layout --depth 2` for real positions and sizes, then `"$OP" export --item <id> --output exports/<board>.png --scale 2`, and look at each image. Fix `build.js` and rebuild until nothing is cut off or overlapping.
-7. **Save and stop.** `"$OP" save "<abs path>.op"`. Stop with `"$OP" stop` only if this task started the instance and it is still that instance; leave a pre-existing editor running.
-8. **Ask before opening OpenPencil.** On yes: `"$OP" start --file "<abs path>.op"` opens the live editor on the file.
+7. **Save and stop.** `"$OP" save "<abs path>.op"`. Then `"$OP" stop` the headless instance.
+8. **Open OpenPencil, no question.** After step 7, run `"$OP" start --file "<abs path>.op"` to open the desktop editor on the file. Same for every later round of fixes: close the editor (step 1), rebuild headless, save, reopen.
 
 ## Traps
 
@@ -63,7 +63,11 @@ Do the shared steps in `SKILL.md` first (decision, tokens, data). Then:
 - **Script mode inserts new boards on every run.** To rebuild during this task, delete only the recorded root ids created by the previous run with `"$OP" delete <id>`, then rerun `build.js`. Do not clear the whole document or replace the user's existing `.op`. Ask before modifying or replacing boards that predate this task. A failed design command may have inserted partial content; inspect the document before retrying.
 - **Headless edits land in the file.** The `.op` already holds the boards before `op save`; save anyway so the file is complete before `op stop`.
 - **Chinese text renders in headless exports.** Verified with Chinese titles, body copy, and button labels.
+- **Cards side by side must share one height.** A horizontal row of cards with `height: "fit_content"` leaves every card at its own height, which reads as broken. Give every card in the row `height: "fill_container"` (the row stays `fit_content` and takes the tallest card), and put a `{type:"frame", height:"fill_container"}` spacer before the card's bottom button so the buttons line up. Rows inside cards that must align across columns (a pricing comparison) get a fixed height computed from the data (the most value lines in that row across all columns), not `fit_content`. Equal card heights are not enough when a block above varies in length (a one-line vs two-line description pushes the price down): give that block one fixed height for the whole row, computed from the longest text in the row. Verify with `op layout` that the same element (price, button) has the same `y` in every card, then check the exported PNG before handing off.
+- **`design:refine` resets a `layout:"none"` root's height.** A root with `height: 0` or `"fit_content"` gets "Adjusted root height to fit content" from its pre-layout pass, which can crop the page to an overlay's height. Give such roots an explicit height measured from `op layout` and rebuild when content changes.
+- **A runtime error in `build.js` is silent.** `op design @build.js` stops at the first thrown error and reports only the boards inserted so far, with no error. Run the script under Node first with a stub `I` (`const I = () => "id"`) and assert the root count matches the expected boards.
+- **Images need a data URI.** `image.src` does not load a local path or `file://` URL in headless export, and the script sandbox cannot read files. Embed the picture as `data:image/jpeg;base64,…` (shrink it first; the script limit is 256 KiB).
 
 ## Handoff
 
-Tell the user: the `.op` path, the board names in order, and the exported PNGs. Then ask whether to open the file in OpenPencil.
+Tell the user: the `.op` path, the board names in order, and the exported PNGs, and that the file is open in OpenPencil.
