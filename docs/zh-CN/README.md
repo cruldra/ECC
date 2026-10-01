@@ -81,7 +81,7 @@
 
 ## 最新动态
 
-### v2.2.44 — writing-code-comments：注释里指向仓库代码一律写成 [名字](路径#符号名) 链接，不写行号（2026年10月）
+### v2.2.45 — writing-code-comments：注释里指向仓库代码一律写成 [名字](路径#符号名) 链接，不写行号（2026年10月）
 
 ### v2.2.43 — writing-code-comments：解释代码用一句大白话；重写注释不看旧注释，从代码重写（2026年10月）
 
@@ -1365,7 +1365,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 | **上下文文件** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
 | **秘密检测** | 基于钩子                  | beforeSubmitPrompt 钩子 | 基于沙箱 | 基于钩子 |
 | **自动格式化** | PostToolUse 钩子        | afterFileEdit 钩子 | N/A | file.edited 钩子 |
-| **版本** | 插件 | 插件 | 参考配置 | 2.2.44 |
+| **版本** | 插件 | 插件 | 参考配置 | 2.2.45 |
 
 **关键架构决策：**
 

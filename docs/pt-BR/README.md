@@ -79,7 +79,7 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ## O Que Há de Novo
 
-### v2.2.44 — writing-code-comments: code elsewhere in the repo is linked as [name](path#Symbol), never by line number (Oct 2026)
+### v2.2.45 — writing-code-comments: code elsewhere in the repo is linked as [name](path#Symbol), never by line number (Oct 2026)
 
 ### v2.2.43 — writing-code-comments: explain code in one plain sentence; rewrite comments from the code, not from the old comment (Oct 2026)
 
