@@ -4,20 +4,27 @@ Prototype = a `build.js` script in the repo that the `op` command line runs agai
 
 Verified against OpenPencil 0.8.4 (`op --version`).
 
-## The official skill
+## Read the bundled design reference
 
-`op` ships its own agent skill, `openpencil-design`: the node schema (`PenNode`), the design script and DSL, semantic roles, layout rules, and typography. It matches the installed `op` version. Read it before drawing; this file covers only the workflow around it and the traps found in use.
+Read [openpencil-design.md](openpencil-design.md) before drawing. It contains the official node schema (`PenNode`), script and DSL syntax, semantic roles, layout rules, and typography. It is copied verbatim from OpenPencil **v0.8.4**, `crates/op-cli/assets/skill-bundle.json`, key `files["skills/openpencil-design/SKILL.md"]`:
 
-If `openpencil-design` is not in this session's skill list, ask the user before installing it:
+<https://github.com/ZSeven-W/openpencil/blob/v0.8.4/crates/op-cli/assets/skill-bundle.json>
+
+SHA-256: `ae6f7b4bb5bc88dced2b7cb9228b99de3b4fb869e2949a6bbe0f211e3c74aca9`.
+
+This reference is part of ECC and can be read in the current session. No additional plugin installation is required. `op skill:export` exports phase skills from a different registry; `openpencil-design` is in the installer bundle and is not an exportable name. Do not guess alternative names or extract documentation from executable strings.
+
+## Select one CLI and check its version
+
+On this Mac, use the CLI bundled with the installed desktop app:
 
 ```bash
-op install --target claude                                   # Codex: --target codex
-claude plugin enable openpencil-skill@openpencil-skill -s user
-claude plugin marketplace update openpencil-skill
-claude plugin list | grep -A3 openpencil-skill@              # expect: Status: ✔ enabled
+OP=/Applications/OpenPencil.app/Contents/MacOS/op
+export OPENPENCIL_DESKTOP_BIN=/Applications/OpenPencil.app/Contents/MacOS/openpencil-desktop
+"$OP" --version
 ```
 
-`op install` registers the `openpencil-skill` plugin disabled and does not clone its marketplace, so the plugin shows `failed to load` (`Marketplace openpencil-skill failed to load: cache-miss`) until the marketplace update clones it. The skill loads in the next session.
+Require version `0.8.4` before drawing with this reference. If the binary is missing or the version differs, stop and report the path and version so the installation or reference can be updated. Use the same `OP` path for every command below, including the examples in `openpencil-design.md`. The shell's default `op` can refer to an older Homebrew installation.
 
 ## Layout in the target repo
 
@@ -32,28 +39,28 @@ docs/prototype/<feature>/openpencil/
 
 Do the shared steps in `SKILL.md` first (decision, tokens, data). Then:
 
-1. **Check for a running editor.** `op status`. If it says `"running": true`, that is the user's open editor: do not stop or restart it. Ask whether to draw into it or wait until it is closed.
+1. **Check for a running editor.** `"$OP" status`. If it says `"running": true`, do not stop or restart it. Ask whether to draw into it or wait until it is closed. Read the issue's relevant pages, components, and theme files; avoid scanning unrelated source trees for Chinese text or guessing directories.
 2. **Start headless on the file.**
 
    ```bash
-   export OPENPENCIL_DESKTOP_BIN=/Applications/OpenPencil.app/Contents/MacOS/openpencil-desktop
-   op start --headless --file "$PWD/docs/prototype/<feature>/openpencil/<feature>.op" &
-   until op status | grep -q '"running":true'; do sleep 0.5; done
+   "$OP" start --headless --file "$PWD/docs/prototype/<feature>/openpencil/<feature>.op" > /tmp/openpencil-start.log 2>&1 &
    ```
 
+   Check `"$OP" status` for at most 20 seconds. If startup fails or the deadline expires, read `/tmp/openpencil-start.log` and report the error. Do not wait indefinitely or start another instance while the first is still starting.
+
 3. **Write `build.js` in script mode.** One `I(null, {...})` root frame per board, with `x` / `y` on the roots only (for example board width plus an 80 px gap). Loop over the data constants for repeated rows and cards. Node fields follow `openpencil-design`.
-4. **Run it.** `op design @build.js`. It prints `{"results":[{"binding":…,"nodeId":"n1"},…]}`; the root node ids are the board ids.
-5. **Fix layout.** `op design:refine --root-id <id>` on each board, as the official skill requires.
-6. **Check every board.** `op layout --depth 2` for real positions and sizes, then `op export --item <id> --output exports/<board>.png --scale 2`, and look at each image. Fix `build.js` and rebuild until nothing is cut off or overlapping.
-7. **Save and stop.** `op save "<abs path>.op"`, then `op stop`.
-8. **Ask before opening OpenPencil.** On yes: `op start --file "<abs path>.op"` (with `OPENPENCIL_DESKTOP_BIN` set) opens the live editor on the file.
+4. **Run it.** `"$OP" design @build.js`. It prints `{"results":[{"binding":…,"nodeId":"n1"},…]}`; record the root node ids as the board ids.
+5. **Fix layout.** `"$OP" design:refine --root-id <id>` on each board, as the official reference requires.
+6. **Check every board.** `"$OP" layout --depth 2` for real positions and sizes, then `"$OP" export --item <id> --output exports/<board>.png --scale 2`, and look at each image. Fix `build.js` and rebuild until nothing is cut off or overlapping.
+7. **Save and stop.** `"$OP" save "<abs path>.op"`. Stop with `"$OP" stop` only if this task started the instance and it is still that instance; leave a pre-existing editor running.
+8. **Ask before opening OpenPencil.** On yes: `"$OP" start --file "<abs path>.op"` opens the live editor on the file.
 
 ## Traps
 
 - **`op start` from `~/.local/bin/op` fails** with `OpenPencil desktop binary not found; set OPENPENCIL_DESKTOP_BIN`. That copy cannot find the app next to it. Set `OPENPENCIL_DESKTOP_BIN` as in step 2. Commands that talk to a running editor (`design`, `layout`, `export`, `save`, `stop`) work from either copy.
 - **`design:refine` reports pre-layout sizes.** Its `layoutSnapshot` showed a root 48 px tall with 100 × 100 text boxes, while `op layout` and the export showed the real 182 px card. Trust `op layout` and the PNG, not the refine snapshot.
 - **`op export` needs `--item` when headless.** Without it, `op export` exports the selection, and a headless editor has none: `no node is selected on the Live Canvas`.
-- **Script mode is insert only.** Running `build.js` again adds a second copy of every board. To rebuild, stop the editor and start from an empty `.op`. The `.op` is generated, but the user may have edited it in OpenPencil: ask before replacing an existing one.
+- **Script mode inserts new boards on every run.** To rebuild during this task, delete only the recorded root ids created by the previous run with `"$OP" delete <id>`, then rerun `build.js`. Do not clear the whole document or replace the user's existing `.op`. Ask before modifying or replacing boards that predate this task. A failed design command may have inserted partial content; inspect the document before retrying.
 - **Headless edits land in the file.** The `.op` already holds the boards before `op save`; save anyway so the file is complete before `op stop`.
 - **Chinese text renders in headless exports.** Verified with Chinese titles, body copy, and button labels.
 
