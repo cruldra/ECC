@@ -71,7 +71,6 @@ skills:
   - eval-harness
   - exa-search
   - fal-ai-media
-  - figma-plugin-prototyping
   - flutter-dart-code-review
   - foundation-models-on-device
   - frontend-patterns
@@ -158,6 +157,7 @@ skills:
   - tdd-workflow
   - team-builder
   - token-budget-advisor
+  - ui-prototyping
   - unified-memory
   - verification-loop
   - video-editing

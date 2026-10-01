@@ -7,7 +7,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 
 const repoRoot = path.resolve(__dirname, '..', '..');
-const skillDir = path.join(repoRoot, 'skills', 'figma-plugin-prototyping');
+const skillDir = path.join(repoRoot, 'skills', 'ui-prototyping');
 
 let passed = 0;
 let failed = 0;

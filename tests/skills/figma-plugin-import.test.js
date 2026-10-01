@@ -8,7 +8,7 @@ const path = require("path");
 const { execFileSync } = require("child_process");
 
 const root = path.resolve(__dirname, "..", "..");
-const script = path.join(root, "skills", "figma-plugin-prototyping", "scripts", "import-into-figma.js");
+const script = path.join(root, "skills", "ui-prototyping", "scripts", "import-into-figma.js");
 const {
   asExtensionEntries,
   nextExtensionId,
@@ -124,9 +124,9 @@ test("no argument prints usage", () => {
   }
 });
 
-test("SKILL.md asks before opening Figma and explains the quit", () => {
+test("the Figma reference asks before opening Figma and explains the quit", () => {
   const body = fs.readFileSync(
-    path.join(root, "skills", "figma-plugin-prototyping", "SKILL.md"),
+    path.join(root, "skills", "ui-prototyping", "references", "figma-plugin.md"),
     "utf8"
   );
   assert.match(body, /Ask before opening Figma/);
@@ -136,7 +136,7 @@ test("SKILL.md asks before opening Figma and explains the quit", () => {
 
 test("SKILL.md keeps analysis off the canvas", () => {
   const body = fs.readFileSync(
-    path.join(root, "skills", "figma-plugin-prototyping", "SKILL.md"),
+    path.join(root, "skills", "ui-prototyping", "SKILL.md"),
     "utf8"
   );
   assert.match(body, /Boards show the result only/);
