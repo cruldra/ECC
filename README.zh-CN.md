@@ -80,7 +80,9 @@
 
 ## 最新动态
 
-### v2.2.43 — 画原型先问用 Figma 插件还是 OpenPencil；OpenPencil 走 op 命令行，不开窗口画、导图自查（2026年10月）
+### v2.2.43 — writing-code-comments：解释代码用一句大白话；重写注释不看旧注释，从代码重写（2026年10月）
+
+### v2.2.42 — 画原型先问用 Figma 插件还是 OpenPencil；OpenPencil 走 op 命令行，不开窗口画、导图自查（2026年10月）
 
 ### v2.2.41 — 收录 writing-code-comments：注释只讲为什么和坑，多分支函数用 ①②③ 画骨架（2026年9月）
 
