@@ -65,6 +65,13 @@ test("every language uses KDoc-style Markdown comments", () => {
   }
 });
 
+test("code elsewhere in the repo is a repo-root link with a symbol anchor", () => {
+  assert.ok(body.includes("`[plain name](path/from/repo/root#Symbol)`"));
+  assert.ok(body.includes("Never a line number."));
+  assert.ok(body.includes("[agent table](backend/src/app/agent/models.py#Agent)"));
+  assert.doesNotMatch(body, /\]\([^)\s]+#L?\d+\)/, "links must not point at line numbers");
+});
+
 test("Chinese name marks live only on the definition", () => {
   assert.ok(body.includes("on the Definition Only"));
   assert.ok(body.includes('Annotated[Type, Comment("name")]'));

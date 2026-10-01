@@ -1,6 +1,6 @@
 ---
 name: writing-code-comments
-description: 'Use when writing or editing code comments or docstrings in any language. Explain code the Feynman way: one plain sentence a newcomer understands. When rewriting, ignore the old comment and write from the code. Every comment follows Kotlin KDoc Markdown: backticks for code, `[Name]` for symbol references, `@param` / `@return` / `@throws` block tags; never reST, Google-style `Args`, Javadoc HTML, or JSDoc `{Type}`. Also covers Chinese name marks (`Annotated[T, Comment("…")]`, `@Comment("…")`, trailing `# @Comment 名字` on enum members) that let the code-reading preview render code in Chinese.'
+description: 'Use when writing or editing code comments or docstrings in any language. Explain code the Feynman way: one plain sentence a newcomer understands. When rewriting, ignore the old comment and write from the code. Every comment follows Kotlin KDoc Markdown: backticks for code, `[Name]` for symbol references, `[plain name](repo/path#Symbol)` links for code elsewhere in the repo, `@param` / `@return` / `@throws` block tags; never reST, Google-style `Args`, Javadoc HTML, or JSDoc `{Type}`. Also covers Chinese name marks (`Annotated[T, Comment("…")]`, `@Comment("…")`, trailing `# @Comment 名字` on enum members) that let the code-reading preview render code in Chinese.'
 ---
 
 # Writing Code Comments
@@ -48,7 +48,7 @@ users, leave them; platform rows (`owner_id` is `None`) refresh description and 
 After, written from the code:
 
 ```python
-"""At startup, sync agent definitions under `vendor/agents` into the `agent` table; it adds and updates but never deletes rows, because a row may carry user data."""
+"""At startup, sync the [agent definitions](vendor/agents) into the [agent table](backend/src/app/agent/models.py#Agent); it adds and updates but never deletes rows, because a row may carry user data."""
 
         elif row.owner_id is None and (...):  # platform rows only; rows users created stay as they are
 ```
@@ -61,7 +61,8 @@ Write every comment the way Kotlin KDoc does, whatever the language. Python, Typ
 - Square brackets for references to classes, functions, parameters, and enum members, e.g. `[UserRole.ADMIN]`, `[get_user]`, `[token]`.
 - Block tags: `@param name description`, `@return description`, `@throws ExceptionClass when it is thrown`. No types; the signature carries them.
 - The first sentence of a doc comment is the summary. Leave one blank line, then the details; details may use lists, bold, and code blocks.
-- Line comments (`#` / `//`) use the same backticks and square brackets.
+- Line comments (`#` / `//`) use the same backticks, square brackets, and links.
+- Code elsewhere in the repo is a link, never a backtick name. See Links to Code in the Repo.
 
 Never use: reST `:param x:` and double backticks, Google-style `Args` / `Returns` sections, Javadoc HTML tags and `{@link}` / `{@code}`, JSDoc `{Type}`.
 
@@ -97,6 +98,25 @@ def release(session_id: str, token: str) -> bool:
  * @return `true` if deleted; `false` if the lock now belongs to someone else
  */
 function release(sessionId: string, token: string): boolean
+```
+
+### Links to Code in the Repo
+
+Anything a comment points at outside the current scope is a Markdown link: a directory, a file, a table, a class or function in another module. A backtick name only looks like code; a link takes the reader there.
+
+- Format: `[plain name](path/from/repo/root#Symbol)`.
+- The path is relative to the repository root, with no leading `./` or `/`.
+- `#Symbol` names a class, function, or member in that file: `#Agent`, `#Agent.owner_id`, `#sync_agent_rows`. Leave it off for a directory or a whole file.
+- Never a line number. Lines shift with every edit above them; a symbol name does not.
+- The link text is the plain name a reader understands: `agent table`, not `agent`.
+- A name in the current scope stays `[Name]`, as in KDoc.
+
+```python
+# Bad: names the reader has to go and find
+# Syncs `vendor/agents` into `agent`.
+
+# Good: each one opens the code it names
+# Syncs the [agent definitions](vendor/agents) into the [agent table](backend/src/app/agent/models.py#Agent).
 ```
 
 ## Chinese Name Marks: `@Comment`
