@@ -5,12 +5,12 @@ argument-hint: "[path/to/spec.md]"
 
 # Plan Command
 
-Thin entry over the `writing-plans` skill. Follow that skill.
+Thin entry over the `ecc:writing-plans` skill. Invoke it with `Skill(ecc:writing-plans)` and follow it.
 
 **Input**: `$ARGUMENTS`
 
 If `$ARGUMENTS` is a spec path, use it. If this session already has an approved spec, use that.
 
-If the idea is still open, follow `grilling`. If consensus exists but no spec, follow `spec`.
+If the idea is still open, follow `ecc:grilling`. If consensus exists but no spec, follow `ecc:spec`.
 
-Do not write a PRD. Do not write code. Save to `.claude/plans/<stem>.md`. After the plan is saved, next is `/tdd <plan-path>`.
+Do not write a PRD. Do not write code. Save to `.claude/plans/<stem>.md`. After the plan is saved, next is `/ecc:tdd <plan-path>`.
