@@ -2,8 +2,6 @@
 
 Prototype = a `build.js` script in the repo that the `op` command line runs against an OpenPencil document (`.op`). Boards are drawn headless, without a window, then exported to PNG and checked by eye. When the boards are done, the `.op` is opened in OpenPencil for the user.
 
-Verified against OpenPencil 0.8.4 (`op --version`).
-
 ## Read the bundled design reference
 
 Read [openpencil-design.md](openpencil-design.md) before drawing. It contains the official node schema (`PenNode`), script and DSL syntax, semantic roles, layout rules, and typography. It is copied verbatim from OpenPencil **v0.8.4**, `crates/op-cli/assets/skill-bundle.json`, key `files["skills/openpencil-design/SKILL.md"]`:
@@ -14,17 +12,16 @@ SHA-256: `ae6f7b4bb5bc88dced2b7cb9228b99de3b4fb869e2949a6bbe0f211e3c74aca9`.
 
 This reference is part of ECC and can be read in the current session. No additional plugin installation is required. `op skill:export` exports phase skills from a different registry; `openpencil-design` is in the installer bundle and is not an exportable name. Do not guess alternative names or extract documentation from executable strings.
 
-## Select one CLI and check its version
+## Use the CLI bundled with the app
 
-On this Mac, use the CLI bundled with the installed desktop app:
+Always run the `op` that ships inside the installed desktop app:
 
 ```bash
 OP=/Applications/OpenPencil.app/Contents/MacOS/op
 export OPENPENCIL_DESKTOP_BIN=/Applications/OpenPencil.app/Contents/MacOS/openpencil-desktop
-"$OP" --version
 ```
 
-Require version `0.8.4` before drawing with this reference. If the binary is missing or the version differs, stop and report the path and version so the installation or reference can be updated. Use the same `OP` path for every command below, including the examples in `openpencil-design.md`. The shell's default `op` can refer to an older Homebrew installation.
+Use the same `OP` path for every command below, including the examples in `openpencil-design.md`. The shell's default `op` can be a separate Homebrew or `~/.local/bin` copy that lags behind the app. If `"$OP"` does not exist, stop and report that OpenPencil is not installed.
 
 ## Layout in the target repo
 
