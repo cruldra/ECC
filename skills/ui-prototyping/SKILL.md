@@ -1,33 +1,23 @@
 ---
 name: ui-prototyping
-description: 'Draw UI prototypes, design boards, state variants, and click-through demos. First ask which tool to use, the Figma development plugin or OpenPencil, unless the user already named one, then follow that tool''s reference. Use when the user asks for a 原型 / 设计稿 / 画板 / Design Lab / 状态变体 / 点击演示, says 用 figma 插件画 or 用 openpencil 画, or wants a feature''s screens mocked up. Not for reading an existing Figma file into code (use figma-design-to-code).'
+description: 'Draw UI prototypes, design boards, state variants, and click-through demos with OpenPencil and the op CLI. Use when the user asks for a 原型 / 设计稿 / 画板 / Design Lab / 状态变体 / 点击演示, says 用 openpencil 画, or wants a feature''s screens mocked up.'
 ---
 
 # UI Prototyping
 
-A prototype answers one design question with boards that look like the finished product. Two tools can draw it. Both keep the drawing source in the repo, so a prototype can be re-run, diffed, and reviewed.
+A prototype answers one design question with boards that look like the finished product. Use OpenPencil's `op` command line and keep the drawing source in the repo, so a prototype can be re-run, diffed, and reviewed.
 
 ## When to Use
 
 - The user asks for a 原型, 设计稿, 画板, 状态变体, or 点击演示 of a feature.
 - The user wants to compare design options side by side before building.
-- The user names Figma or OpenPencil for a mock-up.
+- The user names OpenPencil for a mock-up.
 
 ## How It Works
 
-### 1. Pick the tool
+### 1. Read the OpenPencil workflow
 
-If the user already named the tool, use it. Otherwise ask with `AskUserQuestion`, one question, two options:
-
-- **Figma 插件**: a local Figma development plugin. Editable component sets, click-through wiring, unit-tested offline. Needs Figma Desktop.
-- **OpenPencil**: the `op` command line drives the OpenPencil editor. Boards are drawn headless and checked as exported images.
-
-Then read only that tool's reference:
-
-| Tool | Reference |
-| --- | --- |
-| Figma 插件 | `references/figma-plugin.md` |
-| OpenPencil | `references/openpencil.md` |
+Read `references/openpencil.md` and its bundled design reference. The `op` command line drives OpenPencil. Draw headless and check the boards as exported images.
 
 ### 2. Shared steps, before drawing
 
@@ -35,7 +25,7 @@ Then read only that tool's reference:
 2. **Read the product's tokens.** Colours, radii, and type sizes come from the app's theme file (`globals.css`, a theme module). Put them in constants as hex. Never invent a palette.
 3. **List the data first.** Tier tables, sample balances, states, copy. Keep them in constants at the top of the drawing source with a comment naming the source. The drawing code reads from them.
 4. **Boards in reading order.** Screens top to bottom or left to right, then edge cases (narrow width, long titles). No overview board, no notes board.
-5. **Opening the app.** OpenPencil: when the boards are done and saved, open the `.op` in OpenPencil without asking (see `references/openpencil.md`). Figma: ask whether to open it. OpenPencil editor already open when work starts: close it first (`op` runs much slower against the desktop editor), draw headless, then reopen the file when done. Never quit or restart Figma unasked.
+5. **Opening the app.** When the boards are done and saved, open the `.op` in OpenPencil without asking (see `references/openpencil.md`). OpenPencil editor already open when work starts: close it first (`op` runs much slower against the desktop editor), draw headless, then reopen the file when done.
 
 ### 3. Boards show the result only
 
@@ -56,6 +46,6 @@ Reproducing a current screen is fine when the user asks to compare — draw it a
 
 ## Examples
 
-**Tool not named.** User: "会员中心要加个额度进度条，会员 / 非会员 / 扣款失败三种，画个原型看看。" Ask Figma 插件 or OpenPencil. On Figma 插件, follow `references/figma-plugin.md`. On OpenPencil, follow `references/openpencil.md`: `build.js` draws three boards, each exported to PNG and checked, then open `membership.op` in OpenPencil.
+**Tool not named.** User: "会员中心要加个额度进度条，会员 / 非会员 / 扣款失败三种，画个原型看看。" Follow `references/openpencil.md`: `build.js` draws three boards, each exported to PNG and checked, then open `membership.op` in OpenPencil.
 
-**Tool named.** User: "用 openpencil 画一下报名页的报名中和已截止两个状态。" Skip the question and follow `references/openpencil.md`.
+**Tool named.** User: "用 openpencil 画一下报名页的报名中和已截止两个状态。" Follow `references/openpencil.md`.
