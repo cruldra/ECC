@@ -40,6 +40,7 @@ test("keeps the sections in order", () => {
     "## Explaining Code: One Plain Sentence",
     "## Rewriting a Comment: Start From the Code",
     "## Comment Format: KDoc Markdown in Every Language",
+    "## Front-End Components: Show What It Looks Like",
     "## Chinese Name Marks: `@Comment`",
   ]);
 });
@@ -70,6 +71,13 @@ test("code elsewhere in the repo is a repo-root link with a symbol anchor", () =
   assert.ok(body.includes("Never a line number."));
   assert.ok(body.includes("[agent table](backend/src/app/agent/models.py#Agent)"));
   assert.doesNotMatch(body, /\]\([^)\s]+#L?\d+\)/, "links must not point at line numbers");
+});
+
+test("front-end components embed a cropped screenshot from a running environment", () => {
+  assert.ok(body.includes("Reuse an environment that is already running."));
+  assert.ok(body.includes("Never commit a screenshot with real user data."));
+  assert.ok(body.includes("`<component dir>/screenshots/<ComponentName>.png`"));
+  assert.ok(body.includes("--cropOffset <y> <x>"));
 });
 
 test("Chinese name marks live only on the definition", () => {

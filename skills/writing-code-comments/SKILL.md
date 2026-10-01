@@ -1,6 +1,6 @@
 ---
 name: writing-code-comments
-description: 'Use when writing or editing code comments or docstrings in any language. Explain code the Feynman way: one plain sentence a newcomer understands. When rewriting, ignore the old comment and write from the code. Every comment follows Kotlin KDoc Markdown: backticks for code, `[Name]` for symbol references, `[plain name](repo/path#Symbol)` links for code elsewhere in the repo, `@param` / `@return` / `@throws` block tags; never reST, Google-style `Args`, Javadoc HTML, or JSDoc `{Type}`. Also covers Chinese name marks (`Annotated[T, Comment("…")]`, `@Comment("…")`, trailing `# @Comment 名字` on enum members) that let the code-reading preview render code in Chinese.'
+description: 'Use when writing or editing code comments or docstrings in any language. Explain code the Feynman way: one plain sentence a newcomer understands. When rewriting, ignore the old comment and write from the code. Doc comments on front-end components embed a screenshot taken from an environment that is already running. Every comment follows Kotlin KDoc Markdown: backticks for code, `[Name]` for symbol references, `[plain name](repo/path#Symbol)` links for code elsewhere in the repo, `@param` / `@return` / `@throws` block tags; never reST, Google-style `Args`, Javadoc HTML, or JSDoc `{Type}`. Also covers Chinese name marks (`Annotated[T, Comment("…")]`, `@Comment("…")`, trailing `# @Comment 名字` on enum members) that let the code-reading preview render code in Chinese.'
 ---
 
 # Writing Code Comments
@@ -118,6 +118,42 @@ Anything a comment points at outside the current scope is a Markdown link: a dir
 # Good: each one opens the code it names
 # Syncs the [agent definitions](vendor/agents) into the [agent table](backend/src/app/agent/models.py#Agent).
 ```
+
+## Front-End Components: Show What It Looks Like
+
+A front-end component's doc comment embeds a screenshot of the component as rendered, right after the summary sentence. The reader sees at a glance which part of the screen the code draws.
+
+```tsx
+/**
+ * Overview card: one fact per row, value on the left, note below, secondary action on the right.
+ *
+ * ![overview card](frontend/src/components/overview/screenshots/OverviewSection.png)
+ */
+export function OverviewSection(props: OverviewSectionProps) {
+```
+
+- **Reuse an environment that is already running.** Local dev server first, then test, then production. Never start a server or a build just for the screenshot. If you do not know the URL, ask.
+- **Crop to the component.** Not the whole page.
+- **No real people's data.** Test and production pages show real names, phone numbers, emails, amounts, and avatars. If any is visible, use the dev environment with fake data, or ask. Never commit a screenshot with real user data.
+- **Store it next to the component**: `<component dir>/screenshots/<ComponentName>.png`, committed with the code. The image path follows the link rule: from the repo root, `![plain name](path)`.
+- **One screenshot of the usual state.** Add another only for a state that looks very different, such as empty or error.
+- **Retake it when the look changes.** A stale screenshot misleads like a stale comment.
+- **Skip components that draw nothing of their own**: providers, context wrappers, hooks.
+
+Taking the screenshot with `opencli browser` (the user's Chrome, already logged in):
+
+```bash
+S=shot
+opencli browser $S open "<page url>"
+opencli browser $S wait selector "<component root selector>"
+opencli browser $S eval "(() => { const el = document.querySelector('<component root selector>'); el.scrollIntoView({ block: 'center' }); const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height, vw: innerWidth }; })()"
+opencli browser $S screenshot /tmp/page.png
+# scale = PNG width / vw (sips -g pixelWidth /tmp/page.png); every number below is multiplied by scale
+sips -c <h> <w> --cropOffset <y> <x> /tmp/page.png --out <component dir>/screenshots/<ComponentName>.png
+opencli browser $S close
+```
+
+`sips --cropOffset` takes the top offset first, then the left offset. Look at the cropped image before committing it.
 
 ## Chinese Name Marks: `@Comment`
 
