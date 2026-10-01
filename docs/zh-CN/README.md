@@ -81,7 +81,7 @@
 
 ## 最新动态
 
-### v2.2.41 — 收录 writing-code-comments：注释只讲为什么和坑，多分支函数用 ①②③ 画骨架（2026年9月）
+### v2.2.42 — 收录 writing-code-comments：注释只讲为什么和坑，多分支函数用 ①②③ 画骨架（2026年9月）
 
 ### v2.2.40 — 新增 wechat-developing：微信生态开发经验按领域分文件，先收公众号 H5 分享签名、IP 白名单、备案拦截（2026年9月）
 
@@ -1359,7 +1359,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 | **上下文文件** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
 | **秘密检测** | 基于钩子                  | beforeSubmitPrompt 钩子 | 基于沙箱 | 基于钩子 |
 | **自动格式化** | PostToolUse 钩子        | afterFileEdit 钩子 | N/A | file.edited 钩子 |
-| **版本** | 插件 | 插件 | 参考配置 | 2.2.41 |
+| **版本** | 插件 | 插件 | 参考配置 | 2.2.42 |
 
 **关键架构决策：**
 
