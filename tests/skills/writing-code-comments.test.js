@@ -34,12 +34,27 @@ test("frontmatter names the skill and quotes the description", () => {
   assert.match(body, /^---\nname: writing-code-comments\ndescription: '[^']+'\n---\n/);
 });
 
-test("keeps the format section before the Chinese name mark section", () => {
+test("keeps the sections in order", () => {
   const headings = body.split("\n").filter((line) => line.startsWith("## "));
   assert.deepStrictEqual(headings, [
+    "## Explaining Code: One Plain Sentence",
+    "## Rewriting a Comment: Start From the Code",
     "## Comment Format: KDoc Markdown in Every Language",
     "## Chinese Name Marks: `@Comment`",
   ]);
+});
+
+test("explains code the Feynman way in one plain sentence", () => {
+  assert.ok(body.includes("Explain code the Feynman way"));
+  assert.ok(body.includes("One sentence."));
+  assert.ok(body.includes("If one plain sentence will not come"));
+});
+
+test("rewrites start from the code, not the old comment", () => {
+  assert.ok(body.includes("do not edit the old one. Ignore it, read the code"));
+  for (const check of ["The summary is true.", "Nothing restates the code.", "Each note sits where it applies.", "Nothing describes other modules."]) {
+    assert.ok(body.includes(check), `missing check: ${check}`);
+  }
 });
 
 test("every language uses KDoc-style Markdown comments", () => {

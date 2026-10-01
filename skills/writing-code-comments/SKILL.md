@@ -1,9 +1,57 @@
 ---
 name: writing-code-comments
-description: 'Use when writing or editing code comments or docstrings in any language. Every comment follows Kotlin KDoc Markdown: backticks for code, `[Name]` for symbol references, `@param` / `@return` / `@throws` block tags; never reST, Google-style `Args`, Javadoc HTML, or JSDoc `{Type}`. Also covers Chinese name marks (`Annotated[T, Comment("…")]`, `@Comment("…")`, trailing `# @Comment 名字` on enum members) that let the code-reading preview render code in Chinese.'
+description: 'Use when writing or editing code comments or docstrings in any language. Explain code the Feynman way: one plain sentence a newcomer understands. When rewriting, ignore the old comment and write from the code. Every comment follows Kotlin KDoc Markdown: backticks for code, `[Name]` for symbol references, `@param` / `@return` / `@throws` block tags; never reST, Google-style `Args`, Javadoc HTML, or JSDoc `{Type}`. Also covers Chinese name marks (`Annotated[T, Comment("…")]`, `@Comment("…")`, trailing `# @Comment 名字` on enum members) that let the code-reading preview render code in Chinese.'
 ---
 
 # Writing Code Comments
+
+## Explaining Code: One Plain Sentence
+
+Explain code the Feynman way: say what it does and why in one sentence, in plain words a newcomer to the codebase understands.
+
+- One sentence. For a doc comment, that sentence is the summary line.
+- Everyday words. A term the reader may not know gets replaced, or explained in the same sentence.
+- Say the why, not the mechanics. The code already shows the mechanics.
+- If one plain sentence will not come, the code is not understood yet, or it does too much. Read it again or split it before writing the comment.
+
+```python
+# Bad: jargon, no reason
+# CAS-based conditional delete leveraging Lua atomicity to mitigate stale-holder races.
+
+# Good: plain words, the reason included
+# Delete the lock only if it is still ours, so a holder whose lock expired cannot delete someone else's.
+```
+
+## Rewriting a Comment: Start From the Code
+
+When asked to rewrite or clean up a comment, do not edit the old one. Ignore it, read the code, and write what is true now from scratch. An old comment carries stale facts, restated code, and wrong summaries; editing it keeps them.
+
+Then check what you wrote:
+
+- **The summary is true.** No neat word the code does not live up to, such as "one-to-one" for code that never deletes.
+- **Nothing restates the code.** A condition written out in words adds nothing. When a value has a hidden meaning (`owner_id is None` means a platform row), say it on that line, or better, name it in code (`row.is_platform`) and drop the comment.
+- **Each note sits where it applies.** A condition's meaning goes next to the condition, not into the module summary.
+- **Nothing describes other modules.** What another page or service does goes stale here when it changes.
+- **Less is fine.** When nothing non-obvious is left, the comment goes.
+
+Before, a module docstring rewritten by changing only its format:
+
+```python
+"""Keep the `agent` table one-to-one with `vendor/agents/<slug>/agent.yaml` at startup.
+
+Add only, never delete: rows whose yaml was removed stay (the admin page marks them
+"definition missing"), to avoid deleting user data. Rows with `owner_id` were created by
+users, leave them; platform rows (`owner_id` is `None`) refresh description and tags from yaml.
+"""
+```
+
+After, written from the code:
+
+```python
+"""At startup, sync agent definitions under `vendor/agents` into the `agent` table; it adds and updates but never deletes rows, because a row may carry user data."""
+
+        elif row.owner_id is None and (...):  # platform rows only; rows users created stay as they are
+```
 
 ## Comment Format: KDoc Markdown in Every Language
 
