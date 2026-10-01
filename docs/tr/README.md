@@ -79,7 +79,9 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ## Yenilikler
 
-### v2.2.42 — writing-code-comments joins the plugin: comments explain why and pitfalls, and multi-branch functions get a ①②③ skeleton (Sep 2026)
+### v2.2.42 — prototypes start by asking Figma plugin or OpenPencil; OpenPencil is driven headless through the op CLI and checked as exported images (Oct 2026)
+
+### v2.2.41 — writing-code-comments joins the plugin: comments explain why and pitfalls, and multi-branch functions get a ①②③ skeleton (Sep 2026)
 
 ### v2.2.40 — new wechat-developing skill: WeChat ecosystem field notes, one file per area, starting with 公众号 H5 share signing, the API IP whitelist, and ICP interception (Sep 2026)
 
