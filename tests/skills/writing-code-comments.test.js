@@ -30,35 +30,30 @@ function test(name, fn) {
 
 console.log("\n=== Testing writing-code-comments skill ===\n");
 
-test("frontmatter quotes the description so # stays inside it", () => {
+test("frontmatter names the skill and quotes the description", () => {
   assert.match(body, /^---\nname: writing-code-comments\ndescription: '[^']+'\n---\n/);
-  assert.ok(body.split("---")[1].includes("# @Comment"));
 });
 
-test("deletion is mandatory and addition stays restrained", () => {
-  assert.ok(body.includes("删**(清理坏注释)→ **强制**"));
-  assert.ok(body.includes("「克制」只管「加」,**不管「删」**"));
+test("keeps the format section before the Chinese name mark section", () => {
+  const headings = body.split("\n").filter((line) => line.startsWith("## "));
+  assert.deepStrictEqual(headings, [
+    "## Comment Format: KDoc Markdown in Every Language",
+    "## Chinese Name Marks: `@Comment`",
+  ]);
 });
 
-test("docstring lines that only restate the signature get deleted", () => {
-  assert.ok(body.includes("遮住函数签名"));
-  assert.ok(body.includes("只复述参数名 / 类型 / 返回类型"));
-});
-
-test("multi-branch functions get a numbered control-flow map", () => {
-  assert.ok(body.includes("# ① ② ③"));
-  assert.ok(body.includes("右对齐"));
-  assert.ok(body.includes("≥2 个并列分支或多步流程"));
+test("every language uses KDoc-style Markdown comments", () => {
+  assert.ok(body.includes("whatever the language"));
+  assert.ok(body.includes("`@param name description`"));
+  for (const fence of ["```kotlin", "```python", "```ts"]) {
+    assert.ok(body.includes(fence), `missing ${fence} example`);
+  }
 });
 
 test("Chinese name marks live only on the definition", () => {
-  assert.ok(body.includes("# @Comment 名字"));
-  assert.ok(body.includes("只写在**定义处**"));
-  assert.ok(body.includes("中文名标记不算「复述代码」,不删"));
-});
-
-test("forbids history notes in comments", () => {
-  assert.ok(body.includes("不留历史痕迹"));
+  assert.ok(body.includes("on the Definition Only"));
+  assert.ok(body.includes('Annotated[Type, Comment("name")]'));
+  assert.ok(body.includes("# @Comment 管理员"));
 });
 
 console.log(`\nResults: Passed: ${passed}, Failed: ${failed}`);
