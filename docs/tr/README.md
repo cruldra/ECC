@@ -79,7 +79,9 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ## Yenilikler
 
-### v2.2.44 — writing-code-comments: explain code in one plain sentence; rewrite comments from the code, not from the old comment (Oct 2026)
+### v2.2.44 — writing-code-comments: code elsewhere in the repo is linked as [name](path#Symbol), never by line number (Oct 2026)
+
+### v2.2.43 — writing-code-comments: explain code in one plain sentence; rewrite comments from the code, not from the old comment (Oct 2026)
 
 ### v2.2.42 — prototypes start by asking Figma plugin or OpenPencil; OpenPencil is driven headless through the op CLI and checked as exported images (Oct 2026)
 
