@@ -1,6 +1,6 @@
 # 本机 ECC 更新
 
-安装来源：`~/Projects/ECC`。远程 `origin` 指向 `https://github.com/cruldra/ECC.git`，本地分支为 `local/chw`。
+安装来源：`~/Sources/ECC`。远程 `origin` 指向 `https://github.com/cruldra/ECC.git`，本地分支为 `local/chw`。
 
 运行脚本需要仓库现有的依赖。当前已安装；重新克隆时执行 `npm ci --ignore-scripts`，按仓库的 `package-lock.json` 安装。
 
@@ -9,7 +9,7 @@
 修改后先提交到本地 Git，再更新本机安装：
 
 ```sh
-cd ~/Projects/ECC
+cd ~/Sources/ECC
 git add <修改的文件>
 git commit -m '🔧 chore(local): 更新本地定制'
 node scripts/local-ecc-update.js
@@ -18,7 +18,7 @@ node scripts/local-ecc-update.js
 拉取上游并更新安装：
 
 ```sh
-cd ~/Projects/ECC
+cd ~/Sources/ECC
 node scripts/local-ecc-update.js --pull
 ```
 
