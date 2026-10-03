@@ -394,7 +394,7 @@ if (
       });
       assert.strictEqual(result.status, 0);
       assert.strictEqual(result.stdout, '', 'hook that returned raw input as stdout must be suppressed (was ' + result.stdout.length + ' bytes)');
-      assert.match(result.stderr, /returned raw input as stdout/, 'stderr should explain the suppression');
+      assert.doesNotMatch(result.stderr, /bootstrap:/, 'expected passthrough suppression must stay silent');
     } finally {
       fs.unlinkSync(fixturePath);
     }
@@ -418,7 +418,7 @@ if (
       assert.strictEqual(Buffer.byteLength(payload.slice(0, 32768), 'utf8'), 64 * 1024);
       assert.strictEqual(result.status, 0, result.stderr);
       assert.strictEqual(result.stdout, '', 'a UTF-8 byte prefix of raw input must be suppressed');
-      assert.match(result.stderr, /returned raw input as stdout/);
+      assert.doesNotMatch(result.stderr, /bootstrap:/);
     } finally {
       fs.unlinkSync(fixturePath);
     }
@@ -481,7 +481,7 @@ if (
       });
       assert.strictEqual(result.status, 0, result.stderr);
       assert.strictEqual(result.stdout, '', 'classification must occur before UTF-8 decoding');
-      assert.match(result.stderr, /returned raw input as stdout/);
+      assert.doesNotMatch(result.stderr, /bootstrap:/);
     } finally {
       fs.unlinkSync(fixturePath);
     }
@@ -503,7 +503,7 @@ if (process.platform !== 'win32') {
         });
         assert.strictEqual(result.status, 0, result.stderr);
         assert.strictEqual(result.stdout, '', 'shell raw-input passthrough must be suppressed');
-        assert.match(result.stderr, /returned raw input as stdout/);
+        assert.doesNotMatch(result.stderr, /bootstrap:/);
       } finally {
         fs.unlinkSync(fixturePath);
       }

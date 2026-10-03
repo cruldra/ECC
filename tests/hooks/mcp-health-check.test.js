@@ -393,6 +393,41 @@ async function runTests() {
     }
   })) passed++; else failed++;
 
+  if (await asyncTest('reads the server name from the Claude Code mcp_server object', async () => {
+    const tempDir = createTempDir();
+    const configPath = path.join(tempDir, 'claude.json');
+    const statePath = path.join(tempDir, 'mcp-health.json');
+    const serverScript = path.join(tempDir, 'object-server.js');
+
+    try {
+      fs.writeFileSync(serverScript, "setInterval(() => {}, 1000);\n");
+      writeConfig(configPath, {
+        mcpServers: {
+          objsrv: createCommandConfig(serverScript)
+        }
+      });
+
+      const input = {
+        tool_name: 'mcp__objsrv__lookup',
+        mcp_server: { name: 'objsrv', source: 'user' },
+        tool_input: {}
+      };
+      const result = runHook(input, {
+        CLAUDE_HOOK_EVENT_NAME: 'PreToolUse',
+        ECC_MCP_CONFIG_PATH: configPath,
+        ECC_MCP_HEALTH_STATE_PATH: statePath,
+        ECC_MCP_HEALTH_TIMEOUT_MS: '100'
+      });
+
+      assert.strictEqual(result.code, 0, `Expected mcp_server object target to pass, got ${result.code}: ${result.stderr}`);
+      assert.ok(!result.stderr.includes('[object Object]'), `Server name must not stringify the object: ${result.stderr}`);
+      const state = readState(statePath);
+      assert.strictEqual(state.servers.objsrv.status, 'healthy', 'Expected objsrv to be marked healthy');
+    } finally {
+      cleanupTempDir(tempDir);
+    }
+  })) passed++; else failed++;
+
   if (await asyncTest('marks healthy command MCP servers and allows the tool call', async () => {
     const tempDir = createTempDir();
     const configPath = path.join(tempDir, 'claude.json');

@@ -61,20 +61,13 @@ function passthrough(result) {
     // capacity varies by platform and Node version (observed at 8, 16, and
     // 64 KiB), so classify any non-empty byte-exact prefix of the raw hook
     // event as passthrough instead of assuming one buffer size.
-    const raw = result?.comparisonInput;
-    const looksLikePassthrough = isRawPassthrough(raw, stdout);
-    if (looksLikePassthrough) {
-      writeStderr(
-        '[Hook] bootstrap: hook returned raw input as stdout; emitting empty to avoid transcript bloat\n'
-      );
+    //
+    // Suppression is the expected path for most hooks, so it stays silent:
+    // the harness stores hook stderr in the transcript too.
+    if (isRawPassthrough(result?.comparisonInput, stdout)) {
       return;
     }
     process.stdout.write(stdout);
-    return;
-  }
-
-  if (!Number.isInteger(result?.status) || result.status === 0) {
-    writeStderr('[Hook] bootstrap: hook produced no output; emitting empty stdout\n');
   }
 }
 
