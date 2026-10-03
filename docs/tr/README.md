@@ -79,6 +79,8 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ## Yenilikler
 
+### v2.2.46 — hooks: MCP preflight health check works again; normal hook passthrough no longer writes a notice into the transcript (Oct 2026)
+
 ### v2.2.45 — writing-code-comments: front-end component comments embed a screenshot taken from an environment that is already running (Oct 2026)
 
 ### v2.2.44 — writing-code-comments: code elsewhere in the repo is linked as [name](path#Symbol), never by line number (Oct 2026)
