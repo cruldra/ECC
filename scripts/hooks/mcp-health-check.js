@@ -135,8 +135,12 @@ function safeParse(raw) {
 
 function extractMcpTarget(input) {
   const toolName = String(input.tool_name || input.name || '');
+  // Claude Code sends mcp_server as { name, source }; older callers send a bare name.
+  const mcpServer = input.mcp_server && typeof input.mcp_server === 'object'
+    ? input.mcp_server.name
+    : input.mcp_server;
   const explicitServer = input.server
-    || input.mcp_server
+    || mcpServer
     || input.tool_input?.server
     || input.tool_input?.mcp_server
     || input.tool_input?.connector

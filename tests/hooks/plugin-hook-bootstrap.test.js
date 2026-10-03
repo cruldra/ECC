@@ -170,7 +170,7 @@ process.stdout.write(JSON.stringify({
       // Empty stdout (not the raw input) -- the dominant source of
       // session-transcript bloat pre-fix.
       assert.strictEqual(result.stdout, '');
-      assert.ok(result.stderr.includes('emitting empty stdout'));
+      assert.ok(!result.stderr.includes('bootstrap:'), 'silent success must stay silent');
     } finally {
       cleanup(root);
     }
@@ -369,7 +369,7 @@ process.exit(7);
 
         assert.strictEqual(result.status, 0, result.stderr);
         assert.strictEqual(result.stdout, '');
-        assert.ok(result.stderr.includes('returned raw input as stdout'));
+        assert.ok(!result.stderr.includes('bootstrap:'));
       } finally {
         cleanup(root);
       }
@@ -416,7 +416,7 @@ process.exit(7);
 
         assert.strictEqual(result.status, 0, result.stderr);
         assert.strictEqual(result.stdout, '');
-        assert.ok(result.stderr.includes('returned raw input as stdout'));
+        assert.ok(!result.stderr.includes('bootstrap:'));
       } finally {
         cleanup(root);
       }
