@@ -41,6 +41,7 @@ test("keeps the sections in order", () => {
     "## Rewriting a Comment: Start From the Code",
     "## Comment Format: KDoc Markdown in Every Language",
     "## Front-End Components: Show What It Looks Like",
+    "## Before You Finish: Check Every Comment You Wrote",
     "## Chinese Name Marks: `@Comment`",
   ]);
 });
@@ -78,6 +79,20 @@ test("front-end components embed a cropped screenshot from a running environment
   assert.ok(body.includes("Never commit a screenshot with real user data."));
   assert.ok(body.includes("`<component dir>/screenshots/<ComponentName>.png`"));
   assert.ok(body.includes("--cropOffset <y> <x>"));
+});
+
+test("every code name is a full link, even in the same file", () => {
+  assert.ok(body.includes("including ones in the same file"));
+  assert.ok(body.includes("`@throws [ExceptionClass](path#ExceptionClass) when it is thrown`"));
+  assert.ok(body.includes("Never a bare `[Name]` without a path."));
+  const prose = body.replace(/```[\s\S]*?```/g, "");
+  assert.doesNotMatch(prose, /stays `\[Name\]`/, "the old in-scope [Name] rule is gone");
+});
+
+test("a final pass checks every comment written, with a grep for bare references", () => {
+  assert.ok(body.includes("go over every comment written or changed in this task, not a sample"));
+  assert.ok(body.includes("git diff -U0 | grep '^+' | grep -nE"));
+  assert.ok(body.includes("Fix every miss before reporting the work as finished."));
 });
 
 test("Chinese name marks live only on the definition", () => {
