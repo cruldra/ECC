@@ -81,12 +81,11 @@ test("front-end components embed a cropped screenshot from a running environment
   assert.ok(body.includes("--cropOffset <y> <x>"));
 });
 
-test("every code name is a full link, even in the same file", () => {
-  assert.ok(body.includes("including ones in the same file"));
-  assert.ok(body.includes("`@throws [ExceptionClass](path#ExceptionClass) when it is thrown`"));
-  assert.ok(body.includes("Never a bare `[Name]` without a path."));
-  const prose = body.replace(/```[\s\S]*?```/g, "");
-  assert.doesNotMatch(prose, /stays `\[Name\]`/, "the old in-scope [Name] rule is gone");
+test("names in this file or its imports are [Name]; everything else is a full link", () => {
+  assert.ok(body.includes("defined in this file or imported into it, as in KDoc"));
+  assert.ok(body.includes("`@throws [ExceptionClass] when it is thrown`"));
+  assert.ok(body.includes("this file first, then its imports"));
+  assert.ok(!body.includes("Never a bare `[Name]` without a path."));
 });
 
 test("a final pass checks every comment written, with a grep for bare references", () => {

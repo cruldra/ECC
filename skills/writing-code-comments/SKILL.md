@@ -1,6 +1,6 @@
 ---
 name: writing-code-comments
-description: 'Use when writing or editing code comments or docstrings in any language. Explain code the Feynman way: one plain sentence a newcomer understands. When rewriting, ignore the old comment and write from the code. Before finishing, check every comment written against every rule. Doc comments on front-end components embed a screenshot taken from an environment that is already running. Every comment follows Kotlin KDoc Markdown: backticks for code and parameter names, `[plain name](repo/path#Symbol)` links for every class, function, file, or table it names, even in the same file, `@param` / `@return` / `@throws` block tags; never reST, Google-style `Args`, Javadoc HTML, or JSDoc `{Type}`. Also covers Chinese name marks (`Annotated[T, Comment("…")]`, `@Comment("…")`, trailing `# @Comment 名字` on enum members) that let the code-reading preview render code in Chinese.'
+description: 'Use when writing or editing code comments or docstrings in any language. Explain code the Feynman way: one plain sentence a newcomer understands. When rewriting, ignore the old comment and write from the code. Before finishing, check every comment written against every rule. Doc comments on front-end components embed a screenshot taken from an environment that is already running. Every comment follows Kotlin KDoc Markdown: backticks for code and parameter names, `[Name]` for code defined in or imported into the file, `[plain name](repo/path#Symbol)` links for code elsewhere in the repo, `@param` / `@return` / `@throws` block tags; never reST, Google-style `Args`, Javadoc HTML, or JSDoc `{Type}`. Also covers Chinese name marks (`Annotated[T, Comment("…")]`, `@Comment("…")`, trailing `# @Comment 名字` on enum members) that let the code-reading preview render code in Chinese.'
 ---
 
 # Writing Code Comments
@@ -58,10 +58,11 @@ After, written from the code:
 Write every comment the way Kotlin KDoc does, whatever the language. Python, TypeScript, Java, and the rest all follow it; do not use a language's own doc format.
 
 - Backticks for parameter names, literals, and commands, e.g. `token`, `None`, `GET`.
-- Links for every class, function, member, exception, file, directory, and table the comment names, including ones in the same file. See Links to Code in the Repo.
-- Block tags: `@param name description` (the bare parameter name), `@return description`, `@throws [ExceptionClass](path#ExceptionClass) when it is thrown`. No types; the signature carries them.
+- Square brackets for classes, functions, members, and exceptions defined in this file or imported into it, as in KDoc: `[UserRole.ADMIN]`, `[get_user]`, `[LocalRuntimeDisabled]`.
+- Links for code anywhere else in the repo: other modules, files, directories, tables. See Links to Code in the Repo.
+- Block tags: `@param name description` (the bare parameter name), `@return description`, `@throws [ExceptionClass] when it is thrown` (a full link when the exception is neither defined nor imported here). No types; the signature carries them.
 - The first sentence of a doc comment is the summary. Leave one blank line, then the details; details may use lists, bold, and code blocks.
-- Line comments (`#` / `//`) use the same backticks and links.
+- Line comments (`#` / `//`) use the same backticks, square brackets, and links.
 
 Never use: reST `:param x:` and double backticks, Google-style `Args` / `Returns` sections, Javadoc HTML tags and `{@link}` / `{@code}`, JSDoc `{Type}`.
 
@@ -101,14 +102,14 @@ function release(sessionId: string, token: string): boolean
 
 ### Links to Code in the Repo
 
-Every piece of code a comment names is a Markdown link: a directory, a file, a table, a class, a function, a member, an exception. That holds in the same file too: one form for one meaning, and the code-reading preview turns only full links into clickable ones, so a bare `[Name]` shows up as text in brackets. A backtick name only looks like code; a link takes the reader there.
+Code a comment names that is neither defined in nor imported into this file is a Markdown link: a directory, a file, a table, a class or function in another module. A backtick name only looks like code; a link takes the reader there.
 
 - Format: `[plain name](path/from/repo/root#Symbol)`.
 - The path is relative to the repository root, with no leading `./` or `/`.
 - `#Symbol` names a class, function, or member in that file: `#Agent`, `#Agent.owner_id`, `#sync_agent_rows`. Leave it off for a directory or a whole file.
 - Never a line number. Lines shift with every edit above them; a symbol name does not.
 - The link text is the plain name a reader understands: `agent table`, not `agent`.
-- Never a bare `[Name]` without a path.
+- Names defined in or imported into this file stay `[Name]`, as in KDoc. The code-reading preview resolves them the same way: this file first, then its imports.
 
 ```python
 # Bad: names the reader has to go and find
@@ -158,13 +159,13 @@ opencli browser $S close
 
 Writing comments one by one drifts: the third one gets a link, the fourth one does not. Before saying the work is done, go over every comment written or changed in this task, not a sample, and check each rule:
 
-1. **Every name of code is a link.** Classes, functions, members, exceptions, files, directories, tables: `[plain name](path#Symbol)`, including names from the same file and names after `@throws`. No bare names, no backtick names, no `[Name]` without a path.
-2. **Every link resolves.** The file exists, and `#Symbol` is defined in it (`grep -n "class Symbol\|def Symbol\|function Symbol" path`). No line numbers.
+1. **Every name of code is a reference.** Classes, functions, members, exceptions, files, directories, tables, including names after `@throws`: `[Name]` when defined in or imported into this file, otherwise `[plain name](path#Symbol)`. No bare names, no backtick names.
+2. **Every reference resolves.** Each `[Name]` is defined in or imported into its file. Each link's file exists and its `#Symbol` is defined there (`grep -n "class Symbol\|def Symbol\|function Symbol" path`). No line numbers.
 3. **Parameters, literals, and commands are in backticks.** The name after `@param` stays bare.
 4. **The summary is one plain, true sentence.** Nothing restates the code.
 5. **Front-end components carry their screenshot.**
 
-Find leftover bare `[Name]` references mechanically, then read each hit; code such as `items[i]` also matches:
+List the bare `[Name]` references mechanically, then confirm each one is defined in or imported into its file; code such as `items[i]` also matches:
 
 ```bash
 git diff -U0 | grep '^+' | grep -nE '\[[A-Za-z_][A-Za-z0-9_.]*\]([^(]|$)'
