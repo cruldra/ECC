@@ -79,7 +79,9 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ## Yenilikler
 
-### v2.2.47 — writing-code-comments: every code name is a full link, same file included; a final pass checks every comment written (Oct 2026)
+### v2.2.47 — writing-code-comments: names defined in or imported into the file are [Name] as in KDoc; code elsewhere is a full link (Oct 2026)
+
+### v2.2.46 — writing-code-comments: every code name is a full link, same file included; a final pass checks every comment written (Oct 2026)
 
 ### v2.2.45 — writing-code-comments: front-end component comments embed a screenshot taken from an environment that is already running (Oct 2026)
 
