@@ -59,10 +59,10 @@ test("rewrites start from the code, not the old comment", () => {
   }
 });
 
-test("a comment never carries a message to the person who asked", () => {
-  assert.ok(body.includes("The comment talks about the code, never to the person who asked."));
-  assert.ok(body.includes("Never write that message into the comment."));
-  assert.ok(body.includes("nothing speaks to the person who asked"), "the final pass checks it too");
+test("does one thing: writes the comment, never judges, deletes, or changes code", () => {
+  assert.ok(body.includes("This skill does one thing: read the code you are given and write its comment."));
+  assert.ok(body.includes("The result is always a comment."));
+  assert.doesNotMatch(body, /the comment goes|drop the comment|should be deleted/, "no rule asks to remove a comment");
 });
 
 test("every language uses KDoc-style Markdown comments", () => {

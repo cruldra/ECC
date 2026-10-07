@@ -1,9 +1,11 @@
 ---
 name: writing-code-comments
-description: 'Use when writing or editing code comments or docstrings in any language. Explain code the Feynman way: one plain sentence a newcomer understands. When rewriting, ignore the old comment and write from the code. Before finishing, check every comment written against every rule. Doc comments on front-end components embed a prototype image of the component, drawn from the code with OpenPencil (`op`). Every comment follows Kotlin KDoc Markdown: backticks for code and parameter names, `[Name]` for code defined in or imported into the file, `[plain name](repo/path#Symbol)` links for code elsewhere in the repo, `@param` / `@return` / `@throws` block tags; never reST, Google-style `Args`, Javadoc HTML, or JSDoc `{Type}`. Also covers Chinese name marks (`Annotated[T, Comment("…")]`, `@Comment("…")`, trailing `# @Comment 名字` on enum members) that let the code-reading preview render code in Chinese.'
+description: 'Use when writing or editing code comments or docstrings in any language. Does one thing: read the given code and write its comment; never decides whether a comment should exist, never deletes a comment, never changes code. Explain code the Feynman way: one plain sentence a newcomer understands. When rewriting, ignore the old comment and write from the code. Before finishing, check every comment written against every rule. Doc comments on front-end components embed a prototype image of the component, drawn from the code with OpenPencil (`op`). Every comment follows Kotlin KDoc Markdown: backticks for code and parameter names, `[Name]` for code defined in or imported into the file, `[plain name](repo/path#Symbol)` links for code elsewhere in the repo, `@param` / `@return` / `@throws` block tags; never reST, Google-style `Args`, Javadoc HTML, or JSDoc `{Type}`. Also covers Chinese name marks (`Annotated[T, Comment("…")]`, `@Comment("…")`, trailing `# @Comment 名字` on enum members) that let the code-reading preview render code in Chinese.'
 ---
 
 # Writing Code Comments
+
+This skill does one thing: read the code you are given and write its comment. It never decides whether a comment should exist, never deletes one, and never changes or suggests changes to the code. The result is always a comment.
 
 ## Explaining Code: One Plain Sentence
 
@@ -24,16 +26,14 @@ Explain code the Feynman way: say what it does and why in one sentence, in plain
 
 ## Rewriting a Comment: Start From the Code
 
-When asked to rewrite or clean up a comment, do not edit the old one. Ignore it, read the code, and write what is true now from scratch. An old comment carries stale facts, restated code, and wrong summaries; editing it keeps them.
+When asked to rewrite a comment, do not edit the old one. Ignore it, read the code, and write what is true now from scratch. An old comment carries stale facts, restated code, and wrong summaries; editing it keeps them.
 
 Then check what you wrote:
 
 - **The summary is true.** No neat word the code does not live up to, such as "one-to-one" for code that never deletes.
-- **Nothing restates the code.** A condition written out in words adds nothing. When a value has a hidden meaning (`owner_id is None` means a platform row), say it on that line, or better, name it in code (`row.is_platform`) and drop the comment.
+- **Nothing restates the code.** A condition written out in words adds nothing. When a value has a hidden meaning (`owner_id is None` means a platform row), say it on that line.
 - **Each note sits where it applies.** A condition's meaning goes next to the condition, not into the module summary.
 - **Nothing describes other modules.** What another page or service does goes stale here when it changes.
-- **Less is fine.** When nothing non-obvious is left, the comment goes.
-- **The comment talks about the code, never to the person who asked.** No verdict on the old comment ("this comment is wrong", "should be deleted"), no next steps, no "you said", no report of what you changed or left alone. Those belong in your reply. When the right rewrite is no comment, delete it; if you cannot delete it yourself, say so in your reply and leave the file as it was. Never write that message into the comment.
 
 Before, a module docstring rewritten by changing only its format:
 
@@ -173,7 +173,7 @@ Writing comments one by one drifts: the third one gets a link, the fourth one do
 1. **Every name of code is a reference.** Classes, functions, members, exceptions, files, directories, tables, including names after `@throws`: `[Name]` when defined in or imported into this file, otherwise `[plain name](path#Symbol)`. No bare names, no backtick names.
 2. **Every reference resolves.** Each `[Name]` is defined in or imported into its file. Each link's file exists and its `#Symbol` is defined there (`grep -n "class Symbol\|def Symbol\|function Symbol" path`). No line numbers.
 3. **Parameters, literals, and commands are in backticks.** The name after `@param` stays bare.
-4. **The summary is one plain, true sentence.** Nothing restates the code, and nothing speaks to the person who asked.
+4. **The summary is one plain, true sentence.** Nothing restates the code.
 5. **Front-end components carry their prototype image**, drawn from the current code and stored in `<component dir>/prototypes/`.
 
 List the bare `[Name]` references mechanically, then confirm each one is defined in or imported into its file; code such as `items[i]` also matches:
