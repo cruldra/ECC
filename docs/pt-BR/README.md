@@ -79,7 +79,9 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ## O Que Há de Novo
 
-### v2.2.50 — writing-code-comments: a comment talks about the code, never to the person who asked; a comment that should go is reported in the reply, not written into the file (Oct 2026)
+### v2.2.50 — writing-code-comments: does one thing, writes the comment from the code; never judges whether a comment should exist, deletes one, or changes code (Oct 2026)
+
+### v2.2.49 — writing-code-comments: a comment talks about the code, never to the person who asked; a comment that should go is reported in the reply, not written into the file (Oct 2026)
 
 ### v2.2.48 — writing-code-comments: front-end component images are prototypes drawn from the code with OpenPencil (op), no running server needed (Oct 2026)
 
