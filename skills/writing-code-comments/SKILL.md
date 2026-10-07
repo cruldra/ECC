@@ -1,6 +1,6 @@
 ---
 name: writing-code-comments
-description: 'Use when writing or editing code comments or docstrings in any language. Explain code the Feynman way: one plain sentence a newcomer understands. When rewriting, ignore the old comment and write from the code. Before finishing, check every comment written against every rule. Doc comments on front-end components embed a screenshot taken from an environment that is already running. Every comment follows Kotlin KDoc Markdown: backticks for code and parameter names, `[Name]` for code defined in or imported into the file, `[plain name](repo/path#Symbol)` links for code elsewhere in the repo, `@param` / `@return` / `@throws` block tags; never reST, Google-style `Args`, Javadoc HTML, or JSDoc `{Type}`. Also covers Chinese name marks (`Annotated[T, Comment("…")]`, `@Comment("…")`, trailing `# @Comment 名字` on enum members) that let the code-reading preview render code in Chinese.'
+description: 'Use when writing or editing code comments or docstrings in any language. Explain code the Feynman way: one plain sentence a newcomer understands. When rewriting, ignore the old comment and write from the code. Before finishing, check every comment written against every rule. Doc comments on front-end components embed a prototype image of the component, drawn from the code with OpenPencil (`op`). Every comment follows Kotlin KDoc Markdown: backticks for code and parameter names, `[Name]` for code defined in or imported into the file, `[plain name](repo/path#Symbol)` links for code elsewhere in the repo, `@param` / `@return` / `@throws` block tags; never reST, Google-style `Args`, Javadoc HTML, or JSDoc `{Type}`. Also covers Chinese name marks (`Annotated[T, Comment("…")]`, `@Comment("…")`, trailing `# @Comment 名字` on enum members) that let the code-reading preview render code in Chinese.'
 ---
 
 # Writing Code Comments
@@ -121,39 +121,49 @@ Code a comment names that is neither defined in nor imported into this file is a
 
 ## Front-End Components: Show What It Looks Like
 
-A front-end component's doc comment embeds a screenshot of the component as rendered, right after the summary sentence. The reader sees at a glance which part of the screen the code draws.
+A front-end component's doc comment embeds a picture of the component, right after the summary sentence. The reader sees at a glance which part of the screen the code draws. The picture is a prototype drawn from the code with OpenPencil's `op` command line, so no server has to run.
 
 ```tsx
 /**
  * Overview card: one fact per row, value on the left, note below, secondary action on the right.
  *
- * ![overview card](frontend/src/components/overview/screenshots/OverviewSection.png)
+ * ![overview card](frontend/src/components/overview/prototypes/OverviewSection.png)
  */
 export function OverviewSection(props: OverviewSectionProps) {
 ```
 
-- **Reuse an environment that is already running.** Local dev server first, then test, then production. Never start a server or a build just for the screenshot. If you do not know the URL, ask.
-- **Crop to the component.** Not the whole page.
-- **No real people's data.** Test and production pages show real names, phone numbers, emails, amounts, and avatars. If any is visible, use the dev environment with fake data, or ask. Never commit a screenshot with real user data.
-- **Store it next to the component**: `<component dir>/screenshots/<ComponentName>.png`, committed with the code. The image path follows the link rule: from the repo root, `![plain name](path)`.
-- **One screenshot of the usual state.** Add another only for a state that looks very different, such as empty or error.
-- **Retake it when the look changes.** A stale screenshot misleads like a stale comment.
+- **Draw it from the code.** Read the component and the theme it uses: design tokens, Tailwind config, CSS variables. Structure, fixed text, colors, spacing, and corner radii come from there; copy fixed text verbatim. Text that comes from props or data gets made-up sample content that looks real.
+- **One board the size of the component.** Not the whole page.
+- **Store the image next to the component**: `<component dir>/prototypes/<ComponentName>.png`, committed with the code. The image path follows the link rule: from the repo root, `![plain name](path)`.
+- **Keep the drawing files out of the repo.** `build.js` and the `.op` go in a temporary directory. The code is what you redraw from.
+- **One image of the usual state.** Add another only for a state that looks very different, such as empty or error: `<ComponentName>-empty.png`.
+- **Redraw it when the look changes.** A stale picture misleads like a stale comment.
 - **Skip components that draw nothing of their own**: providers, context wrappers, hooks.
 
-Taking the screenshot with `opencli browser` (the user's Chrome, already logged in):
+### Drawing With `op`
+
+Drive `op` the way the `ui-prototyping` skill does: read its [OpenPencil route](../ui-prototyping/references/openpencil.md) and the design reference it bundles, then follow steps 1 to 7 with these changes:
+
+- `build.js` and the `.op` live in a temporary directory, not under `docs/prototype/`.
+- One root frame per state, as wide as the component renders.
+- Export straight into the component's `prototypes/` directory. `op export` does not create the directory; make it first.
+- Skip step 8. The image is the result; do not open the drawing in the editor.
 
 ```bash
-S=shot
-opencli browser $S open "<page url>"
-opencli browser $S wait selector "<component root selector>"
-opencli browser $S eval "(() => { const el = document.querySelector('<component root selector>'); el.scrollIntoView({ block: 'center' }); const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height, vw: innerWidth }; })()"
-opencli browser $S screenshot /tmp/page.png
-# scale = PNG width / vw (sips -g pixelWidth /tmp/page.png); every number below is multiplied by scale
-sips -c <h> <w> --cropOffset <y> <x> /tmp/page.png --out <component dir>/screenshots/<ComponentName>.png
-opencli browser $S close
+OP=/Applications/OpenPencil.app/Contents/MacOS/op
+export OPENPENCIL_DESKTOP_BIN=/Applications/OpenPencil.app/Contents/MacOS/openpencil-desktop
+W=$(mktemp -d)
+"$OP" start --headless --file "$W/component.op" > "$W/start.log" 2>&1 &
+"$OP" design @"$W/build.js"            # prints the node ids; the first one is the root frame
+"$OP" design:refine --root-id <id>
+"$OP" layout --depth 2                 # real sizes: nothing cut off or overlapping
+mkdir -p "<component dir>/prototypes"
+"$OP" export --item <id> --output "<component dir>/prototypes/<ComponentName>.png" --scale 2
+"$OP" stop
+rm -rf "$W"
 ```
 
-`sips --cropOffset` takes the top offset first, then the left offset. Look at the cropped image before committing it.
+Look at the exported image before committing it, and fix `build.js` until it matches the code.
 
 ## Before You Finish: Check Every Comment You Wrote
 
@@ -163,7 +173,7 @@ Writing comments one by one drifts: the third one gets a link, the fourth one do
 2. **Every reference resolves.** Each `[Name]` is defined in or imported into its file. Each link's file exists and its `#Symbol` is defined there (`grep -n "class Symbol\|def Symbol\|function Symbol" path`). No line numbers.
 3. **Parameters, literals, and commands are in backticks.** The name after `@param` stays bare.
 4. **The summary is one plain, true sentence.** Nothing restates the code.
-5. **Front-end components carry their screenshot.**
+5. **Front-end components carry their prototype image**, drawn from the current code and stored in `<component dir>/prototypes/`.
 
 List the bare `[Name]` references mechanically, then confirm each one is defined in or imported into its file; code such as `items[i]` also matches:
 

@@ -74,11 +74,22 @@ test("code elsewhere in the repo is a repo-root link with a symbol anchor", () =
   assert.doesNotMatch(body, /\]\([^)\s]+#L?\d+\)/, "links must not point at line numbers");
 });
 
-test("front-end components embed a cropped screenshot from a running environment", () => {
-  assert.ok(body.includes("Reuse an environment that is already running."));
-  assert.ok(body.includes("Never commit a screenshot with real user data."));
-  assert.ok(body.includes("`<component dir>/screenshots/<ComponentName>.png`"));
-  assert.ok(body.includes("--cropOffset <y> <x>"));
+test("front-end components embed a prototype drawn from the code with op", () => {
+  assert.ok(body.includes("Draw it from the code."));
+  assert.ok(body.includes("`<component dir>/prototypes/<ComponentName>.png`"));
+  assert.ok(body.includes("Keep the drawing files out of the repo."));
+  assert.ok(body.includes('"$OP" export --item <id> --output "<component dir>/prototypes/<ComponentName>.png"'));
+  assert.ok(body.includes('mkdir -p "<component dir>/prototypes"'), "op export does not create the directory");
+  assert.doesNotMatch(body, /screenshot|opencli|cropOffset/i, "no screenshot workflow left");
+});
+
+test("op usage points at the ui-prototyping OpenPencil route that exists", () => {
+  const link = "../ui-prototyping/references/openpencil.md";
+  assert.ok(body.includes(`(${link})`));
+  assert.ok(fs.existsSync(path.join(path.dirname(skillFile), link)), `missing ${link}`);
+  assert.ok(body.includes("Skip step 8."));
+  const route = fs.readFileSync(path.join(path.dirname(skillFile), link), "utf8");
+  assert.ok(route.includes("8. **Open OpenPencil"), "step 8 of the route is still the one that opens the editor");
 });
 
 test("names in this file or its imports are [Name]; everything else is a full link", () => {
