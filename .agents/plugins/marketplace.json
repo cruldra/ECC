@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "ecc",
-      "version": "2.2.48",
+      "version": "2.2.49",
       "source": {
         "source": "local",
         "path": "./"
