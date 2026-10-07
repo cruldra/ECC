@@ -31,12 +31,13 @@ function test(name, fn) {
 console.log("\n=== Testing writing-code-comments skill ===\n");
 
 test("frontmatter names the skill and quotes the description", () => {
-  assert.match(body, /^---\nname: writing-code-comments\ndescription: '[^']+'\n---\n/);
+  assert.match(body, /^---\nname: writing-code-comments\ndescription: '[^']+'\nargument-hint: '<path>:<start>-<end>'\n---\n/);
 });
 
 test("keeps the sections in order", () => {
   const headings = body.split("\n").filter((line) => line.startsWith("## "));
   assert.deepStrictEqual(headings, [
+    "## Called With a Code Range",
     "## Explaining Code: One Plain Sentence",
     "## Rewriting a Comment: Start From the Code",
     "## Comment Format: KDoc Markdown in Every Language",
@@ -44,6 +45,16 @@ test("keeps the sections in order", () => {
     "## Before You Finish: Check Every Comment You Wrote",
     "## Chinese Name Marks: `@Comment`",
   ]);
+});
+
+test("a code range from the preview gets the comment body only", () => {
+  assert.ok(body.includes("Arguments for this call: `$ARGUMENTS`"));
+  assert.ok(body.includes("When the arguments have the form `<path>:<start>-<end>`"));
+  assert.ok(body.includes("You have read tools only; do not try to edit any file."));
+  assert.ok(body.includes("Write it in Chinese."));
+  assert.ok(body.includes("no Chinese name marks (`@Comment`), no code changes"));
+  assert.ok(body.includes("The answer is the comment body only: no `#`, `//`, or `/* */`, no indentation"));
+  assert.ok(body.includes("it never speaks to the person who asked"));
 });
 
 test("explains code the Feynman way in one plain sentence", () => {
@@ -61,7 +72,7 @@ test("rewrites start from the code, not the old comment", () => {
 
 test("does one thing: writes the comment, never judges, deletes, or changes code", () => {
   assert.ok(body.includes("This skill does one thing: read the code you are given and write its comment."));
-  assert.ok(body.includes("The result is always a comment."));
+  assert.ok(body.includes("The result is always a comment, and the comment describes the code"));
   assert.doesNotMatch(body, /the comment goes|drop the comment|should be deleted/, "no rule asks to remove a comment");
 });
 

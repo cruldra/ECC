@@ -1,11 +1,26 @@
 ---
 name: writing-code-comments
-description: 'Use when writing or editing code comments or docstrings in any language. Does one thing: read the given code and write its comment; never decides whether a comment should exist, never deletes a comment, never changes code. Explain code the Feynman way: one plain sentence a newcomer understands. When rewriting, ignore the old comment and write from the code. Before finishing, check every comment written against every rule. Doc comments on front-end components embed a prototype image of the component, drawn from the code with OpenPencil (`op`). Every comment follows Kotlin KDoc Markdown: backticks for code and parameter names, `[Name]` for code defined in or imported into the file, `[plain name](repo/path#Symbol)` links for code elsewhere in the repo, `@param` / `@return` / `@throws` block tags; never reST, Google-style `Args`, Javadoc HTML, or JSDoc `{Type}`. Also covers Chinese name marks (`Annotated[T, Comment("…")]`, `@Comment("…")`, trailing `# @Comment 名字` on enum members) that let the code-reading preview render code in Chinese.'
+description: 'Use when writing or editing code comments or docstrings in any language. Does one thing: read the given code and write its comment; never decides whether a comment should exist, never deletes a comment, never changes code. Explain code the Feynman way: one plain sentence a newcomer understands. When rewriting, ignore the old comment and write from the code. Before finishing, check every comment written against every rule. Doc comments on front-end components embed a prototype image of the component, drawn from the code with OpenPencil (`op`). Every comment follows Kotlin KDoc Markdown: backticks for code and parameter names, `[Name]` for code defined in or imported into the file, `[plain name](repo/path#Symbol)` links for code elsewhere in the repo, `@param` / `@return` / `@throws` block tags; never reST, Google-style `Args`, Javadoc HTML, or JSDoc `{Type}`. Also covers Chinese name marks (`Annotated[T, Comment("…")]`, `@Comment("…")`, trailing `# @Comment 名字` on enum members) that let the code-reading preview render code in Chinese. Called by the code-reading preview as `<path>:<start>-<end>`, it reads that code block and answers with the comment body only.'
+argument-hint: '<path>:<start>-<end>'
 ---
 
 # Writing Code Comments
 
-This skill does one thing: read the code you are given and write its comment. It never decides whether a comment should exist, never deletes one, and never changes or suggests changes to the code. The result is always a comment.
+This skill does one thing: read the code you are given and write its comment. It never decides whether a comment should exist, never deletes one, and never changes or suggests changes to the code. The result is always a comment, and the comment describes the code; it never speaks to the person who asked.
+
+## Called With a Code Range
+
+Arguments for this call: `$ARGUMENTS`
+
+When the arguments have the form `<path>:<start>-<end>`, the call comes from the code-reading preview, for example `/ecc:writing-code-comments backend/src/app/acquisition/repository.py:13-60`. Nothing else comes with it. Every rule below still applies, plus these:
+
+- `<path>` is relative to the working directory, the repository root. Lines count from 1. The range is one code block (a class, a function, a statement) together with the plain comment lines already above it. For a file-header comment, the range is that comment itself.
+- Read those lines yourself. Read more of the file, or other files, when the comment needs context. You have read tools only; do not try to edit any file.
+- Write the plain comment that sits above the block. If the range starts with a plain comment, rewrite it as in Rewriting a Comment; otherwise write a new one. Doc comments (docstrings, `///`, `/** */`) are not written in this mode, so no `@param` / `@return` / `@throws` tags and no prototype image.
+- Write it in Chinese. Code names, parameter names, literals, and links stay as they are in the code.
+- Write the comment and nothing else: no Chinese name marks (`@Comment`), no code changes.
+- The answer is the comment body only: no `#`, `//`, or `/* */`, no indentation, no code fence, nothing before or after it. The preview puts it in the `body` field of its structured output and writes it into the file with the right comment syntax.
+- Before answering, run the checks in Before You Finish on the body. Check each reference with Grep.
 
 ## Explaining Code: One Plain Sentence
 
