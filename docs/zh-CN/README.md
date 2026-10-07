@@ -81,7 +81,9 @@
 
 ## 最新动态
 
-### v2.2.49 — writing-code-comments：前端组件配图改用 OpenPencil（op）照代码画原型，不用再跑服务截图（2026年10月）
+### v2.2.49 — writing-code-comments：注释只讲代码，不写给提问的人；该删的注释在回复里说，不写进文件（2026年10月）
+
+### v2.2.48 — writing-code-comments：前端组件配图改用 OpenPencil（op）照代码画原型，不用再跑服务截图（2026年10月）
 
 ### v2.2.47 — writing-code-comments：本文件定义或导入的名字照 KDoc 写 [名字]，别处的写完整链接（2026年10月）
 
