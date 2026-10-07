@@ -59,6 +59,12 @@ test("rewrites start from the code, not the old comment", () => {
   }
 });
 
+test("a comment never carries a message to the person who asked", () => {
+  assert.ok(body.includes("The comment talks about the code, never to the person who asked."));
+  assert.ok(body.includes("Never write that message into the comment."));
+  assert.ok(body.includes("nothing speaks to the person who asked"), "the final pass checks it too");
+});
+
 test("every language uses KDoc-style Markdown comments", () => {
   assert.ok(body.includes("whatever the language"));
   assert.ok(body.includes("`@param name description`"));

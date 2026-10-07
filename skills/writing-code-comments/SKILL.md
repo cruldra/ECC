@@ -33,6 +33,7 @@ Then check what you wrote:
 - **Each note sits where it applies.** A condition's meaning goes next to the condition, not into the module summary.
 - **Nothing describes other modules.** What another page or service does goes stale here when it changes.
 - **Less is fine.** When nothing non-obvious is left, the comment goes.
+- **The comment talks about the code, never to the person who asked.** No verdict on the old comment ("this comment is wrong", "should be deleted"), no next steps, no "you said", no report of what you changed or left alone. Those belong in your reply. When the right rewrite is no comment, delete it; if you cannot delete it yourself, say so in your reply and leave the file as it was. Never write that message into the comment.
 
 Before, a module docstring rewritten by changing only its format:
 
@@ -172,7 +173,7 @@ Writing comments one by one drifts: the third one gets a link, the fourth one do
 1. **Every name of code is a reference.** Classes, functions, members, exceptions, files, directories, tables, including names after `@throws`: `[Name]` when defined in or imported into this file, otherwise `[plain name](path#Symbol)`. No bare names, no backtick names.
 2. **Every reference resolves.** Each `[Name]` is defined in or imported into its file. Each link's file exists and its `#Symbol` is defined there (`grep -n "class Symbol\|def Symbol\|function Symbol" path`). No line numbers.
 3. **Parameters, literals, and commands are in backticks.** The name after `@param` stays bare.
-4. **The summary is one plain, true sentence.** Nothing restates the code.
+4. **The summary is one plain, true sentence.** Nothing restates the code, and nothing speaks to the person who asked.
 5. **Front-end components carry their prototype image**, drawn from the current code and stored in `<component dir>/prototypes/`.
 
 List the bare `[Name]` references mechanically, then confirm each one is defined in or imported into its file; code such as `items[i]` also matches:
