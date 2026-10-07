@@ -79,7 +79,9 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ## O Que Há de Novo
 
-### v2.2.48 — writing-code-comments: names defined in or imported into the file are [Name] as in KDoc; code elsewhere is a full link (Oct 2026)
+### v2.2.48 — writing-code-comments: front-end component images are prototypes drawn from the code with OpenPencil (op), no running server needed (Oct 2026)
+
+### v2.2.47 — writing-code-comments: names defined in or imported into the file are [Name] as in KDoc; code elsewhere is a full link (Oct 2026)
 
 ### v2.2.46 — writing-code-comments: every code name is a full link, same file included; a final pass checks every comment written (Oct 2026)
 
