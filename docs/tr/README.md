@@ -79,7 +79,7 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ## Yenilikler
 
-### v2.2.51 — writing-code-comments: the code-reading preview calls it with <path>:<start>-<end>; the skill reads the code itself and answers with the comment body only (Oct 2026)
+### v2.2.52 — writing-code-comments: the code-reading preview calls it with <path>:<start>-<end>; the skill reads the code itself and answers with the comment body only (Oct 2026)
 
 ### v2.2.50 — writing-code-comments: does one thing, writes the comment from the code; never judges whether a comment should exist, deletes one, or changes code (Oct 2026)
 
