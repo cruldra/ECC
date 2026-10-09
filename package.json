@@ -446,6 +446,7 @@
     "skills/lightweb-fastapi-starter/",
     "skills/closing-custom-dev-deals/",
     "skills/spawning-peer-sessions/",
+    "skills/clash-best-practices/",
     "!**/__pycache__/**",
     "!**/*.pyc",
     "!**/*.pyo",
