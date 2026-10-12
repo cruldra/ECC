@@ -81,7 +81,9 @@
 
 ## 最新动态
 
-### v2.2.53 — 新增 clash-best-practices：Clash/Mihomo 家宽出口、中转、分流 DNS、IPv4/IPv6/UDP 验证与手机配置导出（2026年10月）
+### v2.2.53 — writing-code-comments：代码阅读预览调用时照范围写说明或普通注释，前端组件的说明画原型图，同一会话里能接着改（2026年10月）
+
+### v2.2.52 — 新增 clash-best-practices：Clash/Mihomo 家宽出口、中转、分流 DNS、IPv4/IPv6/UDP 验证与手机配置导出（2026年10月）
 
 ### v2.2.51 — writing-code-comments：代码阅读预览按 <路径>:<起始行>-<结束行> 调用，技能自己读代码，只回注释正文（2026年10月）
 

@@ -79,7 +79,9 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ## Yenilikler
 
-### v2.2.53 — added clash-best-practices: residential exits, relays, split DNS, IPv4/IPv6/UDP validation, and mobile configuration export for Clash/Mihomo (Oct 2026)
+### v2.2.53 — writing-code-comments: called from the code-reading preview, writes the doc or plain comment the range calls for, draws a prototype for front-end component docs, and takes follow-up revisions in the same session (Oct 2026)
+
+### v2.2.52 — added clash-best-practices: residential exits, relays, split DNS, IPv4/IPv6/UDP validation, and mobile configuration export for Clash/Mihomo (Oct 2026)
 
 ### v2.2.51 — writing-code-comments: the code-reading preview calls it with <path>:<start>-<end>; the skill reads the code itself and answers with the comment body only (Oct 2026)
 
