@@ -80,6 +80,8 @@
 
 ## 最新动态
 
+### v2.2.54 — writing-code-comments：预览里的路径一律相对仓库根目录；新画的画板标题或说明必须写上组件文件路径（2026年10月）
+
 ### v2.2.53 — writing-code-comments：预览调用时照范围写说明或普通注释；已有 OpenPencil 整页画板就导出复用，没有才画进 docs/prototype，注释嵌电脑端默认图（2026年10月）
 
 ### v2.2.52 — 新增 clash-best-practices：Clash/Mihomo 家宽出口、中转、分流 DNS、IPv4/IPv6/UDP 验证与手机配置导出（2026年10月）

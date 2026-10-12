@@ -3,8 +3,8 @@ name: writing-code-comments
 description: '用于在任何语言中编写或编辑代码注释或 docstring。只做一件事：阅读给定的代码并写出其注释；从不决定注释是否应该存在，从不删除注释，从不更改代码。以费曼方式解释代码：新人能理解的一句平实的话。重写时，忽略旧注释，从代码出发写。完成前，对写过的每条注释检查每条规则。前端组件的 doc 注释嵌入原型图。已有 OpenPencil 画板且标题或说明写了该组件文件路径的，导出复用；否则把页面画进 docs/prototype/<feature>/openpencil/，注释嵌入 exports/ 里的电脑端默认图。每条注释遵循 Kotlin KDoc Markdown：代码和参数名用反引号，文件中定义或导入的代码用 `[Name]`，仓库中其他地方的代码用 `[plain name](repo/path#Symbol)` 链接，使用 `@param` / `@return` / `@throws` 块标签；绝不使用 reST、Google 风格 `Args`、Javadoc HTML 或 JSDoc `{Type}`。还涵盖中文名字标记（`Annotated[T, Comment("…")]`、`@Comment("…")`、枚举成员上的尾随 `# @Comment 名字`），让代码阅读预览将代码渲染为中文。由代码阅读预览以 `<path>:<start>-<end>` 形式调用，它读取该代码块并仅回答注释正文。'
 argument-hint: '<path>:<start>-<end>'
 locale: zh-CN
-source_hash: 5a9b74168f9dd7b52c8ced9f5b914b1b414f755d7f1265055df0be28d0065da7
-translated_at: 2026-10-12T03:40:00Z
+source_hash: 72983bd0fff15d757c8b17679c00dbf64a730622cef70adf9ff412dc1ea0ed35
+translated_at: 2026-10-12T04:20:00Z
 model: deepseek-v4-pro
 ---
 
@@ -163,7 +163,7 @@ export function OverviewSection(props: OverviewSectionProps) {
 - **已有画板展示了这个文件就复用。** 只在 `docs/prototype/*/openpencil/` 下找（`build.js` 和 `.op`）。不管 `figma-plugin/`。画板标题，或引出这块画板的说明，写了该组件从仓库根目录起的文件路径，才算。菜单项或按钮上的同名文字不算。不要重画，也不要改那份 `build.js` 或 `.op`。
 - **只嵌一张：电脑端常态画板。** 好几块画板都写了这个文件时，嵌没有弹窗、没有展开菜单的电脑端那一块。不要嵌手机画板或其他状态。
 - **导出这块画板** 到 `docs/prototype/<feature>/openpencil/exports/<board>.png`。注释从仓库根目录嵌入 `![plain name](docs/prototype/<feature>/openpencil/exports/<board>.png)`。再次导出会覆盖 PNG。`op export` 不会创建目录；先创建它。
-- **没有这样的画板：在新目录里画这个页面。** 建立 `docs/prototype/<feature>/openpencil/`，放入 `build.js` 和 `<feature>.op`。`<feature>` 是这个页面在做什么，风格跟 `my-apps` 一样，不是组件的类名。不要往已有的原型里加画板。
+- **没有这样的画板：在新目录里画这个页面。** 建立 `docs/prototype/<feature>/openpencil/`，放入 `build.js` 和 `<feature>.op`。`<feature>` 是这个页面在做什么，风格跟 `my-apps` 一样，不是组件的类名。不要往已有的原型里加画板。把该组件从仓库根目录起的文件路径写进画板标题，或引出这块画板的说明。下次调用靠这个认出来，不再重画。写在别的地方不算。
 - **从代码绘制。** 阅读组件及其使用的主题：设计令牌、Tailwind 配置、CSS 变量。结构、固定文本、颜色、间距和圆角半径都来自那里；固定文本逐字复制。来自 props 或数据的文本采用看起来真实的示例内容。一块电脑端常态画板。不是裁切出的组件，不是手机画板，不是弹窗。
 
 ### 使用 `op` 绘制
@@ -204,7 +204,7 @@ mkdir -p "$PWD/docs/prototype/<feature>/openpencil/exports"
 - 使用完整路径调用 `op`，每次 Bash 调用只放一条命令：不要 shell 变量、`export`、重定向、`&`、`&&` 或 `;`。这个 `op` 会在旁边找到桌面应用，无需 `OPENPENCIL_DESKTOP_BIN`。`op start --headless` 会在编辑器启动后立即返回。
 - 用 Write 工具把 `build.js` 写到 `docs/prototype/<feature>/openpencil/build.js`。`.op` 留在同一目录。完成后两者都保留。
 - 这里不运行 Node：不要先在 Node 下试运行 `build.js`，而是检查 `op design` 是否打印了一个根 id。复用时不要运行 `op design`。
-- `mkdir` 和 `op export` 的路径从仓库根目录开始。
+- 每条路径都相对仓库根目录，跟下面的命令一样。不要绝对路径，不要 `$PWD`，不要 `cd`。不要照抄「使用 `op` 绘制」里带 `$PWD` 的例子。
 
 复用：
 

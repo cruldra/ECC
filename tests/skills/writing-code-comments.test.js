@@ -125,6 +125,9 @@ test("front-end components embed a prototype drawn from the code with op", () =>
   assert.ok(body.includes("Ignore `figma-plugin/`."));
   assert.ok(body.includes("The same words on a menu item or a button do not count."));
   assert.ok(body.includes("in the same style as `my-apps`, not the component's class name."));
+  assert.ok(body.includes("Write this component's file path from the repo root into the board title or the note that introduces the board."));
+  assert.ok(body.includes("A path written anywhere else does not count."));
+  assert.ok(body.includes("No absolute path, no `$PWD`, and no `cd`."));
   assert.ok(body.includes("Do not add a board to a prototype that already exists."));
   assert.ok(body.includes('"$OP" export --item <id> --output "$PWD/docs/prototype/<feature>/openpencil/exports/<board>.png"'));
   assert.ok(body.includes('mkdir -p "$PWD/docs/prototype/<feature>/openpencil/exports"'), "op export does not create the directory");

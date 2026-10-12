@@ -159,7 +159,7 @@ export function OverviewSection(props: OverviewSectionProps) {
 - **Reuse a board that already shows this file.** Look only under `docs/prototype/*/openpencil/` (`build.js` and the `.op`). Ignore `figma-plugin/`. It counts when a board's title, or the note that introduces that board, names this component's file path from the repo root. The same words on a menu item or a button do not count. Do not redraw, and do not edit that `build.js` or `.op`.
 - **One picture: the usual desktop board.** When several boards name this file, embed the desktop board with no dialog and no open menu. Do not embed the phone board or other states.
 - **Export that board** to `docs/prototype/<feature>/openpencil/exports/<board>.png`. The comment embeds `![plain name](docs/prototype/<feature>/openpencil/exports/<board>.png)` from the repo root. Exporting again overwrites the PNG. `op export` does not create the directory; make it first.
-- **No such board: draw the page in a new directory.** Create `docs/prototype/<feature>/openpencil/` with `build.js` and `<feature>.op`. `<feature>` is what the page does, in the same style as `my-apps`, not the component's class name. Do not add a board to a prototype that already exists.
+- **No such board: draw the page in a new directory.** Create `docs/prototype/<feature>/openpencil/` with `build.js` and `<feature>.op`. `<feature>` is what the page does, in the same style as `my-apps`, not the component's class name. Do not add a board to a prototype that already exists. Write this component's file path from the repo root into the board title or the note that introduces the board. A later call matches on that and will not draw again. A path written anywhere else does not count.
 - **Draw it from the code.** Read the component and the theme it uses: design tokens, Tailwind config, CSS variables. Structure, fixed text, colors, spacing, and corner radii come from there; copy fixed text verbatim. Text that comes from props or data gets made-up sample content that looks real. One desktop board of the page in its usual state. Not a cropped component, not a phone board, not a dialog.
 
 ### Drawing With `op`
@@ -200,7 +200,7 @@ Called with a code range, every Bash command is checked as written, so the comma
 - Call `op` by its full path, one command per Bash call: no shell variables, `export`, redirects, `&`, `&&`, or `;`. This `op` finds the desktop app next to it without `OPENPENCIL_DESKTOP_BIN`. `op start --headless` returns as soon as the editor is up.
 - Write `build.js` with the Write tool at `docs/prototype/<feature>/openpencil/build.js`. The `.op` stays in that directory. Leave both.
 - Node does not run here: instead of trying `build.js` under Node first, check that `op design` printed one root id. On a reuse, do not run `op design`.
-- `mkdir` and `op export` take paths from the repository root.
+- Every path is relative to the repository root, as in the commands below. No absolute path, no `$PWD`, and no `cd`. Do not copy the `$PWD` examples from Drawing With `op`.
 
 Reuse:
 
