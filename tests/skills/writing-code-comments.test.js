@@ -63,24 +63,26 @@ test("a code range gets the comment the preview replaces: doc comment, plain com
   assert.ok(body.includes("with `@param` / `@return` / `@throws` tags where they apply"));
   assert.ok(body.includes("**The plain comment** that opens the range"));
   assert.ok(body.includes("a docstring for a Python function or class, `/** */` for a TypeScript or JavaScript function, class, enum, constant, or variable, `///` for a Rust item"));
-  assert.ok(body.includes("save the PNG in the component's `prototypes/` directory, and embed it in the body"));
+  assert.ok(body.includes("Embed the PNG from `docs/prototype/<feature>/openpencil/exports/`."));
   assert.doesNotMatch(body, /are not written in this mode|read tools only/, "the preview writes doc comments now");
 });
 
 test("a code range may draw with op but change no source file; later messages revise the same comment", () => {
-  assert.ok(body.includes("Write and Edit in the scratch directory only. Everything else is refused"));
+  assert.ok(body.includes("Write and Edit only under `docs/prototype/<feature>/openpencil/`. Everything else is refused"));
   assert.ok(body.includes("Later messages in the same session are the user's requests to change this comment."));
   assert.ok(body.includes("Each starts with the block's current `<path>:<start>-<end>`"));
   assert.ok(body.includes("answer with the whole new body the same way"));
 });
 
-test("from the preview op runs by its full path from a scratch directory, one command per call", () => {
+test("from the preview op runs by its full path, one command per call, into the prototype directory", () => {
   assert.ok(body.includes("#### From the Code-Reading Preview"));
   assert.ok(body.includes("no shell variables, `export`, redirects, `&`, `&&`, or `;`"));
   assert.ok(body.includes("without `OPENPENCIL_DESKTOP_BIN`"));
-  assert.ok(body.includes("the additional working directory named `spx-comment-<id>`"));
-  assert.ok(body.includes("/Applications/OpenPencil.app/Contents/MacOS/op start --headless --file <scratch>/component.op"));
-  assert.ok(body.includes("/Applications/OpenPencil.app/Contents/MacOS/op export --item <id> --output <component dir>/prototypes/<ComponentName>.png --scale 2"));
+  assert.ok(body.includes("docs/prototype/<feature>/openpencil/build.js"));
+  assert.ok(body.includes("On a reuse, do not run `op design`."));
+  assert.ok(body.includes("/Applications/OpenPencil.app/Contents/MacOS/op start --headless --file docs/prototype/<feature>/openpencil/<feature>.op"));
+  assert.ok(body.includes("/Applications/OpenPencil.app/Contents/MacOS/op export --item <id> --output docs/prototype/<feature>/openpencil/exports/<board>.png --scale 2"));
+  assert.ok(body.includes("mkdir -p docs/prototype/<feature>/openpencil/exports"));
 });
 
 test("explains code the Feynman way in one plain sentence", () => {
@@ -119,10 +121,14 @@ test("code elsewhere in the repo is a repo-root link with a symbol anchor", () =
 
 test("front-end components embed a prototype drawn from the code with op", () => {
   assert.ok(body.includes("Draw it from the code."));
-  assert.ok(body.includes("`<component dir>/prototypes/<ComponentName>.png`"));
-  assert.ok(body.includes("Keep the drawing files out of the repo."));
-  assert.ok(body.includes('"$OP" export --item <id> --output "<component dir>/prototypes/<ComponentName>.png"'));
-  assert.ok(body.includes('mkdir -p "<component dir>/prototypes"'), "op export does not create the directory");
+  assert.ok(body.includes("docs/prototype/<feature>/openpencil/exports/<board>.png"));
+  assert.ok(body.includes("Ignore `figma-plugin/`."));
+  assert.ok(body.includes("The same words on a menu item or a button do not count."));
+  assert.ok(body.includes("in the same style as `my-apps`, not the component's class name."));
+  assert.ok(body.includes("Do not add a board to a prototype that already exists."));
+  assert.ok(body.includes('"$OP" export --item <id> --output "$PWD/docs/prototype/<feature>/openpencil/exports/<board>.png"'));
+  assert.ok(body.includes('mkdir -p "$PWD/docs/prototype/<feature>/openpencil/exports"'), "op export does not create the directory");
+  assert.doesNotMatch(body, /temporary directory, not under `docs\/prototype`|prototypes\/<ComponentName>|spx-comment-/, "drawings stay in the prototype directory");
   assert.doesNotMatch(body, /screenshot|opencli|cropOffset/i, "no screenshot workflow left");
 });
 

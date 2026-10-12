@@ -1,6 +1,6 @@
 ---
 name: writing-code-comments
-description: 'Use when writing or editing code comments or docstrings in any language. Does one thing: read the given code and write its comment; never decides whether a comment should exist, never deletes a comment, never changes code. Explain code the Feynman way: one plain sentence a newcomer understands. When rewriting, ignore the old comment and write from the code. Before finishing, check every comment written against every rule. Doc comments on front-end components embed a prototype image of the component, drawn from the code with OpenPencil (`op`). Every comment follows Kotlin KDoc Markdown: backticks for code and parameter names, `[Name]` for code defined in or imported into the file, `[plain name](repo/path#Symbol)` links for code elsewhere in the repo, `@param` / `@return` / `@throws` block tags; never reST, Google-style `Args`, Javadoc HTML, or JSDoc `{Type}`. Also covers Chinese name marks (`Annotated[T, Comment("…")]`, `@Comment("…")`, trailing `# @Comment 名字` on enum members) that let the code-reading preview render code in Chinese. Called by the code-reading preview as `<path>:<start>-<end>`, it reads that code block and answers with the comment body only.'
+description: 'Use when writing or editing code comments or docstrings in any language. Does one thing: read the given code and write its comment; never decides whether a comment should exist, never deletes a comment, never changes code. Explain code the Feynman way: one plain sentence a newcomer understands. When rewriting, ignore the old comment and write from the code. Before finishing, check every comment written against every rule. Doc comments on front-end components embed a prototype image. An existing OpenPencil board that names the component file is exported and reused; otherwise the page is drawn into docs/prototype/<feature>/openpencil/ and the comment embeds the usual desktop board from exports/. Every comment follows Kotlin KDoc Markdown: backticks for code and parameter names, `[Name]` for code defined in or imported into the file, `[plain name](repo/path#Symbol)` links for code elsewhere in the repo, `@param` / `@return` / `@throws` block tags; never reST, Google-style `Args`, Javadoc HTML, or JSDoc `{Type}`. Also covers Chinese name marks (`Annotated[T, Comment("…")]`, `@Comment("…")`, trailing `# @Comment 名字` on enum members) that let the code-reading preview render code in Chinese. Called by the code-reading preview as `<path>:<start>-<end>`, it reads that code block and answers with the comment body only.'
 argument-hint: '<path>:<start>-<end>'
 ---
 
@@ -21,8 +21,8 @@ When the arguments start with `<path>:<start>-<end>`, the call comes from the co
   - **The plain comment** that opens the range (`#`, `//`, `/* */`), when the block has no doc comment. Write a plain comment.
   - **A new comment**, when the range has neither. The preview adds a doc comment to a declaration that takes one: a docstring for a Python function or class, `/** */` for a TypeScript or JavaScript function, class, enum, constant, or variable, `///` for a Rust item. Anything else gets a plain line comment (`#` or `//`). Write that kind.
   - A file-header comment stays a file-header comment.
-- A front-end component's doc comment carries its prototype image, as in Front-End Components: draw it as in Drawing With `op`, save the PNG in the component's `prototypes/` directory, and embed it in the body.
-- Your tools: Read, Grep, and Glob in the working directories; Bash for OpenPencil's `op` and for `mkdir -p <component dir>/prototypes`; Write and Edit in the scratch directory only. Everything else is refused: no source file can be changed and no other command runs. Do not look for a way around it.
+- A front-end component's doc comment carries its prototype image, as in Front-End Components. Embed the PNG from `docs/prototype/<feature>/openpencil/exports/`.
+- Your tools: Read, Grep, and Glob in the working directories; Bash for OpenPencil's `op` and for `mkdir -p docs/prototype/<feature>/openpencil/exports`; Write and Edit only under `docs/prototype/<feature>/openpencil/`. Everything else is refused: no source file can be changed and no other command runs. Do not look for a way around it.
 - Write it in Chinese. Code names, parameter names, literals, and links stay as they are in the code.
 - Write the comment and nothing else: no Chinese name marks (`@Comment`), no code changes.
 - The answer is the comment body only: no `#`, `//`, `/* */`, `/** */`, leading ` * `, or `"""`, no indentation, no code fence, nothing before or after it. The preview puts it in the `body` field of its structured output and writes it into the file with the right comment syntax.
@@ -144,67 +144,85 @@ Code a comment names that is neither defined in nor imported into this file is a
 
 ## Front-End Components: Show What It Looks Like
 
-A front-end component's doc comment embeds a picture of the component, right after the summary sentence. The reader sees at a glance which part of the screen the code draws. The picture is a prototype drawn from the code with OpenPencil's `op` command line, so no server has to run.
+A front-end component's doc comment embeds a picture of the component, right after the summary sentence. The reader sees at a glance which part of the screen the code draws. The picture is one board from that page's OpenPencil prototype.
 
 ```tsx
 /**
  * Overview card: one fact per row, value on the left, note below, secondary action on the right.
  *
- * ![overview card](frontend/src/components/overview/prototypes/OverviewSection.png)
+ * ![overview card](docs/prototype/overview/openpencil/exports/overview.png)
  */
 export function OverviewSection(props: OverviewSectionProps) {
 ```
 
-- **Draw it from the code.** Read the component and the theme it uses: design tokens, Tailwind config, CSS variables. Structure, fixed text, colors, spacing, and corner radii come from there; copy fixed text verbatim. Text that comes from props or data gets made-up sample content that looks real.
-- **One board the size of the component.** Not the whole page.
-- **Store the image next to the component**: `<component dir>/prototypes/<ComponentName>.png`, committed with the code. The image path follows the link rule: from the repo root, `![plain name](path)`.
-- **Keep the drawing files out of the repo.** `build.js` and the `.op` go in a temporary directory. The code is what you redraw from.
-- **One image of the usual state.** Add another only for a state that looks very different, such as empty or error: `<ComponentName>-empty.png`.
-- **Redraw it when the look changes.** A stale picture misleads like a stale comment.
-- **Skip components that draw nothing of their own**: providers, context wrappers, hooks.
+- **Only what the reader can see.** A component that draws nothing of its own (a provider, a context wrapper, a hook) gets no picture.
+- **Reuse a board that already shows this file.** Look only under `docs/prototype/*/openpencil/` (`build.js` and the `.op`). Ignore `figma-plugin/`. It counts when a board's title, or the note that introduces that board, names this component's file path from the repo root. The same words on a menu item or a button do not count. Do not redraw, and do not edit that `build.js` or `.op`.
+- **One picture: the usual desktop board.** When several boards name this file, embed the desktop board with no dialog and no open menu. Do not embed the phone board or other states.
+- **Export that board** to `docs/prototype/<feature>/openpencil/exports/<board>.png`. The comment embeds `![plain name](docs/prototype/<feature>/openpencil/exports/<board>.png)` from the repo root. Exporting again overwrites the PNG. `op export` does not create the directory; make it first.
+- **No such board: draw the page in a new directory.** Create `docs/prototype/<feature>/openpencil/` with `build.js` and `<feature>.op`. `<feature>` is what the page does, in the same style as `my-apps`, not the component's class name. Do not add a board to a prototype that already exists.
+- **Draw it from the code.** Read the component and the theme it uses: design tokens, Tailwind config, CSS variables. Structure, fixed text, colors, spacing, and corner radii come from there; copy fixed text verbatim. Text that comes from props or data gets made-up sample content that looks real. One desktop board of the page in its usual state. Not a cropped component, not a phone board, not a dialog.
 
 ### Drawing With `op`
 
 Drive `op` the way the `ui-prototyping` skill does: read its [OpenPencil route](../ui-prototyping/references/openpencil.md) and the design reference it bundles, then follow steps 1 to 7 with these changes:
 
-- `build.js` and the `.op` live in a temporary directory, not under `docs/prototype/`.
-- One root frame per state, as wide as the component renders.
-- Export straight into the component's `prototypes/` directory. `op export` does not create the directory; make it first.
-- Skip step 8. The image is the result; do not open the drawing in the editor.
+- The files live at `docs/prototype/<feature>/openpencil/`: `build.js`, `<feature>.op`, and `exports/<board>.png`. Never a temporary directory.
+- Reuse: do not run `op design`. Start on the existing `.op`, read the tree with `op get --depth 1`, export the usual desktop board, stop. Do not save.
+- New drawing: one root frame, the usual desktop board. Run `op design` only on the new file, then save.
+- Skip step 8. Do not open the drawing in the editor.
 
 ```bash
 OP=/Applications/OpenPencil.app/Contents/MacOS/op
 export OPENPENCIL_DESKTOP_BIN=/Applications/OpenPencil.app/Contents/MacOS/openpencil-desktop
-W=$(mktemp -d)
-"$OP" start --headless --file "$W/component.op" > "$W/start.log" 2>&1 &
-"$OP" design @"$W/build.js"            # prints the node ids; the first one is the root frame
-"$OP" design:refine --root-id <id>
-"$OP" layout --depth 2                 # real sizes: nothing cut off or overlapping
-mkdir -p "<component dir>/prototypes"
-"$OP" export --item <id> --output "<component dir>/prototypes/<ComponentName>.png" --scale 2
+# reuse an existing board
+"$OP" start --headless --file "$PWD/docs/prototype/<feature>/openpencil/<feature>.op" > /tmp/openpencil-start.log 2>&1 &
+"$OP" get --depth 1
+mkdir -p "$PWD/docs/prototype/<feature>/openpencil/exports"
+"$OP" export --item <id> --output "$PWD/docs/prototype/<feature>/openpencil/exports/<board>.png" --scale 2
 "$OP" stop
-rm -rf "$W"
+# no board yet
+mkdir -p "$PWD/docs/prototype/<feature>/openpencil/exports"
+"$OP" start --headless --file "$PWD/docs/prototype/<feature>/openpencil/<feature>.op" > /tmp/openpencil-start.log 2>&1 &
+"$OP" design @"$PWD/docs/prototype/<feature>/openpencil/build.js"
+"$OP" design:refine --root-id <id>
+"$OP" layout --depth 2
+"$OP" export --item <id> --output "$PWD/docs/prototype/<feature>/openpencil/exports/<board>.png" --scale 2
+"$OP" save "$PWD/docs/prototype/<feature>/openpencil/<feature>.op"
+"$OP" stop
 ```
 
-Look at the exported image before committing it, and fix `build.js` until it matches the code.
+On a new drawing, look at the exported image and fix `build.js` until it matches the code. On a reuse, do not change the drawing.
 
 #### From the Code-Reading Preview
 
 Called with a code range, every Bash command is checked as written, so the commands above change:
 
 - Call `op` by its full path, one command per Bash call: no shell variables, `export`, redirects, `&`, `&&`, or `;`. This `op` finds the desktop app next to it without `OPENPENCIL_DESKTOP_BIN`. `op start --headless` returns as soon as the editor is up.
-- The scratch directory is the additional working directory named `spx-comment-<id>`. Write `build.js` there with the Write tool and keep the `.op` there. Leave both when done.
-- Node does not run here: instead of trying `build.js` under Node first, check that `op design` printed one root id per state.
-- Give `mkdir` and `op export` the component directory as a path from the repository root.
+- Write `build.js` with the Write tool at `docs/prototype/<feature>/openpencil/build.js`. The `.op` stays in that directory. Leave both.
+- Node does not run here: instead of trying `build.js` under Node first, check that `op design` printed one root id. On a reuse, do not run `op design`.
+- `mkdir` and `op export` take paths from the repository root.
+
+Reuse:
 
 ```bash
 /Applications/OpenPencil.app/Contents/MacOS/op status
-/Applications/OpenPencil.app/Contents/MacOS/op start --headless --file <scratch>/component.op
-/Applications/OpenPencil.app/Contents/MacOS/op design @<scratch>/build.js
+/Applications/OpenPencil.app/Contents/MacOS/op start --headless --file docs/prototype/<feature>/openpencil/<feature>.op
+/Applications/OpenPencil.app/Contents/MacOS/op get --depth 1
+mkdir -p docs/prototype/<feature>/openpencil/exports
+/Applications/OpenPencil.app/Contents/MacOS/op export --item <id> --output docs/prototype/<feature>/openpencil/exports/<board>.png --scale 2
+/Applications/OpenPencil.app/Contents/MacOS/op stop
+```
+
+New drawing:
+
+```bash
+mkdir -p docs/prototype/<feature>/openpencil/exports
+/Applications/OpenPencil.app/Contents/MacOS/op start --headless --file docs/prototype/<feature>/openpencil/<feature>.op
+/Applications/OpenPencil.app/Contents/MacOS/op design @docs/prototype/<feature>/openpencil/build.js
 /Applications/OpenPencil.app/Contents/MacOS/op design:refine --root-id <id>
 /Applications/OpenPencil.app/Contents/MacOS/op layout --depth 2
-mkdir -p <component dir>/prototypes
-/Applications/OpenPencil.app/Contents/MacOS/op export --item <id> --output <component dir>/prototypes/<ComponentName>.png --scale 2
+/Applications/OpenPencil.app/Contents/MacOS/op export --item <id> --output docs/prototype/<feature>/openpencil/exports/<board>.png --scale 2
+/Applications/OpenPencil.app/Contents/MacOS/op save docs/prototype/<feature>/openpencil/<feature>.op
 /Applications/OpenPencil.app/Contents/MacOS/op stop
 ```
 
@@ -216,7 +234,7 @@ Writing comments one by one drifts: the third one gets a link, the fourth one do
 2. **Every reference resolves.** Each `[Name]` is defined in or imported into its file. Each link's file exists and its `#Symbol` is defined there (`grep -n "class Symbol\|def Symbol\|function Symbol" path`). No line numbers.
 3. **Parameters, literals, and commands are in backticks.** The name after `@param` stays bare.
 4. **The summary is one plain, true sentence.** Nothing restates the code.
-5. **Front-end components carry their prototype image**, drawn from the current code and stored in `<component dir>/prototypes/`.
+5. **Front-end components carry their prototype image**, the usual desktop board, stored at `docs/prototype/<feature>/openpencil/exports/<board>.png`. A board that already names this file is exported, not redrawn.
 
 List the bare `[Name]` references mechanically, then confirm each one is defined in or imported into its file; code such as `items[i]` also matches:
 

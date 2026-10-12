@@ -1,10 +1,10 @@
 ---
 name: writing-code-comments
-description: '用于在任何语言中编写或编辑代码注释或 docstring。只做一件事：阅读给定的代码并写出其注释；从不决定注释是否应该存在，从不删除注释，从不更改代码。以费曼方式解释代码：新人能理解的一句平实的话。重写时，忽略旧注释，从代码出发写。完成前，对写过的每条注释检查每条规则。前端组件的 doc 注释嵌入组件的原型图，使用 OpenPencil（`op`）从代码绘制。每条注释遵循 Kotlin KDoc Markdown：代码和参数名用反引号，文件中定义或导入的代码用 `[Name]`，仓库中其他地方的代码用 `[plain name](repo/path#Symbol)` 链接，使用 `@param` / `@return` / `@throws` 块标签；绝不使用 reST、Google 风格 `Args`、Javadoc HTML 或 JSDoc `{Type}`。还涵盖中文名字标记（`Annotated[T, Comment("…")]`、`@Comment("…")`、枚举成员上的尾随 `# @Comment 名字`），让代码阅读预览将代码渲染为中文。由代码阅读预览以 `<path>:<start>-<end>` 形式调用，它读取该代码块并仅回答注释正文。'
+description: '用于在任何语言中编写或编辑代码注释或 docstring。只做一件事：阅读给定的代码并写出其注释；从不决定注释是否应该存在，从不删除注释，从不更改代码。以费曼方式解释代码：新人能理解的一句平实的话。重写时，忽略旧注释，从代码出发写。完成前，对写过的每条注释检查每条规则。前端组件的 doc 注释嵌入原型图。已有 OpenPencil 画板且标题或说明写了该组件文件路径的，导出复用；否则把页面画进 docs/prototype/<feature>/openpencil/，注释嵌入 exports/ 里的电脑端默认图。每条注释遵循 Kotlin KDoc Markdown：代码和参数名用反引号，文件中定义或导入的代码用 `[Name]`，仓库中其他地方的代码用 `[plain name](repo/path#Symbol)` 链接，使用 `@param` / `@return` / `@throws` 块标签；绝不使用 reST、Google 风格 `Args`、Javadoc HTML 或 JSDoc `{Type}`。还涵盖中文名字标记（`Annotated[T, Comment("…")]`、`@Comment("…")`、枚举成员上的尾随 `# @Comment 名字`），让代码阅读预览将代码渲染为中文。由代码阅读预览以 `<path>:<start>-<end>` 形式调用，它读取该代码块并仅回答注释正文。'
 argument-hint: '<path>:<start>-<end>'
 locale: zh-CN
-source_hash: fecead1511f9f331be409363c29597980d738a9b44083d27cb3470a7932b851e
-translated_at: 2026-10-12T02:48:11Z
+source_hash: 5a9b74168f9dd7b52c8ced9f5b914b1b414f755d7f1265055df0be28d0065da7
+translated_at: 2026-10-12T03:40:00Z
 model: deepseek-v4-pro
 ---
 
@@ -25,8 +25,8 @@ model: deepseek-v4-pro
   - **普通注释**（打开范围的 `#`、`//`、`/* */`），当代码块没有文档注释时。写一条普通注释。
   - **新注释**，当范围两者都没有时。预览会给需要文档注释的声明添加一条：Python 函数或类的文档字符串，TypeScript 或 JavaScript 函数、类、枚举、常量或变量的 `/** */`，Rust 条目的 `///`。其他任何情况都写普通行注释（`#` 或 `//`）。写那种注释。
   - 文件头注释保持为文件头注释。
-- 前端组件的 doc 注释携带其原型图，如同前端组件部分所述：按照使用 `op` 绘制部分画出它，把 PNG 保存在组件的 `prototypes/` 目录中，并把图片嵌入正文。
-- 你的工具：在工作的目录中使用 Read、Grep 和 Glob；使用 Bash 执行 OpenPencil 的 `op` 以及 `mkdir -p <组件目录>/prototypes`；只允许在临时目录中使用 Write 和 Edit。其他一切都会被拒绝：不能改动源文件，也不能运行其他命令。不要寻找绕过的方法。
+- 前端组件的 doc 注释携带其原型图，如同前端组件部分所述。嵌入 `docs/prototype/<feature>/openpencil/exports/` 里的 PNG。
+- 你的工具：在工作的目录中使用 Read、Grep 和 Glob；使用 Bash 执行 OpenPencil 的 `op` 以及 `mkdir -p docs/prototype/<feature>/openpencil/exports`；只允许在 `docs/prototype/<feature>/openpencil/` 下使用 Write 和 Edit。其他一切都会被拒绝：不能改动源文件，也不能运行其他命令。不要寻找绕过的方法。
 - 用中文写。代码名、参数名、字面量和链接保持代码中的原样。
 - 只写注释，不要写别的：不要中文名字标记（`@Comment`），不要更改代码。
 - 回答只是注释正文：不要 `#`、`//`、`/* */`、`/** */`、行首 ` * ` 或 `"""`，不要缩进，不要代码围栏，前后都不要。预览把它放进结构化输出的 `body` 字段，并用正确的注释语法写进文件。
@@ -148,67 +148,85 @@ function release(sessionId: string, token: string): boolean
 
 ## 前端组件：展示其外观
 
-前端组件的文档注释在摘要句之后嵌入一张组件图片。读者一眼就能看出代码绘制的是屏幕的哪一部分。图片是用 OpenPencil 的 `op` 命令行从代码绘制的原型，所以不需要运行服务器。
+前端组件的文档注释在摘要句之后嵌入一张组件图片。读者一眼就能看出代码绘制的是屏幕的哪一部分。图片是该页面 OpenPencil 原型里的一块画板。
 
 ```tsx
 /**
  * Overview card: one fact per row, value on the left, note below, secondary action on the right.
  *
- * ![overview card](frontend/src/components/overview/prototypes/OverviewSection.png)
+ * ![overview card](docs/prototype/overview/openpencil/exports/overview.png)
  */
 export function OverviewSection(props: OverviewSectionProps) {
 ```
 
-- **从代码绘制。** 阅读组件及其使用的主题：设计令牌、Tailwind 配置、CSS 变量。结构、固定文本、颜色、间距和圆角半径都来自那里；固定文本逐字复制。来自 props 或数据的文本采用看起来真实的示例内容。
-- **一块画板，大小与组件相同。** 不是整个页面。
-- **将图片存在组件旁边**：`<组件目录>/prototypes/<组件名>.png`，与代码一起提交。图片路径遵循链接规则：从仓库根目录开始，`![plain name](path)`。
-- **把绘制文件留在仓库外。** `build.js` 和 `.op` 放在临时目录里。代码才是你重新绘制的来源。
-- **一张常态图片。** 只有看起来非常不同的状态才添加另一张，例如空状态或错误状态：`<组件名>-empty.png`。
-- **外观变化时重新绘制。** 过时的图片如同过时的注释一样误导。
-- **跳过不绘制自身内容的组件**：provider、上下文包装器、hook。
+- **只给眼睛看得见的东西。** 自身不绘制内容的组件（provider、上下文包装器、hook）不要图。
+- **已有画板展示了这个文件就复用。** 只在 `docs/prototype/*/openpencil/` 下找（`build.js` 和 `.op`）。不管 `figma-plugin/`。画板标题，或引出这块画板的说明，写了该组件从仓库根目录起的文件路径，才算。菜单项或按钮上的同名文字不算。不要重画，也不要改那份 `build.js` 或 `.op`。
+- **只嵌一张：电脑端常态画板。** 好几块画板都写了这个文件时，嵌没有弹窗、没有展开菜单的电脑端那一块。不要嵌手机画板或其他状态。
+- **导出这块画板** 到 `docs/prototype/<feature>/openpencil/exports/<board>.png`。注释从仓库根目录嵌入 `![plain name](docs/prototype/<feature>/openpencil/exports/<board>.png)`。再次导出会覆盖 PNG。`op export` 不会创建目录；先创建它。
+- **没有这样的画板：在新目录里画这个页面。** 建立 `docs/prototype/<feature>/openpencil/`，放入 `build.js` 和 `<feature>.op`。`<feature>` 是这个页面在做什么，风格跟 `my-apps` 一样，不是组件的类名。不要往已有的原型里加画板。
+- **从代码绘制。** 阅读组件及其使用的主题：设计令牌、Tailwind 配置、CSS 变量。结构、固定文本、颜色、间距和圆角半径都来自那里；固定文本逐字复制。来自 props 或数据的文本采用看起来真实的示例内容。一块电脑端常态画板。不是裁切出的组件，不是手机画板，不是弹窗。
 
 ### 使用 `op` 绘制
 
 按照 `ui-prototyping` 技能那样驱动 `op`：阅读其 [OpenPencil 路由](../ui-prototyping/references/openpencil.md) 和它捆绑的设计参考，然后按步骤 1 到 7 执行，并做以下更改：
 
-- `build.js` 和 `.op` 放在临时目录里，而不是 `docs/prototype/` 下。
-- 每个状态一个根 frame，宽度与组件渲染宽度一致。
-- 直接导出到组件的 `prototypes/` 目录。`op export` 不会创建目录；先创建它。
-- 跳过第 8 步。图片就是结果；不要在编辑器中打开绘图。
+- 文件放在 `docs/prototype/<feature>/openpencil/`：`build.js`、`<feature>.op` 和 `exports/<board>.png`。绝不放临时目录。
+- 复用：不要运行 `op design`。打开已有的 `.op`，用 `op get --depth 1` 读树，导出电脑端常态画板，然后停止。不要保存。
+- 新画：一个根 frame，就是电脑端常态画板。只在新文件上运行 `op design`，然后保存。
+- 跳过第 8 步。不要在编辑器中打开绘图。
 
 ```bash
 OP=/Applications/OpenPencil.app/Contents/MacOS/op
 export OPENPENCIL_DESKTOP_BIN=/Applications/OpenPencil.app/Contents/MacOS/openpencil-desktop
-W=$(mktemp -d)
-"$OP" start --headless --file "$W/component.op" > "$W/start.log" 2>&1 &
-"$OP" design @"$W/build.js"            # prints the node ids; the first one is the root frame
-"$OP" design:refine --root-id <id>
-"$OP" layout --depth 2                 # real sizes: nothing cut off or overlapping
-mkdir -p "<component dir>/prototypes"
-"$OP" export --item <id> --output "<component dir>/prototypes/<ComponentName>.png" --scale 2
+# 复用已有画板
+"$OP" start --headless --file "$PWD/docs/prototype/<feature>/openpencil/<feature>.op" > /tmp/openpencil-start.log 2>&1 &
+"$OP" get --depth 1
+mkdir -p "$PWD/docs/prototype/<feature>/openpencil/exports"
+"$OP" export --item <id> --output "$PWD/docs/prototype/<feature>/openpencil/exports/<board>.png" --scale 2
 "$OP" stop
-rm -rf "$W"
+# 还没有画板
+mkdir -p "$PWD/docs/prototype/<feature>/openpencil/exports"
+"$OP" start --headless --file "$PWD/docs/prototype/<feature>/openpencil/<feature>.op" > /tmp/openpencil-start.log 2>&1 &
+"$OP" design @"$PWD/docs/prototype/<feature>/openpencil/build.js"
+"$OP" design:refine --root-id <id>
+"$OP" layout --depth 2
+"$OP" export --item <id> --output "$PWD/docs/prototype/<feature>/openpencil/exports/<board>.png" --scale 2
+"$OP" save "$PWD/docs/prototype/<feature>/openpencil/<feature>.op"
+"$OP" stop
 ```
 
-提交之前查看导出的图片，修正 `build.js`，直到它与代码一致。
+新画时，查看导出的图片，修正 `build.js`，直到它与代码一致。复用时不要改绘图。
 
 #### 来自代码阅读预览
 
 使用代码范围调用时，每条 Bash 命令都按所写的形式进行检查，因此上述命令要改为：
 
 - 使用完整路径调用 `op`，每次 Bash 调用只放一条命令：不要 shell 变量、`export`、重定向、`&`、`&&` 或 `;`。这个 `op` 会在旁边找到桌面应用，无需 `OPENPENCIL_DESKTOP_BIN`。`op start --headless` 会在编辑器启动后立即返回。
-- 临时目录是名为 `spx-comment-<id>` 的附加工作目录。用 Write 工具把 `build.js` 写在那里，并把 `.op` 留在那里。完成后两者都保留。
-- 这里不运行 Node：不要先在 Node 下试运行 `build.js`，而是检查 `op design` 是否每个状态都打印了一个根 id。
-- 给 `mkdir` 和 `op export` 的组件目录是从仓库根目录开始的路径。
+- 用 Write 工具把 `build.js` 写到 `docs/prototype/<feature>/openpencil/build.js`。`.op` 留在同一目录。完成后两者都保留。
+- 这里不运行 Node：不要先在 Node 下试运行 `build.js`，而是检查 `op design` 是否打印了一个根 id。复用时不要运行 `op design`。
+- `mkdir` 和 `op export` 的路径从仓库根目录开始。
+
+复用：
 
 ```bash
 /Applications/OpenPencil.app/Contents/MacOS/op status
-/Applications/OpenPencil.app/Contents/MacOS/op start --headless --file <scratch>/component.op
-/Applications/OpenPencil.app/Contents/MacOS/op design @<scratch>/build.js
+/Applications/OpenPencil.app/Contents/MacOS/op start --headless --file docs/prototype/<feature>/openpencil/<feature>.op
+/Applications/OpenPencil.app/Contents/MacOS/op get --depth 1
+mkdir -p docs/prototype/<feature>/openpencil/exports
+/Applications/OpenPencil.app/Contents/MacOS/op export --item <id> --output docs/prototype/<feature>/openpencil/exports/<board>.png --scale 2
+/Applications/OpenPencil.app/Contents/MacOS/op stop
+```
+
+新画：
+
+```bash
+mkdir -p docs/prototype/<feature>/openpencil/exports
+/Applications/OpenPencil.app/Contents/MacOS/op start --headless --file docs/prototype/<feature>/openpencil/<feature>.op
+/Applications/OpenPencil.app/Contents/MacOS/op design @docs/prototype/<feature>/openpencil/build.js
 /Applications/OpenPencil.app/Contents/MacOS/op design:refine --root-id <id>
 /Applications/OpenPencil.app/Contents/MacOS/op layout --depth 2
-mkdir -p <component dir>/prototypes
-/Applications/OpenPencil.app/Contents/MacOS/op export --item <id> --output <component dir>/prototypes/<ComponentName>.png --scale 2
+/Applications/OpenPencil.app/Contents/MacOS/op export --item <id> --output docs/prototype/<feature>/openpencil/exports/<board>.png --scale 2
+/Applications/OpenPencil.app/Contents/MacOS/op save docs/prototype/<feature>/openpencil/<feature>.op
 /Applications/OpenPencil.app/Contents/MacOS/op stop
 ```
 
@@ -220,7 +238,7 @@ mkdir -p <component dir>/prototypes
 2. **每个引用都能解析。** 每个 `[Name]` 都在其文件里定义或导入。每个链接的文件存在，且其 `#Symbol` 在该文件里有定义（`grep -n "class Symbol\|def Symbol\|function Symbol" path`）。不要行号。
 3. **参数、字面量和命令在反引号里。** `@param` 后面的名字保持裸写。
 4. **摘要是一句平实、真实的话。** 不复述代码。
-5. **前端组件携带原型图**，从当前代码绘制并保存在 `<组件目录>/prototypes/` 中。
+5. **前端组件携带原型图**，即电脑端常态画板，存在 `docs/prototype/<feature>/openpencil/exports/<board>.png`。已经写了这个文件的画板只导出，不重画。
 
 机械地列出裸的 `[Name]` 引用，然后逐一确认每个都在其文件中定义或导入；类似 `items[i]` 的代码也会匹配：
 
