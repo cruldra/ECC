@@ -12,15 +12,22 @@ This skill does one thing: read the code you are given and write its comment. It
 
 Arguments for this call: `$ARGUMENTS`
 
-When the arguments have the form `<path>:<start>-<end>`, the call comes from the code-reading preview, for example `/ecc:writing-code-comments backend/src/app/acquisition/repository.py:13-60`. Nothing else comes with it. Every rule below still applies, plus these:
+When the arguments start with `<path>:<start>-<end>`, the call comes from the code-reading preview, for example `/ecc:writing-code-comments backend/src/app/acquisition/repository.py:13-60`. Words after the range are the user's request for this comment. The preview writes your answer into the file itself. Every rule below still applies, plus these:
 
-- `<path>` is relative to the working directory, the repository root. Lines count from 1. The range is one code block (a class, a function, a statement) together with the plain comment lines already above it. For a file-header comment, the range is that comment itself.
-- Read those lines yourself. Read more of the file, or other files, when the comment needs context. You have read tools only; do not try to edit any file.
-- Write the plain comment that sits above the block. If the range starts with a plain comment, rewrite it as in Rewriting a Comment; otherwise write a new one. Doc comments (docstrings, `///`, `/** */`) are not written in this mode, so no `@param` / `@return` / `@throws` tags and no prototype image.
+- `<path>` is relative to the working directory, the repository root. Lines count from 1. The range is one code block (a class, a function, a statement) together with the comments already above it. For a file-header comment, the range is that comment itself.
+- Read those lines yourself. Read more of the file, or other files, when the comment needs context.
+- Write the one comment the preview replaces. The range tells which one:
+  - **The block's own doc comment**, when it has one: a Python docstring as the first statement of the function or class, or a `/** */` or `///` comment right above the declaration. Write a doc comment, with `@param` / `@return` / `@throws` tags where they apply.
+  - **The plain comment** that opens the range (`#`, `//`, `/* */`), when the block has no doc comment. Write a plain comment.
+  - **A new comment**, when the range has neither. The preview adds a doc comment to a declaration that takes one: a docstring for a Python function or class, `/** */` for a TypeScript or JavaScript function, class, enum, constant, or variable, `///` for a Rust item. Anything else gets a plain line comment (`#` or `//`). Write that kind.
+  - A file-header comment stays a file-header comment.
+- A front-end component's doc comment carries its prototype image, as in Front-End Components: draw it as in Drawing With `op`, save the PNG in the component's `prototypes/` directory, and embed it in the body.
+- Your tools: Read, Grep, and Glob in the working directories; Bash for OpenPencil's `op` and for `mkdir -p <component dir>/prototypes`; Write and Edit in the scratch directory only. Everything else is refused: no source file can be changed and no other command runs. Do not look for a way around it.
 - Write it in Chinese. Code names, parameter names, literals, and links stay as they are in the code.
 - Write the comment and nothing else: no Chinese name marks (`@Comment`), no code changes.
-- The answer is the comment body only: no `#`, `//`, or `/* */`, no indentation, no code fence, nothing before or after it. The preview puts it in the `body` field of its structured output and writes it into the file with the right comment syntax.
+- The answer is the comment body only: no `#`, `//`, `/* */`, `/** */`, leading ` * `, or `"""`, no indentation, no code fence, nothing before or after it. The preview puts it in the `body` field of its structured output and writes it into the file with the right comment syntax.
 - Before answering, run the checks in Before You Finish on the body. Check each reference with Grep.
+- Later messages in the same session are the user's requests to change this comment. Each starts with the block's current `<path>:<start>-<end>`, because the lines move once the preview writes a comment. Read the range again, make the change, and answer with the whole new body the same way.
 
 ## Explaining Code: One Plain Sentence
 
@@ -180,6 +187,26 @@ rm -rf "$W"
 ```
 
 Look at the exported image before committing it, and fix `build.js` until it matches the code.
+
+#### From the Code-Reading Preview
+
+Called with a code range, every Bash command is checked as written, so the commands above change:
+
+- Call `op` by its full path, one command per Bash call: no shell variables, `export`, redirects, `&`, `&&`, or `;`. This `op` finds the desktop app next to it without `OPENPENCIL_DESKTOP_BIN`. `op start --headless` returns as soon as the editor is up.
+- The scratch directory is the additional working directory named `spx-comment-<id>`. Write `build.js` there with the Write tool and keep the `.op` there. Leave both when done.
+- Node does not run here: instead of trying `build.js` under Node first, check that `op design` printed one root id per state.
+- Give `mkdir` and `op export` the component directory as a path from the repository root.
+
+```bash
+/Applications/OpenPencil.app/Contents/MacOS/op status
+/Applications/OpenPencil.app/Contents/MacOS/op start --headless --file <scratch>/component.op
+/Applications/OpenPencil.app/Contents/MacOS/op design @<scratch>/build.js
+/Applications/OpenPencil.app/Contents/MacOS/op design:refine --root-id <id>
+/Applications/OpenPencil.app/Contents/MacOS/op layout --depth 2
+mkdir -p <component dir>/prototypes
+/Applications/OpenPencil.app/Contents/MacOS/op export --item <id> --output <component dir>/prototypes/<ComponentName>.png --scale 2
+/Applications/OpenPencil.app/Contents/MacOS/op stop
+```
 
 ## Before You Finish: Check Every Comment You Wrote
 

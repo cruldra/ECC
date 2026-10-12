@@ -49,12 +49,38 @@ test("keeps the sections in order", () => {
 
 test("a code range from the preview gets the comment body only", () => {
   assert.ok(body.includes("Arguments for this call: `$ARGUMENTS`"));
-  assert.ok(body.includes("When the arguments have the form `<path>:<start>-<end>`"));
-  assert.ok(body.includes("You have read tools only; do not try to edit any file."));
+  assert.ok(body.includes("When the arguments start with `<path>:<start>-<end>`"));
+  assert.ok(body.includes("Words after the range are the user's request for this comment."));
   assert.ok(body.includes("Write it in Chinese."));
   assert.ok(body.includes("no Chinese name marks (`@Comment`), no code changes"));
-  assert.ok(body.includes("The answer is the comment body only: no `#`, `//`, or `/* */`, no indentation"));
+  assert.ok(body.includes("The answer is the comment body only: no `#`, `//`, `/* */`, `/** */`, leading ` * `, or `\"\"\"`, no indentation"));
   assert.ok(body.includes("it never speaks to the person who asked"));
+});
+
+test("a code range gets the comment the preview replaces: doc comment, plain comment, or the new kind", () => {
+  assert.ok(body.includes("Write the one comment the preview replaces. The range tells which one:"));
+  assert.ok(body.includes("**The block's own doc comment**"));
+  assert.ok(body.includes("with `@param` / `@return` / `@throws` tags where they apply"));
+  assert.ok(body.includes("**The plain comment** that opens the range"));
+  assert.ok(body.includes("a docstring for a Python function or class, `/** */` for a TypeScript or JavaScript function, class, enum, constant, or variable, `///` for a Rust item"));
+  assert.ok(body.includes("save the PNG in the component's `prototypes/` directory, and embed it in the body"));
+  assert.doesNotMatch(body, /are not written in this mode|read tools only/, "the preview writes doc comments now");
+});
+
+test("a code range may draw with op but change no source file; later messages revise the same comment", () => {
+  assert.ok(body.includes("Write and Edit in the scratch directory only. Everything else is refused"));
+  assert.ok(body.includes("Later messages in the same session are the user's requests to change this comment."));
+  assert.ok(body.includes("Each starts with the block's current `<path>:<start>-<end>`"));
+  assert.ok(body.includes("answer with the whole new body the same way"));
+});
+
+test("from the preview op runs by its full path from a scratch directory, one command per call", () => {
+  assert.ok(body.includes("#### From the Code-Reading Preview"));
+  assert.ok(body.includes("no shell variables, `export`, redirects, `&`, `&&`, or `;`"));
+  assert.ok(body.includes("without `OPENPENCIL_DESKTOP_BIN`"));
+  assert.ok(body.includes("the additional working directory named `spx-comment-<id>`"));
+  assert.ok(body.includes("/Applications/OpenPencil.app/Contents/MacOS/op start --headless --file <scratch>/component.op"));
+  assert.ok(body.includes("/Applications/OpenPencil.app/Contents/MacOS/op export --item <id> --output <component dir>/prototypes/<ComponentName>.png --scale 2"));
 });
 
 test("explains code the Feynman way in one plain sentence", () => {
