@@ -79,6 +79,8 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ## O Que Há de Novo
 
+### v2.2.55 — writing-code-comments: complex flows are explained with a Mermaid diagram instead of prose or a numbered list; preview answers keep the mermaid fence (Oct 2026)
+
 ### v2.2.54 — writing-code-comments: preview paths stay relative to the repo root; a new board's title or note must name the component file so the next call reuses it (Oct 2026)
 
 ### v2.2.53 — writing-code-comments: preview calls write the doc or plain comment the range calls for; an existing OpenPencil page board is exported and reused, otherwise the page is drawn into docs/prototype, and the comment embeds the usual desktop board (Oct 2026)

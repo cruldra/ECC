@@ -25,7 +25,7 @@ When the arguments start with `<path>:<start>-<end>`, the call comes from the co
 - Your tools: Read, Grep, and Glob in the working directories; Bash for OpenPencil's `op` and for `mkdir -p docs/prototype/<feature>/openpencil/exports`; Write and Edit only under `docs/prototype/<feature>/openpencil/`. Everything else is refused: no source file can be changed and no other command runs. Do not look for a way around it.
 - Write it in Chinese. Code names, parameter names, literals, and links stay as they are in the code.
 - Write the comment and nothing else: no Chinese name marks (`@Comment`), no code changes.
-- The answer is the comment body only: no `#`, `//`, `/* */`, `/** */`, leading ` * `, or `"""`, no indentation, no code fence, nothing before or after it. The preview puts it in the `body` field of its structured output and writes it into the file with the right comment syntax.
+- The answer is the comment body only: no `#`, `//`, `/* */`, `/** */`, leading ` * `, or `"""`, no indentation added around the body, no outer code fence, nothing before or after it. Fenced `mermaid` blocks inside the body are required for complex flows; preserve their fences, line breaks, and diagram indentation. The preview puts it in the `body` field of its structured output and writes it into the file with the right comment syntax.
 - Before answering, run the checks in Before You Finish on the body. Check each reference with Grep.
 - Later messages in the same session are the user's requests to change this comment. Each starts with the block's current `<path>:<start>-<end>`, because the lines move once the preview writes a comment. Read the range again, make the change, and answer with the whole new body the same way.
 
@@ -45,6 +45,32 @@ Explain code the Feynman way: say what it does and why in one sentence, in plain
 # Good: plain words, the reason included
 # Delete the lock only if it is still ours, so a holder whose lock expired cannot delete someone else's.
 ```
+
+### Complex Flows: Use Mermaid, Not Prose
+
+When explaining a complex flow, keep the one-sentence summary of its purpose, then describe the flow with a fenced `mermaid` diagram. Do not write the flow as a paragraph or a numbered list, and do not repeat the diagram in prose. Simple behavior that fits in the summary needs no diagram.
+
+- **Use a diagram when behavior depends on interacting branches, state transitions, or asynchronous ordering**, such as queueing, retries, reconnecting, or resuming work. Do not turn every implementation step into a node.
+- **Choose the diagram that makes the behavior clear.** Use `flowchart TD` for decisions and branches, `stateDiagram-v2` for state transitions, or `sequenceDiagram` for interactions over time. Split independent flows into small diagrams when one would become crowded.
+- **Derive every node and edge from the code you read.** Show the relevant entry, branch conditions, outcomes, and any actual retry or resume path. Do not invent behavior from the old comment or from this example.
+- **Use short, plain Chinese labels in preview comments.** Quote flowchart labels and label decision edges. Use neutral IDs such as `A` and `B`; these are diagram syntax, not code references. Keep code references and their KDoc links outside the diagram, in a brief note only when needed.
+- **Embed Mermaid source directly in the comment body.** Do not export an image or wrap the whole answer in a code fence. Outside the diagram, retain only the summary, necessary reasons or constraints, and applicable `@param` / `@return` / `@throws` tags.
+
+Example comment body for a function whose code actually implements these branches:
+
+````markdown
+按会话状态恢复聊天，让刷新后的页面接上仍在进行的回复。
+
+```mermaid
+flowchart TD
+    A["进入会话"] --> B["读取历史"]
+    B --> C{"会话已归档？"}
+    C -->|是| D["只显示历史"]
+    C -->|否| E{"有正在进行的回复？"}
+    E -->|是| F["接回回复流"]
+    E -->|否| G["等待用户输入"]
+```
+````
 
 ## Rewriting a Comment: Start From the Code
 
@@ -235,6 +261,8 @@ Writing comments one by one drifts: the third one gets a link, the fourth one do
 3. **Parameters, literals, and commands are in backticks.** The name after `@param` stays bare.
 4. **The summary is one plain, true sentence.** Nothing restates the code.
 5. **Front-end components carry their prototype image**, the usual desktop board, stored at `docs/prototype/<feature>/openpencil/exports/<board>.png`. A board that already names this file is exported, not redrawn.
+
+For every complex flow, also check that its explanation is a fenced `mermaid` diagram, not prose. Trace the branches and transitions against the code, check that node IDs and fences are complete, and remove prose that repeats the diagram. Mermaid node IDs and shape delimiters are diagram syntax, not KDoc references; exclude diagram blocks from the reference checks below. When called from the preview, keep the Mermaid fence inside the body with no outer fence around the answer.
 
 List the bare `[Name]` references mechanically, then confirm each one is defined in or imported into its file; code such as `items[i]` also matches:
 

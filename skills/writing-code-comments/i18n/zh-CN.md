@@ -3,8 +3,8 @@ name: writing-code-comments
 description: '用于在任何语言中编写或编辑代码注释或 docstring。只做一件事：阅读给定的代码并写出其注释；从不决定注释是否应该存在，从不删除注释，从不更改代码。以费曼方式解释代码：新人能理解的一句平实的话。重写时，忽略旧注释，从代码出发写。完成前，对写过的每条注释检查每条规则。前端组件的 doc 注释嵌入原型图。已有 OpenPencil 画板且标题或说明写了该组件文件路径的，导出复用；否则把页面画进 docs/prototype/<feature>/openpencil/，注释嵌入 exports/ 里的电脑端默认图。每条注释遵循 Kotlin KDoc Markdown：代码和参数名用反引号，文件中定义或导入的代码用 `[Name]`，仓库中其他地方的代码用 `[plain name](repo/path#Symbol)` 链接，使用 `@param` / `@return` / `@throws` 块标签；绝不使用 reST、Google 风格 `Args`、Javadoc HTML 或 JSDoc `{Type}`。还涵盖中文名字标记（`Annotated[T, Comment("…")]`、`@Comment("…")`、枚举成员上的尾随 `# @Comment 名字`），让代码阅读预览将代码渲染为中文。由代码阅读预览以 `<path>:<start>-<end>` 形式调用，它读取该代码块并仅回答注释正文。'
 argument-hint: '<path>:<start>-<end>'
 locale: zh-CN
-source_hash: 72983bd0fff15d757c8b17679c00dbf64a730622cef70adf9ff412dc1ea0ed35
-translated_at: 2026-10-12T04:20:00Z
+source_hash: 53c17f904ef0d0994798e3ced1859838f40160eb911ded141ac4dbe95f2ab1e6
+translated_at: 2026-10-13T06:15:00Z
 model: deepseek-v4-pro
 ---
 
@@ -29,7 +29,7 @@ model: deepseek-v4-pro
 - 你的工具：在工作的目录中使用 Read、Grep 和 Glob；使用 Bash 执行 OpenPencil 的 `op` 以及 `mkdir -p docs/prototype/<feature>/openpencil/exports`；只允许在 `docs/prototype/<feature>/openpencil/` 下使用 Write 和 Edit。其他一切都会被拒绝：不能改动源文件，也不能运行其他命令。不要寻找绕过的方法。
 - 用中文写。代码名、参数名、字面量和链接保持代码中的原样。
 - 只写注释，不要写别的：不要中文名字标记（`@Comment`），不要更改代码。
-- 回答只是注释正文：不要 `#`、`//`、`/* */`、`/** */`、行首 ` * ` 或 `"""`，不要缩进，不要代码围栏，前后都不要。预览把它放进结构化输出的 `body` 字段，并用正确的注释语法写进文件。
+- 回答只是注释正文：不要 `#`、`//`、`/* */`、`/** */`、行首 ` * ` 或 `"""`，正文外面不要加缩进，不要外层代码围栏，前后都不要。复杂流程必须在正文里用 `mermaid` 围栏块；保留它的围栏、换行和图内缩进。预览把它放进结构化输出的 `body` 字段，并用正确的注释语法写进文件。
 - 回答之前，对正文运行“完成之前”中的检查。用 Grep 检查每个引用。
 - 同一会话中的后续消息是用户要求修改这条注释。每条消息都以该块当前的 `<path>:<start>-<end>` 开头，因为预览写入注释后行号会移动。再次阅读范围，进行修改，并以同样的方式回答完整的新的正文。
 
@@ -49,6 +49,32 @@ model: deepseek-v4-pro
 # Good: plain words, the reason included
 # Delete the lock only if it is still ours, so a holder whose lock expired cannot delete someone else's.
 ```
+
+### 复杂流程：用 Mermaid，不用文字
+
+解释复杂流程时，保留说明用途的那一句摘要，然后用 `mermaid` 围栏图描述流程。不要把流程写成段落或编号列表，也不要用文字把图再说一遍。摘要里就能说清的简单行为不需要图。
+
+- **行为取决于相互影响的分支、状态转换或异步先后顺序时才画图**，例如排队、重试、重连或恢复工作。不要把每个实现步骤都画成节点。
+- **选能把行为讲清楚的图。** 判断和分支用 `flowchart TD`，状态转换用 `stateDiagram-v2`，随时间的交互用 `sequenceDiagram`。一张图太挤时，把互不相关的流程拆成几张小图。
+- **每个节点和每条边都来自你读过的代码。** 画出相关入口、分支条件、结果，以及代码里真实存在的重试或恢复路径。不要从旧注释或这个例子里编造行为。
+- **预览注释里用简短、平实的中文标签。** flowchart 标签加引号，判断分支的边加标签。节点 ID 用 `A`、`B` 这样的中性名字；它们是图的语法，不是代码引用。代码引用和它们的 KDoc 链接放在图外，只在需要时写一句简短说明。
+- **把 Mermaid 源码直接嵌进注释正文。** 不要导出图片，也不要给整个回答套代码围栏。图外只保留摘要、必要的原因或约束，以及适用的 `@param` / `@return` / `@throws` 标签。
+
+某个函数的代码确实实现了这些分支时，它的注释正文示例：
+
+````markdown
+按会话状态恢复聊天，让刷新后的页面接上仍在进行的回复。
+
+```mermaid
+flowchart TD
+    A["进入会话"] --> B["读取历史"]
+    B --> C{"会话已归档？"}
+    C -->|是| D["只显示历史"]
+    C -->|否| E{"有正在进行的回复？"}
+    E -->|是| F["接回回复流"]
+    E -->|否| G["等待用户输入"]
+```
+````
 
 ## 重写注释：从代码出发
 
@@ -239,6 +265,8 @@ mkdir -p docs/prototype/<feature>/openpencil/exports
 3. **参数、字面量和命令在反引号里。** `@param` 后面的名字保持裸写。
 4. **摘要是一句平实、真实的话。** 不复述代码。
 5. **前端组件携带原型图**，即电脑端常态画板，存在 `docs/prototype/<feature>/openpencil/exports/<board>.png`。已经写了这个文件的画板只导出，不重画。
+
+每个复杂流程还要检查：它的解释是 `mermaid` 围栏图，不是文字。对照代码追一遍分支和转换，检查节点 ID 和围栏完整，删掉重复图内容的文字。Mermaid 节点 ID 和形状定界符是图的语法，不是 KDoc 引用；下面的引用检查不包括图块。从预览调用时，Mermaid 围栏留在正文里，回答外面不加围栏。
 
 机械地列出裸的 `[Name]` 引用，然后逐一确认每个都在其文件中定义或导入；类似 `items[i]` 的代码也会匹配：
 

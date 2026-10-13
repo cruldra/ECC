@@ -91,6 +91,14 @@ test("explains code the Feynman way in one plain sentence", () => {
   assert.ok(body.includes("If one plain sentence will not come"));
 });
 
+test("complex flows are a mermaid diagram kept inside the comment body", () => {
+  assert.ok(body.includes("### Complex Flows: Use Mermaid, Not Prose"));
+  assert.ok(body.includes("Fenced `mermaid` blocks inside the body are required for complex flows"));
+  assert.ok(body.includes("Do not write the flow as a paragraph or a numbered list"));
+  assert.ok(body.includes("Derive every node and edge from the code you read."));
+  assert.ok(body.includes("exclude diagram blocks from the reference checks below"));
+});
+
 test("rewrites start from the code, not the old comment", () => {
   assert.ok(body.includes("do not edit the old one. Ignore it, read the code"));
   for (const check of ["The summary is true.", "Nothing restates the code.", "Each note sits where it applies.", "Nothing describes other modules."]) {
