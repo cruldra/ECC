@@ -64,6 +64,30 @@ if (
 else failed++;
 
 if (
+  test('reference config omits unsupported persistent instructions', () => {
+    assert.ok(!/^\s*persistent_instructions\s*=/m.test(config));
+  })
+)
+  passed++;
+else failed++;
+
+if (
+  test('reference config omits user-only notification settings', () => {
+    assert.ok(!/^\s*notify\s*=/m.test(config));
+  })
+)
+  passed++;
+else failed++;
+
+if (
+  test('reference config omits user-only profile tables', () => {
+    assert.ok(!/^\s*\[profiles(?:\.|\])/m.test(config));
+  })
+)
+  passed++;
+else failed++;
+
+if (
   test('reference config enables Codex multi-agent support', () => {
     assert.ok(
       /^\s*multi_agent\s*=\s*true\s*$/m.test(config),
