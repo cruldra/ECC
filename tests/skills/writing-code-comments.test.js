@@ -58,18 +58,54 @@ test("keeps the sections in order", () => {
 
 test("a code range from the preview gets the comment body only", () => {
   assert.ok(body.includes("Arguments for this call: `$ARGUMENTS`"));
-  assert.ok(body.includes("When the arguments have the form `<path>:<start>-<end>`"));
-  assert.ok(body.includes("You have read tools only; do not try to edit any file."));
+  assert.ok(body.includes("When the arguments start with `<path>:<start>-<end>`"));
+  assert.ok(body.includes("Words after the range are the user's request for this comment."));
   assert.ok(body.includes("Write it in Chinese."));
   assert.ok(body.includes("no Chinese name marks (`@Comment`), no code changes"));
-  assert.ok(body.includes("The answer is the comment body only: no `#`, `//`, or `/* */`, no indentation"));
+  assert.ok(body.includes("The answer is the comment body only: no `#`, `//`, `/* */`, `/** */`, leading ` * `, or `\"\"\"`, no indentation"));
   assert.ok(body.includes("it never speaks to the person who asked"));
+});
+
+test("a code range gets the comment the preview replaces: doc comment, plain comment, or the new kind", () => {
+  assert.ok(body.includes("Write the one comment the preview replaces. The range tells which one:"));
+  assert.ok(body.includes("**The block's own doc comment**"));
+  assert.ok(body.includes("with `@param` / `@return` / `@throws` tags where they apply"));
+  assert.ok(body.includes("**The plain comment** that opens the range"));
+  assert.ok(body.includes("a docstring for a Python function or class, `/** */` for a TypeScript or JavaScript function, class, enum, constant, or variable, `///` for a Rust item"));
+  assert.ok(body.includes("Embed the PNG from `docs/prototype/<feature>/openpencil/exports/`."));
+  assert.doesNotMatch(body, /are not written in this mode|read tools only/, "the preview writes doc comments now");
+});
+
+test("a code range may draw with op but change no source file; later messages revise the same comment", () => {
+  assert.ok(body.includes("Write and Edit only under `docs/prototype/<feature>/openpencil/`. Everything else is refused"));
+  assert.ok(body.includes("Later messages in the same session are the user's requests to change this comment."));
+  assert.ok(body.includes("Each starts with the block's current `<path>:<start>-<end>`"));
+  assert.ok(body.includes("answer with the whole new body the same way"));
+});
+
+test("from the preview op runs by its full path, one command per call, into the prototype directory", () => {
+  assert.ok(body.includes("#### From the Code-Reading Preview"));
+  assert.ok(body.includes("no shell variables, `export`, redirects, `&`, `&&`, or `;`"));
+  assert.ok(body.includes("without `OPENPENCIL_DESKTOP_BIN`"));
+  assert.ok(body.includes("docs/prototype/<feature>/openpencil/build.js"));
+  assert.ok(body.includes("On a reuse, do not run `op design`."));
+  assert.ok(body.includes("/Applications/OpenPencil.app/Contents/MacOS/op start --headless --file docs/prototype/<feature>/openpencil/<feature>.op"));
+  assert.ok(body.includes("/Applications/OpenPencil.app/Contents/MacOS/op export --item <id> --output docs/prototype/<feature>/openpencil/exports/<board>.png --scale 2"));
+  assert.ok(body.includes("mkdir -p docs/prototype/<feature>/openpencil/exports"));
 });
 
 test("explains code the Feynman way in one plain sentence", () => {
   assert.ok(body.includes("Explain code the Feynman way"));
   assert.ok(body.includes("One sentence."));
   assert.ok(body.includes("If one plain sentence will not come"));
+});
+
+test("complex flows are a mermaid diagram kept inside the comment body", () => {
+  assert.ok(body.includes("### Complex Flows: Use Mermaid, Not Prose"));
+  assert.ok(body.includes("Fenced `mermaid` blocks inside the body are required for complex flows"));
+  assert.ok(body.includes("Do not write the flow as a paragraph or a numbered list"));
+  assert.ok(body.includes("Derive every node and edge from the code you read."));
+  assert.ok(body.includes("exclude diagram blocks from the reference checks below"));
 });
 
 test("rewrites start from the code, not the old comment", () => {
@@ -102,10 +138,17 @@ test("code elsewhere in the repo is a repo-root link with a symbol anchor", () =
 
 test("front-end components embed a prototype drawn from the code with op", () => {
   assert.ok(body.includes("Draw it from the code."));
-  assert.ok(body.includes("`<component dir>/prototypes/<ComponentName>.png`"));
-  assert.ok(body.includes("Keep the drawing files out of the repo."));
-  assert.ok(body.includes('"$OP" export --item <id> --output "<component dir>/prototypes/<ComponentName>.png"'));
-  assert.ok(body.includes('mkdir -p "<component dir>/prototypes"'), "op export does not create the directory");
+  assert.ok(body.includes("docs/prototype/<feature>/openpencil/exports/<board>.png"));
+  assert.ok(body.includes("Ignore `figma-plugin/`."));
+  assert.ok(body.includes("The same words on a menu item or a button do not count."));
+  assert.ok(body.includes("in the same style as `my-apps`, not the component's class name."));
+  assert.ok(body.includes("Write this component's file path from the repo root into the board title or the note that introduces the board."));
+  assert.ok(body.includes("A path written anywhere else does not count."));
+  assert.ok(body.includes("No absolute path, no `$PWD`, and no `cd`."));
+  assert.ok(body.includes("Do not add a board to a prototype that already exists."));
+  assert.ok(body.includes('"$OP" export --item <id> --output "$PWD/docs/prototype/<feature>/openpencil/exports/<board>.png"'));
+  assert.ok(body.includes('mkdir -p "$PWD/docs/prototype/<feature>/openpencil/exports"'), "op export does not create the directory");
+  assert.doesNotMatch(body, /temporary directory, not under `docs\/prototype`|prototypes\/<ComponentName>|spx-comment-/, "drawings stay in the prototype directory");
   assert.doesNotMatch(body, /screenshot|opencli|cropOffset/i, "no screenshot workflow left");
 });
 

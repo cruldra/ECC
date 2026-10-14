@@ -1,6 +1,6 @@
 ---
 name: writing-code-comments
-description: 'Use when writing or editing code comments or docstrings in any language. Does one thing: read the given code and write its comment; never decides whether a comment should exist, never deletes a comment, never changes code. Explain the Feynman way: one plain sentence a newcomer understands. When rewriting, ignore the old comment and write from the code. Check every comment against every rule. Front-end component docs embed an OpenPencil (`op`) prototype. Comments use Kotlin KDoc Markdown: backticks for code/params, `[Name]` for in-file/imported names, `[plain name](repo/path#Symbol)` for other repo code, `@param`/`@return`/`@throws` — never reST, Google-style Args, Javadoc HTML, or JSDoc `{Type}`. Also Chinese name marks (`Annotated[T, Comment("…")]`, `@Comment("…")`, `# @Comment 名字`) for the code-reading preview. Called as `<path>:<start>-<end>`, it answers with the comment body only.'
+description: 'Use when writing or editing code comments or docstrings in any language. Does one thing: read the given code and write its comment; never decides whether a comment should exist, never deletes a comment, never changes code. Explain the Feynman way: one plain sentence a newcomer understands. When rewriting, ignore the old comment and write from the code. Check every comment against every rule. Front-end component docs embed an OpenPencil (`op`) prototype: reuse an existing board that names the file, otherwise draw into docs/prototype/<feature>/openpencil/. Comments use Kotlin KDoc Markdown: backticks for code/params, `[Name]` for in-file/imported names, `[plain name](repo/path#Symbol)` for other repo code, `@param`/`@return`/`@throws` — never reST, Google-style Args, Javadoc HTML, or JSDoc `{Type}`. Also Chinese name marks (`Annotated[T, Comment("…")]`, `@Comment("…")`, `# @Comment 名字`) for the code-reading preview. Called as `<path>:<start>-<end>`, it answers with the comment body only.'
 argument-hint: '<path>:<start>-<end>'
 ---
 
@@ -12,15 +12,22 @@ This skill does one thing: read the code you are given and write its comment. It
 
 Arguments for this call: `$ARGUMENTS`
 
-When the arguments have the form `<path>:<start>-<end>`, the call comes from the code-reading preview, for example `/ecc:writing-code-comments backend/src/app/acquisition/repository.py:13-60`. Nothing else comes with it. Every rule below still applies, plus these:
+When the arguments start with `<path>:<start>-<end>`, the call comes from the code-reading preview, for example `/ecc:writing-code-comments backend/src/app/acquisition/repository.py:13-60`. Words after the range are the user's request for this comment. The preview writes your answer into the file itself. Every rule below still applies, plus these:
 
-- `<path>` is relative to the working directory, the repository root. Lines count from 1. The range is one code block (a class, a function, a statement) together with the plain comment lines already above it. For a file-header comment, the range is that comment itself.
-- Read those lines yourself. Read more of the file, or other files, when the comment needs context. You have read tools only; do not try to edit any file.
-- Write the plain comment that sits above the block. If the range starts with a plain comment, rewrite it as in Rewriting a Comment; otherwise write a new one. Doc comments (docstrings, `///`, `/** */`) are not written in this mode, so no `@param` / `@return` / `@throws` tags and no prototype image.
+- `<path>` is relative to the working directory, the repository root. Lines count from 1. The range is one code block (a class, a function, a statement) together with the comments already above it. For a file-header comment, the range is that comment itself.
+- Read those lines yourself. Read more of the file, or other files, when the comment needs context.
+- Write the one comment the preview replaces. The range tells which one:
+  - **The block's own doc comment**, when it has one: a Python docstring as the first statement of the function or class, or a `/** */` or `///` comment right above the declaration. Write a doc comment, with `@param` / `@return` / `@throws` tags where they apply.
+  - **The plain comment** that opens the range (`#`, `//`, `/* */`), when the block has no doc comment. Write a plain comment.
+  - **A new comment**, when the range has neither. The preview adds a doc comment to a declaration that takes one: a docstring for a Python function or class, `/** */` for a TypeScript or JavaScript function, class, enum, constant, or variable, `///` for a Rust item. Anything else gets a plain line comment (`#` or `//`). Write that kind.
+  - A file-header comment stays a file-header comment.
+- A front-end component's doc comment carries its prototype image, as in Front-End Components. Embed the PNG from `docs/prototype/<feature>/openpencil/exports/`.
+- Your tools: Read, Grep, and Glob in the working directories; Bash for OpenPencil's `op` and for `mkdir -p docs/prototype/<feature>/openpencil/exports`; Write and Edit only under `docs/prototype/<feature>/openpencil/`. Everything else is refused: no source file can be changed and no other command runs. Do not look for a way around it.
 - Write it in Chinese. Code names, parameter names, literals, and links stay as they are in the code.
 - Write the comment and nothing else: no Chinese name marks (`@Comment`), no code changes.
-- The answer is the comment body only: no `#`, `//`, or `/* */`, no indentation, no code fence, nothing before or after it. The preview puts it in the `body` field of its structured output and writes it into the file with the right comment syntax.
+- The answer is the comment body only: no `#`, `//`, `/* */`, `/** */`, leading ` * `, or `"""`, no indentation added around the body, no outer code fence, nothing before or after it. Fenced `mermaid` blocks inside the body are required for complex flows; preserve their fences, line breaks, and diagram indentation. The preview puts it in the `body` field of its structured output and writes it into the file with the right comment syntax.
 - Before answering, run the checks in Before You Finish on the body. Check each reference with Grep.
+- Later messages in the same session are the user's requests to change this comment. Each starts with the block's current `<path>:<start>-<end>`, because the lines move once the preview writes a comment. Read the range again, make the change, and answer with the whole new body the same way.
 
 ## Explaining Code: One Plain Sentence
 
@@ -38,6 +45,32 @@ Explain code the Feynman way: say what it does and why in one sentence, in plain
 # Good: plain words, the reason included
 # Delete the lock only if it is still ours, so a holder whose lock expired cannot delete someone else's.
 ```
+
+### Complex Flows: Use Mermaid, Not Prose
+
+When explaining a complex flow, keep the one-sentence summary of its purpose, then describe the flow with a fenced `mermaid` diagram. Do not write the flow as a paragraph or a numbered list, and do not repeat the diagram in prose. Simple behavior that fits in the summary needs no diagram.
+
+- **Use a diagram when behavior depends on interacting branches, state transitions, or asynchronous ordering**, such as queueing, retries, reconnecting, or resuming work. Do not turn every implementation step into a node.
+- **Choose the diagram that makes the behavior clear.** Use `flowchart TD` for decisions and branches, `stateDiagram-v2` for state transitions, or `sequenceDiagram` for interactions over time. Split independent flows into small diagrams when one would become crowded.
+- **Derive every node and edge from the code you read.** Show the relevant entry, branch conditions, outcomes, and any actual retry or resume path. Do not invent behavior from the old comment or from this example.
+- **Use short, plain Chinese labels in preview comments.** Quote flowchart labels and label decision edges. Use neutral IDs such as `A` and `B`; these are diagram syntax, not code references. Keep code references and their KDoc links outside the diagram, in a brief note only when needed.
+- **Embed Mermaid source directly in the comment body.** Do not export an image or wrap the whole answer in a code fence. Outside the diagram, retain only the summary, necessary reasons or constraints, and applicable `@param` / `@return` / `@throws` tags.
+
+Example comment body for a function whose code actually implements these branches:
+
+````markdown
+按会话状态恢复聊天，让刷新后的页面接上仍在进行的回复。
+
+```mermaid
+flowchart TD
+    A["进入会话"] --> B["读取历史"]
+    B --> C{"会话已归档？"}
+    C -->|是| D["只显示历史"]
+    C -->|否| E{"有正在进行的回复？"}
+    E -->|是| F["接回回复流"]
+    E -->|否| G["等待用户输入"]
+```
+````
 
 ## Rewriting a Comment: Start From the Code
 
@@ -137,49 +170,87 @@ Code a comment names that is neither defined in nor imported into this file is a
 
 ## Front-End Components: Show What It Looks Like
 
-A front-end component's doc comment embeds a picture of the component, right after the summary sentence. The reader sees at a glance which part of the screen the code draws. The picture is a prototype drawn from the code with OpenPencil's `op` command line, so no server has to run.
+A front-end component's doc comment embeds a picture of the component, right after the summary sentence. The reader sees at a glance which part of the screen the code draws. The picture is one board from that page's OpenPencil prototype.
 
 ```tsx
 /**
  * Overview card: one fact per row, value on the left, note below, secondary action on the right.
  *
- * ![overview card](frontend/src/components/overview/prototypes/OverviewSection.png)
+ * ![overview card](docs/prototype/overview/openpencil/exports/overview.png)
  */
 export function OverviewSection(props: OverviewSectionProps) {
 ```
 
-- **Draw it from the code.** Read the component and the theme it uses: design tokens, Tailwind config, CSS variables. Structure, fixed text, colors, spacing, and corner radii come from there; copy fixed text verbatim. Text that comes from props or data gets made-up sample content that looks real.
-- **One board the size of the component.** Not the whole page.
-- **Store the image next to the component**: `<component dir>/prototypes/<ComponentName>.png`, committed with the code. The image path follows the link rule: from the repo root, `![plain name](path)`.
-- **Keep the drawing files out of the repo.** `build.js` and the `.op` go in a temporary directory. The code is what you redraw from.
-- **One image of the usual state.** Add another only for a state that looks very different, such as empty or error: `<ComponentName>-empty.png`.
-- **Redraw it when the look changes.** A stale picture misleads like a stale comment.
-- **Skip components that draw nothing of their own**: providers, context wrappers, hooks.
+- **Only what the reader can see.** A component that draws nothing of its own (a provider, a context wrapper, a hook) gets no picture.
+- **Reuse a board that already shows this file.** Look only under `docs/prototype/*/openpencil/` (`build.js` and the `.op`). Ignore `figma-plugin/`. It counts when a board's title, or the note that introduces that board, names this component's file path from the repo root. The same words on a menu item or a button do not count. Do not redraw, and do not edit that `build.js` or `.op`.
+- **One picture: the usual desktop board.** When several boards name this file, embed the desktop board with no dialog and no open menu. Do not embed the phone board or other states.
+- **Export that board** to `docs/prototype/<feature>/openpencil/exports/<board>.png`. The comment embeds `![plain name](docs/prototype/<feature>/openpencil/exports/<board>.png)` from the repo root. Exporting again overwrites the PNG. `op export` does not create the directory; make it first.
+- **No such board: draw the page in a new directory.** Create `docs/prototype/<feature>/openpencil/` with `build.js` and `<feature>.op`. `<feature>` is what the page does, in the same style as `my-apps`, not the component's class name. Do not add a board to a prototype that already exists. Write this component's file path from the repo root into the board title or the note that introduces the board. A later call matches on that and will not draw again. A path written anywhere else does not count.
+- **Draw it from the code.** Read the component and the theme it uses: design tokens, Tailwind config, CSS variables. Structure, fixed text, colors, spacing, and corner radii come from there; copy fixed text verbatim. Text that comes from props or data gets made-up sample content that looks real. One desktop board of the page in its usual state. Not a cropped component, not a phone board, not a dialog.
 
 ### Drawing With `op`
 
 Drive `op` the way the `ui-prototyping` skill does: read its [OpenPencil route](../ui-prototyping/references/openpencil.md) and the design reference it bundles, then follow steps 1 to 7 with these changes:
 
-- `build.js` and the `.op` live in a temporary directory, not under `docs/prototype/`.
-- One root frame per state, as wide as the component renders.
-- Export straight into the component's `prototypes/` directory. `op export` does not create the directory; make it first.
-- Skip step 8. The image is the result; do not open the drawing in the editor.
+- The files live at `docs/prototype/<feature>/openpencil/`: `build.js`, `<feature>.op`, and `exports/<board>.png`. Never a temporary directory.
+- Reuse: do not run `op design`. Start on the existing `.op`, read the tree with `op get --depth 1`, export the usual desktop board, stop. Do not save.
+- New drawing: one root frame, the usual desktop board. Run `op design` only on the new file, then save.
+- Skip step 8. Do not open the drawing in the editor.
 
 ```bash
 OP=/Applications/OpenPencil.app/Contents/MacOS/op
 export OPENPENCIL_DESKTOP_BIN=/Applications/OpenPencil.app/Contents/MacOS/openpencil-desktop
-W=$(mktemp -d)
-"$OP" start --headless --file "$W/component.op" > "$W/start.log" 2>&1 &
-"$OP" design @"$W/build.js"            # prints the node ids; the first one is the root frame
-"$OP" design:refine --root-id <id>
-"$OP" layout --depth 2                 # real sizes: nothing cut off or overlapping
-mkdir -p "<component dir>/prototypes"
-"$OP" export --item <id> --output "<component dir>/prototypes/<ComponentName>.png" --scale 2
+# reuse an existing board
+"$OP" start --headless --file "$PWD/docs/prototype/<feature>/openpencil/<feature>.op" > /tmp/openpencil-start.log 2>&1 &
+"$OP" get --depth 1
+mkdir -p "$PWD/docs/prototype/<feature>/openpencil/exports"
+"$OP" export --item <id> --output "$PWD/docs/prototype/<feature>/openpencil/exports/<board>.png" --scale 2
 "$OP" stop
-rm -rf "$W"
+# no board yet
+mkdir -p "$PWD/docs/prototype/<feature>/openpencil/exports"
+"$OP" start --headless --file "$PWD/docs/prototype/<feature>/openpencil/<feature>.op" > /tmp/openpencil-start.log 2>&1 &
+"$OP" design @"$PWD/docs/prototype/<feature>/openpencil/build.js"
+"$OP" design:refine --root-id <id>
+"$OP" layout --depth 2
+"$OP" export --item <id> --output "$PWD/docs/prototype/<feature>/openpencil/exports/<board>.png" --scale 2
+"$OP" save "$PWD/docs/prototype/<feature>/openpencil/<feature>.op"
+"$OP" stop
 ```
 
-Look at the exported image before committing it, and fix `build.js` until it matches the code.
+On a new drawing, look at the exported image and fix `build.js` until it matches the code. On a reuse, do not change the drawing.
+
+#### From the Code-Reading Preview
+
+Called with a code range, every Bash command is checked as written, so the commands above change:
+
+- Call `op` by its full path, one command per Bash call: no shell variables, `export`, redirects, `&`, `&&`, or `;`. This `op` finds the desktop app next to it without `OPENPENCIL_DESKTOP_BIN`. `op start --headless` returns as soon as the editor is up.
+- Write `build.js` with the Write tool at `docs/prototype/<feature>/openpencil/build.js`. The `.op` stays in that directory. Leave both.
+- Node does not run here: instead of trying `build.js` under Node first, check that `op design` printed one root id. On a reuse, do not run `op design`.
+- Every path is relative to the repository root, as in the commands below. No absolute path, no `$PWD`, and no `cd`. Do not copy the `$PWD` examples from Drawing With `op`.
+
+Reuse:
+
+```bash
+/Applications/OpenPencil.app/Contents/MacOS/op status
+/Applications/OpenPencil.app/Contents/MacOS/op start --headless --file docs/prototype/<feature>/openpencil/<feature>.op
+/Applications/OpenPencil.app/Contents/MacOS/op get --depth 1
+mkdir -p docs/prototype/<feature>/openpencil/exports
+/Applications/OpenPencil.app/Contents/MacOS/op export --item <id> --output docs/prototype/<feature>/openpencil/exports/<board>.png --scale 2
+/Applications/OpenPencil.app/Contents/MacOS/op stop
+```
+
+New drawing:
+
+```bash
+mkdir -p docs/prototype/<feature>/openpencil/exports
+/Applications/OpenPencil.app/Contents/MacOS/op start --headless --file docs/prototype/<feature>/openpencil/<feature>.op
+/Applications/OpenPencil.app/Contents/MacOS/op design @docs/prototype/<feature>/openpencil/build.js
+/Applications/OpenPencil.app/Contents/MacOS/op design:refine --root-id <id>
+/Applications/OpenPencil.app/Contents/MacOS/op layout --depth 2
+/Applications/OpenPencil.app/Contents/MacOS/op export --item <id> --output docs/prototype/<feature>/openpencil/exports/<board>.png --scale 2
+/Applications/OpenPencil.app/Contents/MacOS/op save docs/prototype/<feature>/openpencil/<feature>.op
+/Applications/OpenPencil.app/Contents/MacOS/op stop
+```
 
 ## Before You Finish: Check Every Comment You Wrote
 
@@ -189,7 +260,9 @@ Writing comments one by one drifts: the third one gets a link, the fourth one do
 2. **Every reference resolves.** Each `[Name]` is defined in or imported into its file. Each link's file exists and its `#Symbol` is defined there (`grep -n "class Symbol\|def Symbol\|function Symbol" path`). No line numbers.
 3. **Parameters, literals, and commands are in backticks.** The name after `@param` stays bare.
 4. **The summary is one plain, true sentence.** Nothing restates the code.
-5. **Front-end components carry their prototype image**, drawn from the current code and stored in `<component dir>/prototypes/`.
+5. **Front-end components carry their prototype image**, the usual desktop board, stored at `docs/prototype/<feature>/openpencil/exports/<board>.png`. A board that already names this file is exported, not redrawn.
+
+For every complex flow, also check that its explanation is a fenced `mermaid` diagram, not prose. Trace the branches and transitions against the code, check that node IDs and fences are complete, and remove prose that repeats the diagram. Mermaid node IDs and shape delimiters are diagram syntax, not KDoc references; exclude diagram blocks from the reference checks below. When called from the preview, keep the Mermaid fence inside the body with no outer fence around the answer.
 
 List the bare `[Name]` references mechanically, then confirm each one is defined in or imported into its file; code such as `items[i]` also matches:
 
