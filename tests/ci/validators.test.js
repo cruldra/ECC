@@ -3000,6 +3000,52 @@ function runTests() {
     cleanupTestDir(testDir);
   })) passed++; else failed++;
 
+  if (test('errors when a skill description exceeds 1024 characters (default mode)', () => {
+    const testDir = createTestDir();
+    const skillDir = path.join(testDir, 'overlong-description');
+    fs.mkdirSync(skillDir);
+    fs.writeFileSync(path.join(skillDir, 'SKILL.md'),
+      `---\nname: overlong-description\ndescription: "${'x'.repeat(1025)}"\n---\n# Example`);
+
+    const result = runSkillsValidator(testDir);
+    assert.strictEqual(result.code, 1,
+      'Over-limit descriptions must fail CI even without --strict');
+    assert.ok(
+      result.stderr.includes('description exceeds 1024 characters (1025)'),
+      `Should report the harness limit with the actual length; got: ${result.stderr}`
+    );
+    cleanupTestDir(testDir);
+  })) passed++; else failed++;
+
+  if (test('accepts a skill description of exactly 1024 characters', () => {
+    const testDir = createTestDir();
+    const skillDir = path.join(testDir, 'max-description');
+    fs.mkdirSync(skillDir);
+    fs.writeFileSync(path.join(skillDir, 'SKILL.md'),
+      `---\nname: max-description\ndescription: "${'y'.repeat(1024)}"\n---\n# Example`);
+
+    const result = runSkillsValidator(testDir, ['--strict']);
+    assert.strictEqual(result.code, 0,
+      `Exactly 1024 characters must pass; got stderr: ${result.stderr}`);
+    cleanupTestDir(testDir);
+  })) passed++; else failed++;
+
+  if (test('errors when a folded skill description joins to more than 1024 characters', () => {
+    const testDir = createTestDir();
+    const skillDir = path.join(testDir, 'folded-overlong');
+    fs.mkdirSync(skillDir);
+    fs.writeFileSync(path.join(skillDir, 'SKILL.md'),
+      `---\nname: folded-overlong\ndescription: >\n  ${'a'.repeat(800)}\n  ${'b'.repeat(300)}\n---\n# Example`);
+
+    const result = runSkillsValidator(testDir);
+    assert.strictEqual(result.code, 1, 'Folded over-limit descriptions must fail CI');
+    assert.ok(
+      /description exceeds 1024 characters \(11\d{2}\)/.test(result.stderr),
+      `Should measure the folded scalar, got: ${result.stderr}`
+    );
+    cleanupTestDir(testDir);
+  })) passed++; else failed++;
+
   if (test('reports an unreadable docs root deterministically', () => {
     const testDir = createTestDir();
     const docsPath = path.join(testDir, 'docs-file');

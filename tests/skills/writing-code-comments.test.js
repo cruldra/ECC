@@ -34,6 +34,15 @@ test("frontmatter names the skill and quotes the description", () => {
   assert.match(body, /^---\nname: writing-code-comments\ndescription: '[^']+'\nargument-hint: '<path>:<start>-<end>'\n---\n/);
 });
 
+test("frontmatter description stays within the 1024-character harness limit", () => {
+  const match = body.match(/^description: '([^']+)'$/m);
+  assert.ok(match, "description must be a single-quoted inline scalar");
+  assert.ok(
+    match[1].length <= 1024,
+    `description exceeds 1024 characters (${match[1].length})`
+  );
+});
+
 test("keeps the sections in order", () => {
   const headings = body.split("\n").filter((line) => line.startsWith("## "));
   assert.deepStrictEqual(headings, [

@@ -11,13 +11,17 @@
  *   4. SKILL.md frontmatter `description:` uses an inline scalar — not a
  *      literal block scalar (`|` / `|-` / `|+`), which preserves internal
  *      newlines and breaks flat-table renderers keyed off `description`.
+ *   5. Parsed `description` is at most 1024 characters. Claude Code and
+ *      matching harnesses refuse to load a skill over that limit, so this
+ *      finding is always an error (not gated on `--strict`).
  *
  * Frontmatter findings default to WARN so CI does not break while
  * pre-existing data defects are being cleaned up out of band (see #1663).
  * Pass `--strict` or set `CI_STRICT_SKILLS=1` to promote frontmatter
  * findings to errors (exit 1).
  *
- * Structural findings (missing/empty SKILL.md) are always errors.
+ * Structural findings (missing/empty SKILL.md, description over 1024
+ * characters) are always errors.
  *
  * Scope: curated skills/ plus translated docs/{locale}/skills/ mirrors.
  * Learned/imported/evolved roots are out of scope. If neither root
@@ -32,6 +36,7 @@ const SKILLS_DIR = path.join(__dirname, '../../skills');
 const DOCS_DIR = path.join(__dirname, '../../docs');
 
 const STRICT = process.argv.includes('--strict') || process.env.CI_STRICT_SKILLS === '1';
+const MAX_DESCRIPTION_CHARS = 1024;
 
 /**
  * Parse the leading YAML frontmatter of a markdown document.
@@ -270,6 +275,11 @@ function validateSkillFile(skillMd, label, reportFrontmatterFinding, opts = {}) 
     reportFrontmatterFinding(`${label} - frontmatter missing required field: description`);
   } else if (values.description === '') {
     reportFrontmatterFinding(`${label} - frontmatter 'description' is empty`);
+  } else if (values.description.length > MAX_DESCRIPTION_CHARS) {
+    console.error(
+      `ERROR: ${label} - description exceeds ${MAX_DESCRIPTION_CHARS} characters (${values.description.length})`
+    );
+    return { fatal: true };
   }
 
   if (descriptionIndicator && descriptionIndicator.startsWith('|')) {
