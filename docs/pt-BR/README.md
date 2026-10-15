@@ -79,6 +79,8 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ## O Que Há de Novo
 
+### v2.2.56 — writing-plans: the file-structure tree expands any directory with two or more changed files and folds a directory into the path only when it holds one; test files are left out (Oct 2026)
+
 ### v2.2.55 — writing-code-comments: complex flows are explained with a Mermaid diagram instead of prose or a numbered list; preview answers keep the mermaid fence (Oct 2026)
 
 ### v2.2.55 — writing-code-comments: preview paths stay relative to the repo root; a new board's title or note must name the component file so the next call reuses it (Oct 2026)
