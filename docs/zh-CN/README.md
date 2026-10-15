@@ -83,7 +83,7 @@
 
 ### v2.2.56 — writing-plans：文件结构里同一目录改了两个及以上文件就展开成树，只改一个才合进路径；不再列测试文件（2026年10月）
 
-### v2.2.55 — writing-code-comments：复杂流程用 Mermaid 图解释，不再写成段落或编号列表；预览回答里保留 mermaid 围栏（2026年10月）
+### v2.2.56 — writing-code-comments：复杂流程用 Mermaid 图解释，不再写成段落或编号列表；预览回答里保留 mermaid 围栏（2026年10月）
 
 ### v2.2.55 — writing-code-comments：预览里的路径一律相对仓库根目录；新画的画板标题或说明必须写上组件文件路径（2026年10月）
 
@@ -1389,7 +1389,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 | **上下文文件** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
 | **秘密检测** | 基于钩子                  | beforeSubmitPrompt 钩子 | 基于沙箱 | 基于钩子 |
 | **自动格式化** | PostToolUse 钩子        | afterFileEdit 钩子 | N/A | file.edited 钩子 |
-| **版本** | 插件 | 插件 | 参考配置 | 2.2.55 |
+| **版本** | 插件 | 插件 | 参考配置 | 2.2.56 |
 
 **关键架构决策：**
 
