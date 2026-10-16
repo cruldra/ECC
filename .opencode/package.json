@@ -1,6 +1,6 @@
 {
   "name": "ecc-universal",
-  "version": "2.2.55",
+  "version": "2.2.56",
   "description": "ECC plugin for OpenCode - agents, commands, hooks, and skills",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

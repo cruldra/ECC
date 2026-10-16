@@ -40,7 +40,7 @@ If the spec covers multiple independent subsystems, split into one plan per subs
 
 After the header, before the tasks, put exactly one section whose title means "files created and modified".
 
-It is a map, not an architecture essay: a tree of every file this plan creates or edits, one short reason per line.
+It is a map, not an architecture essay: a tree of every non-test file this plan creates or edits, one short reason per line.
 
 Marker: 🆕 create · ✏️ modify
 
@@ -52,17 +52,29 @@ Markers: 🆕 new · ✏️ changed
 ```
 project-root/
 ├── src/
-│   └── feature/
-│       ├── service.py  🆕 orchestration
-│       └── routes.py  ✏️ mount the entry point
-└── tests/
-    └── test_feature.py  🆕 failing case for the main path
+│   ├── billing/
+│   │   ├── service.py  🆕 orchestration
+│   │   └── routes.py  ✏️ mount the entry point
+│   ├── api/schema.py  ✏️ quote request model
+│   └── settings.py  ✏️ feature flag
+└── web/src/
+    ├── lib/billing.ts  🆕 fetch the quote
+    └── app/
+        ├── billing/page.tsx  🆕 quote page
+        └── layout.tsx  ✏️ link to the quote page
 ```
 ````
 
+Tree shape:
+
+- A directory holding two or more listed files gets its own line, with its files indented beneath it. Never list `lib/desktop/a.ts` and `lib/desktop/b.ts` as two flat lines; that hides the folder they share.
+- A directory holding exactly one listed file folds into that file's line: `api/schema.py`.
+- A directory whose only listed content is one subdirectory merges with it on one line: `web/src/`.
+
 Rules:
 
-- Every file a task touches appears here
+- Leave test files out: test code, test fixtures, snapshots. The reader opens this tree to see what the feature changes; tests are listed under each task's **Files:**.
+- Every other file a task touches appears here
 - One short reason per file, on the same line
 - Nothing merely "mentioned" — if it is in the tree, a task owns it
 - No second file map anywhere: no extra chapter, table, or prose list. This tree is the map.
@@ -168,6 +180,7 @@ Plan failures — never write:
 1. **Spec coverage:** every spec requirement has a task
 2. **Placeholder scan:** fix any red flag above
 3. **Type consistency:** later tasks use the names earlier tasks produced
+4. **File tree:** no test files, and no two sibling lines whose paths start with the same directory
 
 Fix inline.
 
