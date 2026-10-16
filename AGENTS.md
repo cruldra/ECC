@@ -4,6 +4,29 @@ This is a **production-ready AI coding plugin** providing 68 specialized agents,
 
 **Version:** 2.2.55
 
+## Local Update Rule (`local/chw`)
+
+This machine's ECC install is the directory marketplace `~/Sources/ECC` on branch `local/chw`. It is not the GitHub `cruldra/ECC` marketplace and must not be reinstalled from a temp clone.
+
+When updating the installed plugin, always merge upstream into the local branch first, then install:
+
+```sh
+cd ~/Sources/ECC
+git checkout local/chw
+git fetch origin main
+git merge origin/main          # keep local customizations; resolve conflicts here
+node scripts/local-ecc-update.js
+```
+
+Do **not**:
+
+- check out `main` and install from there
+- run `claude plugin update ecc@ecc` against GitHub
+- change the marketplace source to a temporary directory
+- run `node scripts/local-ecc-update.js --pull` as a substitute for the merge — `--pull` currently **rebases** onto `origin/main`, which is not this machine's update rule
+
+Commit local customizations before merging. After install, reload Claude Code with `/reload-plugins`; start a new Codex session. Full notes: `docs/LOCAL-ECC-UPDATE.md`.
+
 ## Core Principles
 
 1. **Agent-First** — Delegate to specialized agents for domain tasks

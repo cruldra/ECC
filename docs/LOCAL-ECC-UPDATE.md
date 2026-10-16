@@ -15,14 +15,19 @@ git commit -m '🔧 chore(local): 更新本地定制'
 node scripts/local-ecc-update.js
 ```
 
-拉取上游并更新安装：
+拉取上游并更新安装（必须先把 `origin/main` **merge 进 `local/chw`**，再安装；不要切到 `main` 装，不要把 marketplace 改成 GitHub 或临时目录）：
 
 ```sh
 cd ~/Sources/ECC
-node scripts/local-ecc-update.js --pull
+git checkout local/chw
+git fetch origin main
+git merge origin/main
+node scripts/local-ecc-update.js
 ```
 
-脚本先合并 `origin/main`，再更新子仓库。有冲突时会停止，不会覆盖安装。解决冲突后执行 `git rebase --continue`，再执行 `node scripts/local-ecc-update.js`。
+有冲突时先在 `local/chw` 上解决并做完 merge，再执行 `node scripts/local-ecc-update.js`。脚本不会覆盖未提交的工作区；更新前先提交本机定制。
+
+不要用 `node scripts/local-ecc-update.js --pull` 代替上面的 merge。`--pull` 当前是 `git rebase origin/main`，和本机「merge 进 local/chw 再安装」的约定不一致。
 
 安装通过两边自带的插件管理命令完成。Codex 的独立安装使用 ECC 安装器，并优先采用 `.codex/skills/` 下的对应文件。原有的全局及项目启用开关会保留；已不存在的项目目录跳过，其登记不删除。
 
