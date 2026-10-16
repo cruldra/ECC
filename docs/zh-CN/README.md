@@ -81,7 +81,7 @@
 
 ## 最新动态
 
-### v2.2.56 — writing-code-comments：前端组件配图改成每个组件一张：整页压暗，只留该组件描框贴名；按节点名里的 `<path>#<Component>` 标记出图，出图脚本随技能发布；已在运行的 OpenPencil 不停、不改（2026年10月）
+### v2.2.57 — writing-code-comments：前端组件配图改成每个组件一张：整页压暗，只留该组件描框贴名；按节点名里的 `<path>#<Component>` 标记出图，出图脚本随技能发布；已在运行的 OpenPencil 不停、不改（2026年10月）
 
 ### v2.2.56 — writing-plans：文件结构里同一目录改了两个及以上文件就展开成树，只改一个才合进路径；不再列测试文件（2026年10月）
 
@@ -1391,7 +1391,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 | **上下文文件** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
 | **秘密检测** | 基于钩子                  | beforeSubmitPrompt 钩子 | 基于沙箱 | 基于钩子 |
 | **自动格式化** | PostToolUse 钩子        | afterFileEdit 钩子 | N/A | file.edited 钩子 |
-| **版本** | 插件 | 插件 | 参考配置 | 2.2.56 |
+| **版本** | 插件 | 插件 | 参考配置 | 2.2.57 |
 
 **关键架构决策：**
 
