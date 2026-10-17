@@ -79,6 +79,8 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ## O Que Há de Novo
 
+### v2.2.57 — New organizing-code skill: code is laid out by business, then layer, then use case; file names say their layer or their business, one name per concept, a file splits into a directory past 800 lines or at 3 use-case groups, subdomains become subpackages; Python rules (singular service) and a guard test whose allowlist only shrinks (Oct 2026)
+
 ### v2.2.57 — writing-code-comments: each front-end component gets its own picture, the page dimmed except the component, which is framed and tagged; nodes carry `<path>#<Component>` markers and a bundled script exports them; an OpenPencil editor that is already running is never stopped or changed (Oct 2026)
 
 ### v2.2.56 — writing-plans: the file-structure tree expands any directory with two or more changed files and folds a directory into the path only when it holds one; test files are left out (Oct 2026)
