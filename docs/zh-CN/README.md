@@ -81,7 +81,7 @@
 
 ## 最新动态
 
-### v2.2.58 — fastapi-patterns、python-patterns：示例目录改成先按业务、再按层（`user/` 里放 models、schemas、service、routes，共享设施放 `core/`），去掉顶层 routers/、services/、utils/，与 organizing-code 一致（2026年10月）
+### v2.2.59 — fastapi-patterns、python-patterns：示例目录改成先按业务、再按层（`user/` 里放 models、schemas、service、routes，共享设施放 `core/`），去掉顶层 routers/、services/、utils/，与 organizing-code 一致（2026年10月）
 
 ### v2.2.58 — 新增 organizing-code：先按业务、再按层、最后按用例组织代码；文件名只说明层或业务、同一概念只留一个名字、超过 800 行或 3 组用例就拆目录、子业务建子包；附 Python 细则（服务层用单数 service）和白名单只减不增的守卫测试（2026年10月）
 
@@ -1395,7 +1395,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 | **上下文文件** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
 | **秘密检测** | 基于钩子                  | beforeSubmitPrompt 钩子 | 基于沙箱 | 基于钩子 |
 | **自动格式化** | PostToolUse 钩子        | afterFileEdit 钩子 | N/A | file.edited 钩子 |
-| **版本** | 插件 | 插件 | 参考配置 | 2.2.58 |
+| **版本** | 插件 | 插件 | 参考配置 | 2.2.59 |
 
 **关键架构决策：**
 

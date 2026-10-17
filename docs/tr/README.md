@@ -79,7 +79,7 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ## Yenilikler
 
-### v2.2.58 — fastapi-patterns and python-patterns: sample layouts now go business first, then layer (`user/` holds models, schemas, service, routes; shared infrastructure in `core/`), dropping top-level routers/, services/, and utils/ to match organizing-code (Oct 2026)
+### v2.2.59 — fastapi-patterns and python-patterns: sample layouts now go business first, then layer (`user/` holds models, schemas, service, routes; shared infrastructure in `core/`), dropping top-level routers/, services/, and utils/ to match organizing-code (Oct 2026)
 
 ### v2.2.58 — New organizing-code skill: code is laid out by business, then layer, then use case; file names say their layer or their business, one name per concept, a file splits into a directory past 800 lines or at 3 use-case groups, subdomains become subpackages; Python rules (singular service) and a guard test whose allowlist only shrinks (Oct 2026)
 
