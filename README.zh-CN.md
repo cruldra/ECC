@@ -80,6 +80,8 @@
 
 ## 最新动态
 
+### v2.2.58 — fastapi-patterns、python-patterns：示例目录改成先按业务、再按层（`user/` 里放 models、schemas、service、routes，共享设施放 `core/`），去掉顶层 routers/、services/、utils/，与 organizing-code 一致（2026年10月）
+
 ### v2.2.58 — 新增 organizing-code：先按业务、再按层、最后按用例组织代码；文件名只说明层或业务、同一概念只留一个名字、超过 800 行或 3 组用例就拆目录、子业务建子包；附 Python 细则（服务层用单数 service）和白名单只减不增的守卫测试（2026年10月）
 
 ### v2.2.57 — writing-code-comments：前端组件配图改成每个组件一张：整页压暗，只留该组件描框贴名；按节点名里的 `<path>#<Component>` 标记出图，出图脚本随技能发布；已在运行的 OpenPencil 不停、不改（2026年10月）

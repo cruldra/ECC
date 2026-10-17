@@ -15,23 +15,24 @@ Modern, production-grade FastAPI development: project layout, Pydantic v2 schema
 my_app/
 |-- app/
 |   |-- main.py               # App factory, lifespan, middleware
-|   |-- config.py             # Settings via pydantic-settings
-|   |-- dependencies.py       # Shared FastAPI dependencies
-|   |-- database.py           # SQLAlchemy engine + session
-|   |-- routers/
-|   |   `-- users.py
-|   |-- models/               # SQLAlchemy ORM models
-|   |   `-- user.py
-|   |-- schemas/              # Pydantic request/response schemas
-|   |   `-- user.py
-|   `-- services/             # Business logic layer
-|       `-- user_service.py
+|   |-- core/                 # Infrastructure shared by every business
+|   |   |-- config.py         # Settings via pydantic-settings
+|   |   `-- db.py             # SQLAlchemy engine, session, get_db
+|   `-- user/                 # One directory per business
+|       |-- models.py         # SQLAlchemy ORM models
+|       |-- schemas.py        # Pydantic request/response schemas
+|       |-- deps.py           # Auth dependencies
+|       |-- service.py        # Business logic layer
+|       `-- routes.py         # HTTP endpoints
 |-- tests/
 |   |-- conftest.py
-|   `-- test_users.py
+|   `-- user/
+|       `-- test_routes.py
 |-- pyproject.toml
 `-- .env
 ```
+
+Group the app by business first, then by layer: each business is a directory with fixed layer files inside, and only infrastructure shared by every business goes in `core/`. The `organizing-code` skill has the full rules, including when a layer file becomes a directory.
 
 ---
 
@@ -43,9 +44,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import settings
-from app.database import engine, Base
-from app.routers import users
+from app.core.config import settings
+from app.core.db import engine, Base
+from app.user.routes import router as user_router
 
 
 @asynccontextmanager
@@ -74,7 +75,7 @@ def create_app() -> FastAPI:
         allow_headers=settings.allowed_headers,
     )
 
-    app.include_router(users.router, prefix="/users", tags=["users"])
+    app.include_router(user_router, prefix="/users", tags=["users"])
 
     return app
 
@@ -87,7 +88,7 @@ app = create_app()
 ## Configuration with pydantic-settings
 
 ```python
-# app/config.py
+# app/core/config.py
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -118,7 +119,7 @@ settings = Settings()
 ## Pydantic Schemas (v2)
 
 ```python
-# app/schemas/user.py
+# app/user/schemas.py
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field, model_validator
 
@@ -162,18 +163,20 @@ class UserListResponse(BaseModel):
 ## Dependency Injection
 
 ```python
-# app/dependencies.py
+# app/core/db.py
 from typing import Annotated, AsyncGenerator
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import DeclarativeBase
 
-from app.config import settings
-from app.database import AsyncSessionLocal
-from app.models.user import User
+from app.core.config import settings
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/token")
+engine = create_async_engine(settings.database_url)
+AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
+
+
+class Base(DeclarativeBase):
+    pass
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
@@ -185,9 +188,26 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
             raise
 
 
+DbDep = Annotated[AsyncSession, Depends(get_db)]
+```
+
+```python
+# app/user/deps.py
+from typing import Annotated
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError, jwt
+
+from app.core.config import settings
+from app.core.db import DbDep
+from app.user.models import User
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/token")
+
+
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: DbDep,
 ) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -217,7 +237,6 @@ async def get_current_active_user(
     return current_user
 
 
-DbDep = Annotated[AsyncSession, Depends(get_db)]
 CurrentUserDep = Annotated[User, Depends(get_current_user)]
 ActiveUserDep = Annotated[User, Depends(get_current_active_user)]
 ```
@@ -227,14 +246,15 @@ ActiveUserDep = Annotated[User, Depends(get_current_active_user)]
 ## Router and Endpoint Design
 
 ```python
-# app/routers/users.py
+# app/user/routes.py
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.dependencies import ActiveUserDep, DbDep
-from app.schemas.user import UserCreate, UserResponse, UserUpdate, UserListResponse
-from app.services.user_service import DuplicateUserError, UserService
+from app.core.db import DbDep
+from app.user.deps import ActiveUserDep
+from app.user.schemas import UserCreate, UserResponse, UserUpdate, UserListResponse
+from app.user.service import DuplicateUserError, UserService
 
 router = APIRouter()
 
@@ -305,7 +325,7 @@ async def login(
 ## Service Layer
 
 ```python
-# app/services/user_service.py
+# app/user/service.py
 from datetime import datetime, timedelta, timezone
 
 from jose import jwt
@@ -314,9 +334,9 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config import settings
-from app.models.user import User
-from app.schemas.user import UserCreate, UserUpdate
+from app.core.config import settings
+from app.user.models import User
+from app.user.schemas import UserCreate, UserUpdate
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -398,8 +418,7 @@ import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from app.database import Base
-from app.dependencies import get_db
+from app.core.db import Base, get_db
 from app.main import create_app
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"

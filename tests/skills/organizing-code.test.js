@@ -115,15 +115,61 @@ test("the Python reference carries a guard test to copy", () => {
   assert.ok(guardCode.includes("MAX_LINES = 800"));
 });
 
+// The files of a sample layout drawn as a tree, as paths below its root directory.
+function treeFiles(text, heading) {
+  const tree = text.split(`\n${heading}\n`)[1].match(/```\w*\n([\s\S]*?)```/)[1];
+  const parts = [];
+  const files = [];
+  for (const line of tree.split("\n").filter(Boolean).slice(1)) {
+    const start = line.search(/[\w.]/);
+    const name = line.slice(start).split(/\s+#/)[0].trim();
+    parts.length = start / 4 - 1;
+    parts.push(name.replace(/\/$/, ""));
+    if (!name.endsWith("/")) files.push(parts.join("/"));
+  }
+  return files;
+}
+
+const samples = [
+  ["fastapi-patterns", "## Project Structure", "app"],
+  ["python-patterns", "### Standard Project Layout", "src/mypackage"],
+].map(([skill, heading, source]) => {
+  const text = fs.readFileSync(path.join(skillDir, "..", skill, "SKILL.md"), "utf8");
+  return { skill, source, text, files: treeFiles(text, heading) };
+});
+
+test("the sample layouts in fastapi-patterns and python-patterns go business first, and their code uses those paths", () => {
+  for (const { skill, source, text, files } of samples) {
+    assert.ok(files.includes(`${source}/user/models.py`), `${skill}: no user/ business directory`);
+    const pkg = path.posix.basename(source);
+    const named = [
+      ...[...text.matchAll(new RegExp(`^from (${pkg}\\.[\\w.]+) import`, "gm"))].map((match) => match[1].replace(/\./g, "/")),
+      ...[...text.matchAll(new RegExp(`^# (${pkg}/\\S+?)\\.py`, "gm"))].map((match) => match[1]),
+    ];
+    for (const module of named) {
+      const file = path.posix.join(path.posix.dirname(source), module);
+      assert.ok(files.some((entry) => entry === `${file}.py` || entry.startsWith(`${file}/`)), `${skill}: ${module} is not in the sample layout`);
+    }
+  }
+});
+
 const uv = spawnSync("uv", ["--version"], { encoding: "utf8" });
 if (!guardCode || uv.status !== 0) {
   console.log("  - skipped running the guard test: needs uv");
 } else {
-  const work = fs.mkdtempSync(path.join(os.tmpdir(), "organizing-code-"));
-  const write = (file, text = "") => {
-    fs.mkdirSync(path.dirname(path.join(work, file)), { recursive: true });
-    fs.writeFileSync(path.join(work, file), text);
+  const writeIn = (dir, file, text = "") => {
+    fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+    fs.writeFileSync(path.join(dir, file), text);
   };
+  const runGuard = (dir, { source = "app", allowed = [] } = {}) => {
+    const sourcePath = source.split("/").map((part) => `"${part}"`).join(" / ");
+    writeIn(dir, "tests/test_layout.py", guardCode
+      .replace('/ "app"', `/ ${sourcePath}`)
+      .replace("ALLOWED = [\n]", `ALLOWED = [\n${allowed.map((line) => `    ${JSON.stringify(line)},`).join("\n")}\n]`));
+    return spawnSync("uv", ["run", "--quiet", "--no-project", "--with", "pytest", "pytest", "-q", "-p", "no:cacheprovider", "tests/test_layout.py"], { cwd: dir, encoding: "utf8" });
+  };
+  const work = fs.mkdtempSync(path.join(os.tmpdir(), "organizing-code-"));
+  const write = (file, text) => writeIn(work, file, text);
   const tree = {
     "app/__init__.py": "",
     "app/core/db.py": "",
@@ -150,10 +196,7 @@ if (!guardCode || uv.status !== 0) {
     "use exceptions: catalog/errors.py",
     "use service: services",
   ];
-  const guard = (allowed) => {
-    write("tests/test_layout.py", guardCode.replace("ALLOWED = [\n]", `ALLOWED = [\n${allowed.map((line) => `    ${JSON.stringify(line)},`).join("\n")}\n]`));
-    return spawnSync("uv", ["run", "--quiet", "--no-project", "--with", "pytest", "pytest", "-q", "-p", "no:cacheprovider", "tests/test_layout.py"], { cwd: work, encoding: "utf8" });
-  };
+  const guard = (allowed) => runGuard(work, { allowed });
 
   test("the guard test lists every violation and skips core/, migrations, and non-Python files", () => {
     const run = guard([]);
@@ -175,6 +218,16 @@ if (!guardCode || uv.status !== 0) {
     assert.match(run.stdout, /2 failed/);
     assert.match(run.stdout, /Move this code where organizing-code puts it:\nE\s+'says neither layer nor business: order\/order_utils\.py',/);
     assert.match(run.stdout, /Already fixed; delete these lines from ALLOWED:\nE\s+'says neither layer nor business: utils\.py',/);
+  });
+
+  test("the sample layouts in fastapi-patterns and python-patterns pass the guard test", () => {
+    for (const { skill, source, files } of samples) {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), `${skill}-`));
+      for (const file of files) writeIn(dir, file);
+      const run = runGuard(dir, { source });
+      fs.rmSync(dir, { recursive: true, force: true });
+      assert.strictEqual(run.status, 0, `${skill}:\n${run.stdout}`);
+    }
   });
 
   fs.rmSync(work, { recursive: true, force: true });
