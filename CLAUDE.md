@@ -61,7 +61,7 @@ The project is organized into several core components:
 
 ## 发版
 
-- 先提交功能改动（技能改了就同步 `i18n/zh-CN.md` 和 `source_hash`、补测试、在四份 README 写更新说明），暂存无关改动后运行 `./scripts/release.sh <版本>` 自动改版本号、提交、打 tag 并推送，再用 `claude plugin update ecc@ecc` 更新 CC（来源保持 GitHub `cruldra/ECC`）、`codex plugin add ecc@ecc` 重装 Codex（来源保持本仓库），不把来源改成临时目录。
+- 先提交功能改动（技能改了就同步 `i18n/zh-CN.md` 和 `source_hash`、补测试、在四份 README 写更新说明），暂存无关改动后运行 `./scripts/release.sh <版本>` 自动改版本号、提交、打 tag 并推送，再用 `claude plugin update ecc@ecc` 更新 CC（来源保持 GitHub `cruldra/ECC`）、`codex plugin add ecc@ecc` 重装 Codex（来源保持本仓库）、`pi update git:github.com/cruldra/ECC` 更新 pi（pi 自带的包机制，克隆在 `~/.pi/agent/git/`），不把来源改成临时目录。
 
 ## Contributing
 
