@@ -1,10 +1,10 @@
 ---
 name: writing-code-comments
-description: '用于在任何语言中编写或编辑代码注释或 docstring。只做一件事：阅读给定的代码并写出其注释；从不决定注释是否应该存在，从不删除注释，从不更改代码。以费曼方式解释代码：新人能理解的一句平实的话。重写时，忽略旧注释，从代码出发写。完成前，对写过的每条注释检查每条规则。前端组件的 doc 注释嵌入自己的一张图：该页面 OpenPencil 原型里的电脑端常态页面，除了名字带标记 `<path>#<Component>` 的节点以外都压暗，这些节点描框并贴上组件名。技能自带的出图脚本把它写到 exports/<board>--<Component>.png；画整页的组件用整块画板 exports/<board>.png。已有原型写了该组件文件路径的就复用，缺标记时只往 build.js 的节点名里追加标记并重建 .op；否则把页面画进 docs/prototype/<feature>/openpencil/。每条注释遵循 Kotlin KDoc Markdown：代码和参数名用反引号，文件中定义或导入的代码用 `[Name]`，仓库中其他地方的代码用 `[plain name](repo/path#Symbol)` 链接，使用 `@param` / `@return` / `@throws` 块标签；绝不使用 reST、Google 风格 `Args`、Javadoc HTML 或 JSDoc `{Type}`。还涵盖中文名字标记（`Annotated[T, Comment("…")]`、`@Comment("…")`、枚举成员上的尾随 `# @Comment 名字`），让代码阅读预览将代码渲染为中文。由代码阅读预览以 `<path>:<start>-<end>` 形式调用，它读取该代码块并仅回答注释正文。'
+description: '用于在任何语言中编写或编辑代码注释或 docstring。只做一件事：阅读给定的代码并写出其注释；从不决定注释是否应该存在，从不删除注释，从不更改代码。以费曼方式解释代码，用新人能理解的一句平实的话；重写时忽略旧注释，从代码出发写；完成前对写过的每条注释检查每条规则。注释遵循 Kotlin KDoc Markdown：反引号、`[Name]` 和 `[plain name](repo/path#Symbol)` 链接、`@param` / `@return` / `@throws`；绝不使用 reST、Google 风格 `Args`、Javadoc HTML 或 JSDoc `{Type}`。前端组件的 doc 注释嵌入 OpenPencil 原型里属于它自己的一张图：页面除了标记 `<path>#<Component>` 的节点以外都压暗，由技能自带的脚本导出到 exports/<board>--<Component>.png。还涵盖中文名字标记（`Comment("…")`、`# @Comment 名字`），供代码阅读预览使用；预览以 `<path>:<start>-<end>` 形式调用它，只取注释正文。'
 argument-hint: '<path>:<start>-<end>'
 locale: zh-CN
-source_hash: 2ac8ada8a96b930c53df072ae9f2dcf675ad4143d5b0508bce04c490c634f504
-translated_at: 2026-10-16T15:34:47Z
+source_hash: 0b4febc3c0bbeff763cc723fb48d252d1393489d4b8a2b16d31d81cce573d2b0
+translated_at: 2026-10-18T06:20:48Z
 model: claude-opus-5-5
 ---
 
@@ -194,7 +194,7 @@ export function SiteNav() {
   - 常态画板上没有，像弹窗或展开的菜单：补一块该状态的画板，即弹窗或菜单打开时的电脑端整页，在那里标弹窗或菜单节点。
 - **复用写了这个文件的原型。** 只在 `docs/prototype/*/openpencil/` 下找（`build.js` 和 `.op`）。不管 `figma-plugin/`。标记、画板标题，或引出画板的说明写了该组件从仓库根目录起的文件路径，才算。菜单项或按钮上的同名文字不算。不要重画页面。
 - **还没有标记：加进 `build.js`，再重建 `.op`。** 往这个组件所画节点的名字后面追加标记，或者补上面说的状态画板。画出来的东西一样都不改：重建后的页面跟原来一样。重建方法见「使用 `op` 绘制」。
-- **用脚本出图。** `${CLAUDE_SKILL_DIR}/scripts/export-component.py` 通过 `op` 读画板，把带标记节点以外的地方压暗，给每个节点描框、贴名字，保留以它们为中心的一屏，宽同画板、高 900，放不下就加高。它写出 `docs/prototype/<feature>/openpencil/exports/<board>--<Component>.png`，标记在画板标题上时写出 `exports/<board>.png`，并打印路径。注释从仓库根目录嵌入这个路径：`![plain name](docs/prototype/<feature>/openpencil/exports/<board>--<Component>.png)`。`<board>` 是标记所在画板的名字：电脑端常态画板用 `desktop`，状态画板另起名字，例如 `login`。再次导出会覆盖 PNG。`${CLAUDE_SKILL_DIR}` 是这份 SKILL.md 所在的目录。
+- **用脚本出图。** `${CLAUDE_SKILL_DIR}/scripts/export-component.py` 通过 `op` 读画板，把带标记节点以外的地方压暗，给每个节点描框、贴名字，保留以它们为中心的一屏，宽同画板、高 900，放不下就加高。它写出 `docs/prototype/<feature>/openpencil/exports/<board>--<Component>.png`，标记在画板标题上时写出 `exports/<board>.png`，并打印路径。注释从仓库根目录嵌入这个路径：`![plain name](docs/prototype/<feature>/openpencil/exports/<board>--<Component>.png)`。`<board>` 是标记所在画板的名字：电脑端常态画板用 `desktop`，状态画板另起名字，例如 `login`。再次导出会覆盖 PNG。`${CLAUDE_SKILL_DIR}` 是这份 SKILL.md 所在的目录。命令里的脚本路径不以 `/` 开头时，把 `/scripts/` 之前的部分换成这个目录的绝对路径。
 - **没有原型写了这个文件：在新目录里画这个页面。** 建立 `docs/prototype/<feature>/openpencil/`，放入 `build.js` 和 `<feature>.op`。`<feature>` 是这个页面在做什么，风格跟 `my-apps` 一样，不是组件的类名。同一个页面不要另起第二份原型。按上面的规则标好这个组件的节点。下次调用靠标记认出来，不再重画。
 - **从代码绘制。** 阅读组件及其使用的主题：设计令牌、Tailwind 配置、CSS 变量。结构、固定文本、颜色、间距和圆角半径都来自那里；固定文本逐字复制。来自 props 或数据的文本采用看起来真实的示例内容。一块电脑端常态整页画板，常态画板上看不到的组件才另加状态画板。不是裁切出的组件，也不是手机画板：脚本在整页上给组件描框。
 

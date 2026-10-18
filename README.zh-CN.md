@@ -80,6 +80,8 @@
 
 ## 最新动态
 
+### v2.2.59 — writing-code-comments：描述压到 1024 字以内，pi 等遵循 Agent Skills 规范的工具能直接加载；在不替换 `${CLAUDE_SKILL_DIR}` 的工具里也能找到出图脚本；技能校验对超过 1024 字的描述给出警告（2026年10月）
+
 ### v2.2.59 — fastapi-patterns、python-patterns：示例目录改成先按业务、再按层（`user/` 里放 models、schemas、service、routes，共享设施放 `core/`），去掉顶层 routers/、services/、utils/，与 organizing-code 一致（2026年10月）
 
 ### v2.2.58 — 新增 organizing-code：先按业务、再按层、最后按用例组织代码；文件名只说明层或业务、同一概念只留一个名字、超过 800 行或 3 组用例就拆目录、子业务建子包；附 Python 细则（服务层用单数 service）和白名单只减不增的守卫测试（2026年10月）

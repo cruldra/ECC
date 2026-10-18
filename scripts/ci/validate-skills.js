@@ -11,6 +11,8 @@
  *   4. SKILL.md frontmatter `description:` uses an inline scalar — not a
  *      literal block scalar (`|` / `|-` / `|+`), which preserves internal
  *      newlines and breaks flat-table renderers keyed off `description`.
+ *   5. SKILL.md frontmatter `description:` is at most 1024 characters, the
+ *      Agent Skills limit that Pi and other harnesses enforce.
  *
  * Frontmatter findings default to WARN so CI does not break while
  * pre-existing data defects are being cleaned up out of band (see #1663).
@@ -32,6 +34,7 @@ const SKILLS_DIR = path.join(__dirname, '../../skills');
 const DOCS_DIR = path.join(__dirname, '../../docs');
 
 const STRICT = process.argv.includes('--strict') || process.env.CI_STRICT_SKILLS === '1';
+const MAX_DESCRIPTION_LENGTH = 1024;
 
 /**
  * Parse the leading YAML frontmatter of a markdown document.
@@ -270,6 +273,10 @@ function validateSkillFile(skillMd, label, reportFrontmatterFinding, opts = {}) 
     reportFrontmatterFinding(`${label} - frontmatter missing required field: description`);
   } else if (values.description === '') {
     reportFrontmatterFinding(`${label} - frontmatter 'description' is empty`);
+  } else if (values.description.length > MAX_DESCRIPTION_LENGTH) {
+    reportFrontmatterFinding(
+      `${label} - frontmatter description is ${values.description.length} characters, over the ` + `${MAX_DESCRIPTION_LENGTH}-character Agent Skills limit; Pi and other harnesses warn about it or skip the skill`
+    );
   }
 
   if (descriptionIndicator && descriptionIndicator.startsWith('|')) {

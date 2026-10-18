@@ -36,6 +36,8 @@ console.log("\n=== Testing writing-code-comments skill ===\n");
 
 test("frontmatter names the skill and quotes the description", () => {
   assert.match(body, /^---\nname: writing-code-comments\ndescription: '[^']+'\nargument-hint: '<path>:<start>-<end>'\n---\n/);
+  const description = body.match(/^description: '([^']+)'$/m)[1];
+  assert.ok(description.length <= 1024, `description is ${description.length} characters; Pi and other Agent Skills harnesses allow 1024`);
 });
 
 test("keeps the sections in order", () => {
@@ -156,7 +158,7 @@ test("each component gets its own picture, found by the marker in node names", (
   assert.ok(body.includes("add a board for that state, the usual desktop page with it open"));
   assert.ok(body.includes("![plain name](docs/prototype/<feature>/openpencil/exports/<board>--<Component>.png)"));
   assert.ok(body.includes("![top bar](docs/prototype/home/openpencil/exports/desktop--SiteNav.png)"));
-  assert.ok(body.includes("`${CLAUDE_SKILL_DIR}` is the directory of this SKILL.md."));
+  assert.ok(body.includes("`${CLAUDE_SKILL_DIR}` is the directory of this SKILL.md. When the script path in a command does not start with `/`, replace everything before `/scripts/` with the absolute path of that directory."), "harnesses other than Claude Code leave the variable as is");
   assert.match(body, /^description: '[^']*`<path>#<Component>`[^']*exports\/<board>--<Component>\.png/m);
   assert.doesNotMatch(body, /One picture: the usual desktop board|not a dialog\.|do not edit that `build\.js`/, "the whole-page picture for every component is gone");
 });

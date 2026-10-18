@@ -1042,6 +1042,32 @@ function runTests() {
     cleanupTestDir(testDir);
   })) passed++; else failed++;
 
+  if (test('warns on a description over the 1024-character Agent Skills limit', () => {
+    const testDir = createTestDir();
+    const skillDir = path.join(testDir, 'long-desc-skill');
+    fs.mkdirSync(skillDir);
+    fs.writeFileSync(path.join(skillDir, 'SKILL.md'),
+      `---\nname: long-desc-skill\ndescription: '${'x'.repeat(1025)}'\norigin: ECC\n---\n# Skill`);
+
+    const result = runSkillsValidator(testDir);
+    assert.strictEqual(result.code, 0, 'Default mode should not fail CI');
+    assert.ok(result.stderr.includes('description is 1025 characters, over the 1024'),
+      `Should warn on a 1025-character description; got stderr: ${result.stderr}`);
+    cleanupTestDir(testDir);
+  })) passed++; else failed++;
+
+  if (test('accepts a description of exactly 1024 characters', () => {
+    const testDir = createTestDir();
+    const skillDir = path.join(testDir, 'max-desc-skill');
+    fs.mkdirSync(skillDir);
+    fs.writeFileSync(path.join(skillDir, 'SKILL.md'),
+      `---\nname: max-desc-skill\ndescription: '${'x'.repeat(1024)}'\norigin: ECC\n---\n# Skill`);
+
+    const result = runSkillsValidator(testDir, ['--strict']);
+    assert.strictEqual(result.code, 0, `1024 characters is within the limit; got stderr: ${result.stderr}`);
+    cleanupTestDir(testDir);
+  })) passed++; else failed++;
+
   if (test('honors CI_STRICT_SKILLS=1 env flag', () => {
     const testDir = createTestDir();
     const skillDir = path.join(testDir, 'no-name-skill-env');
