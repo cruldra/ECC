@@ -79,7 +79,7 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ## O Que Há de Novo
 
-### v2.2.59 — writing-code-comments: description cut to 1024 characters or fewer so Pi and other Agent Skills harnesses load it as is; the export script is found where `${CLAUDE_SKILL_DIR}` is not filled in; the skill validator warns on descriptions over 1024 characters (Oct 2026)
+### v2.2.60 — writing-code-comments: description cut to 1024 characters or fewer so Pi and other Agent Skills harnesses load it as is; the export script is found where `${CLAUDE_SKILL_DIR}` is not filled in; the skill validator warns on descriptions over 1024 characters (Oct 2026)
 
 ### v2.2.59 — fastapi-patterns and python-patterns: sample layouts now go business first, then layer (`user/` holds models, schemas, service, routes; shared infrastructure in `core/`), dropping top-level routers/, services/, and utils/ to match organizing-code (Oct 2026)
 
