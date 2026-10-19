@@ -80,6 +80,14 @@
 
 ## 最新动态
 
+### v2.2.60 — writing-code-comments：描述压到 1024 字以内，pi 等遵循 Agent Skills 规范的工具能直接加载；在不替换 `${CLAUDE_SKILL_DIR}` 的工具里也能找到出图脚本；技能校验对超过 1024 字的描述给出警告（2026年10月）
+
+### v2.2.59 — fastapi-patterns、python-patterns：示例目录改成先按业务、再按层（`user/` 里放 models、schemas、service、routes，共享设施放 `core/`），去掉顶层 routers/、services/、utils/，与 organizing-code 一致（2026年10月）
+
+### v2.2.58 — 新增 organizing-code：先按业务、再按层、最后按用例组织代码；文件名只说明层或业务、同一概念只留一个名字、超过 800 行或 3 组用例就拆目录、子业务建子包；附 Python 细则（服务层用单数 service）和白名单只减不增的守卫测试（2026年10月）
+
+### v2.2.57 — writing-code-comments：前端组件配图改成每个组件一张：整页压暗，只留该组件描框贴名；按节点名里的 `<path>#<Component>` 标记出图，出图脚本随技能发布；已在运行的 OpenPencil 不停、不改（2026年10月）
+
 ### v2.2.56 — writing-plans：文件结构里同一目录改了两个及以上文件就展开成树，只改一个才合进路径；不再列测试文件（2026年10月）
 
 ### v2.2.56 — writing-code-comments：复杂流程用 Mermaid 图解释，不再写成段落或编号列表；预览回答里保留 mermaid 围栏（2026年10月）
@@ -311,7 +319,7 @@ Copy-Item -Recurse rules/typescript "$HOME/.claude/rules/"
 /plugin list ecc@ecc
 ```
 
-**完成！** 你现在可以使用 68 个代理、300 个技能和 94 个命令。
+**完成！** 你现在可以使用 68 个代理、301 个技能和 94 个命令。
 
 ### multi-* 命令需要额外配置
 

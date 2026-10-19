@@ -81,6 +81,14 @@
 
 ## 最新动态
 
+### v2.2.60 — writing-code-comments：描述压到 1024 字以内，pi 等遵循 Agent Skills 规范的工具能直接加载；在不替换 `${CLAUDE_SKILL_DIR}` 的工具里也能找到出图脚本；技能校验对超过 1024 字的描述给出警告（2026年10月）
+
+### v2.2.59 — fastapi-patterns、python-patterns：示例目录改成先按业务、再按层（`user/` 里放 models、schemas、service、routes，共享设施放 `core/`），去掉顶层 routers/、services/、utils/，与 organizing-code 一致（2026年10月）
+
+### v2.2.58 — 新增 organizing-code：先按业务、再按层、最后按用例组织代码；文件名只说明层或业务、同一概念只留一个名字、超过 800 行或 3 组用例就拆目录、子业务建子包；附 Python 细则（服务层用单数 service）和白名单只减不增的守卫测试（2026年10月）
+
+### v2.2.57 — writing-code-comments：前端组件配图改成每个组件一张：整页压暗，只留该组件描框贴名；按节点名里的 `<path>#<Component>` 标记出图，出图脚本随技能发布；已在运行的 OpenPencil 不停、不改（2026年10月）
+
 ### v2.2.56 — writing-plans：文件结构里同一目录改了两个及以上文件就展开成树，只改一个才合进路径；不再列测试文件（2026年10月）
 
 ### v2.2.56 — writing-code-comments：复杂流程用 Mermaid 图解释，不再写成段落或编号列表；预览回答里保留 mermaid 围栏（2026年10月）
@@ -357,7 +365,7 @@ Copy-Item -Recurse rules/typescript "$HOME/.claude/rules/"
 /plugin list ecc@ecc
 ```
 
-**搞定！** 你现在可以使用 68 个智能体、300 项技能和 94 个命令了。
+**搞定！** 你现在可以使用 68 个智能体、301 项技能和 94 个命令了。
 
 ***
 
@@ -1271,7 +1279,7 @@ opencode
 |---------|---------------|----------|--------|
 | 智能体 | PASS: 68 个    | PASS: 12 个 | **Claude Code 领先** |
 | 命令 | PASS: 94 个    | PASS: 35 个 | **Claude Code 领先** |
-| 技能 | PASS: 300 项   | PASS: 37 项 | **Claude Code 领先** |
+| 技能 | PASS: 301 项   | PASS: 37 项 | **Claude Code 领先** |
 | 钩子 | PASS: 8 种事件类型 | PASS: 11 种事件 | **OpenCode 更多！** |
 | 规则 | PASS: 29 条    | PASS: 13 条指令 | **Claude Code 领先** |
 | MCP 服务器 | PASS: 14 个    | PASS: 完整 | **完全对等** |
@@ -1379,7 +1387,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 |---------|-----------------------|------------|-----------|----------|
 | **智能体** | 68                    | 共享 (AGENTS.md) | 共享 (AGENTS.md) | 12 |
 | **命令** | 94                    | 共享 | 基于指令 | 35 |
-| **技能** | 300                   | 共享 | 10 (原生格式) | 37 |
+| **技能** | 301                   | 共享 | 10 (原生格式) | 37 |
 | **钩子事件** | 8 种类型                 | 15 种类型 | SessionStart（1 种类型） | 11 种类型 |
 | **钩子脚本** | 20+ 个脚本               | 16 个脚本 (DRY 适配器) | 1 个 SessionStart 引导脚本 | 插件钩子 |
 | **规则** | 34 (通用 + 语言)          | 34 (YAML 前页) | 基于指令 | 13 条指令 |
@@ -1389,7 +1397,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 | **上下文文件** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
 | **秘密检测** | 基于钩子                  | beforeSubmitPrompt 钩子 | 基于沙箱 | 基于钩子 |
 | **自动格式化** | PostToolUse 钩子        | afterFileEdit 钩子 | N/A | file.edited 钩子 |
-| **版本** | 插件 | 插件 | 参考配置 | 2.2.56 |
+| **版本** | 插件 | 插件 | 参考配置 | 2.2.60 |
 
 **关键架构决策：**
 

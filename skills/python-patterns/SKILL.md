@@ -509,24 +509,27 @@ myproject/
 │   └── mypackage/
 │       ├── __init__.py
 │       ├── main.py
-│       ├── api/
+│       ├── core/
 │       │   ├── __init__.py
-│       │   └── routes.py
-│       ├── models/
-│       │   ├── __init__.py
-│       │   └── user.py
-│       └── utils/
+│       │   └── config.py
+│       └── user/
 │           ├── __init__.py
-│           └── helpers.py
+│           ├── models.py
+│           ├── service.py
+│           └── routes.py
 ├── tests/
 │   ├── __init__.py
 │   ├── conftest.py
-│   ├── test_api.py
-│   └── test_models.py
+│   └── user/
+│       ├── __init__.py
+│       ├── test_models.py
+│       └── test_routes.py
 ├── pyproject.toml
 ├── README.md
 └── .gitignore
 ```
+
+Group the package by business first, then by layer: each business is a subpackage with fixed layer modules inside, and only infrastructure shared by every business goes in `core/`. Avoid catch-all `utils` or `helpers` modules; a helper belongs in the layer module that uses it. The `organizing-code` skill has the full rules.
 
 ### Import Conventions
 
@@ -539,8 +542,8 @@ from pathlib import Path
 import requests
 from fastapi import FastAPI
 
-from mypackage.models import User
-from mypackage.utils import format_name
+from mypackage.user.models import User
+from mypackage.user.service import register_user
 
 # Good: Use isort for automatic import sorting
 # pip install isort
@@ -555,10 +558,10 @@ from mypackage.utils import format_name
 __version__ = "1.0.0"
 
 # Export main classes/functions at package level
-from mypackage.models import User, Post
-from mypackage.utils import format_name
+from mypackage.user.models import User
+from mypackage.user.service import register_user
 
-__all__ = ["User", "Post", "format_name"]
+__all__ = ["User", "register_user"]
 ```
 
 ## Memory and Performance

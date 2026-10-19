@@ -11,9 +11,9 @@
  *   4. SKILL.md frontmatter `description:` uses an inline scalar — not a
  *      literal block scalar (`|` / `|-` / `|+`), which preserves internal
  *      newlines and breaks flat-table renderers keyed off `description`.
- *   5. Parsed `description` is at most 1024 characters. Claude Code and
- *      matching harnesses refuse to load a skill over that limit, so this
- *      finding is always an error (not gated on `--strict`).
+ *   5. Parsed `description` is at most 1024 characters. Claude Code, Pi,
+ *      and matching harnesses refuse to load a skill over that limit, so
+ *      this finding is always an error (not gated on `--strict`).
  *
  * Frontmatter findings default to WARN so CI does not break while
  * pre-existing data defects are being cleaned up out of band (see #1663).

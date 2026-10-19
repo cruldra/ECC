@@ -228,7 +228,8 @@
         "skills/tinystruct-patterns",
         "skills/vite-patterns",
         "skills/wechat-developing",
-        "skills/writing-code-comments"
+        "skills/writing-code-comments",
+        "skills/organizing-code"
       ],
       "targets": [
         "claude",
