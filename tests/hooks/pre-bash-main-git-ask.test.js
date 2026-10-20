@@ -50,7 +50,7 @@ function runDispatcher(input, env = {}) {
     input: JSON.stringify(input),
     encoding: 'utf8',
     env: { ...process.env, ECC_HOOK_PROFILE: 'standard', ...env },
-    timeout: 10000,
+    timeout: 10000
   });
 }
 
@@ -125,9 +125,45 @@ test('read-only search on main is not treated as a commit', () => {
   const cwd = initRepo('main');
   const result = hook.run({
     tool_input: { command: 'grep -rn "ensure_rewind_git|REWIND_GIT_AUTHOR|git add|git commit" vendor/' },
-    cwd,
+    cwd
   });
   assert.ok(!result.stdout, `read-only grep should pass, got: ${result.stdout}`);
+});
+
+test('git commands written into a heredoc are not run', () => {
+  const cwd = initRepo('main');
+  const result = hook.run({
+    tool_input: { command: "cat > /tmp/edit.py <<'EOF'\nsubprocess.run(['git', 'commit'])\ngit commit -m x\nEOF\npython3 /tmp/edit.py" },
+    cwd
+  });
+  assert.ok(!result.stdout, `heredoc text should pass, got: ${result.stdout}`);
+});
+
+test('denies commit mixed with other commands so a refusal loses nothing', () => {
+  const cwd = initRepo('main');
+  for (const command of ['python3 edit.py && cargo test && git add -A && git commit -m x && git push', 'npm test; git commit -am x', 'git checkout -b feat && npm install']) {
+    const result = hook.run({ tool_input: { command }, cwd });
+    assert.strictEqual(JSON.parse(result.stdout).hookSpecificOutput.permissionDecision, 'deny', command);
+    assert.ok(result.stdout.includes(hook.SPLIT_REASON), command);
+  }
+});
+
+test('still asks when the command only touches git', () => {
+  const cwd = initRepo('main');
+  for (const command of [
+    'git add -A && git commit -m x && git push origin main',
+    'cd sub && git commit -m "$(cat <<\'EOF\'\nmsg\nEOF\n)"',
+    'git status --short; git commit -m x; git log --oneline -1'
+  ]) {
+    const result = hook.run({ tool_input: { command }, cwd });
+    assert.strictEqual(JSON.parse(result.stdout).hookSpecificOutput.permissionDecision, 'ask', command);
+  }
+});
+
+test('mixed commands on other branches are not touched', () => {
+  const cwd = initRepo('feat');
+  const result = hook.run({ tool_input: { command: 'npm test && git commit -m x' }, cwd });
+  assert.ok(!result.stdout);
 });
 
 test('dispatcher surfaces ask for main commit', () => {
@@ -168,10 +204,7 @@ test('ECC_MAIN_GIT_ASK=off skips ask on main commit', () => {
 
 test('dispatcher skip when hook disabled', () => {
   const cwd = initRepo('main');
-  const result = runDispatcher(
-    { tool_input: { command: 'git commit -m "x"' }, cwd },
-    { ECC_DISABLED_HOOKS: 'pre:bash:main-git-ask' }
-  );
+  const result = runDispatcher({ tool_input: { command: 'git commit -m "x"' }, cwd }, { ECC_DISABLED_HOOKS: 'pre:bash:main-git-ask' });
   assert.strictEqual(result.status, 0);
   assert.strictEqual(result.stdout, '');
 });

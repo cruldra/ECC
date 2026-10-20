@@ -17,20 +17,7 @@
 
 // Programs that run another program passed as their arguments. The real
 // invocation is what follows, so parsing steps past them.
-const WRAPPER_COMMANDS = new Set([
-  'env',
-  'sudo',
-  'doas',
-  'nohup',
-  'time',
-  'command',
-  'builtin',
-  'exec',
-  'nice',
-  'ionice',
-  'stdbuf',
-  'xargs',
-]);
+const WRAPPER_COMMANDS = new Set(['env', 'sudo', 'doas', 'nohup', 'time', 'command', 'builtin', 'exec', 'nice', 'ionice', 'stdbuf', 'xargs']);
 
 // Shells whose `-c` argument is a script to parse in turn.
 const SHELL_COMMANDS = new Set(['sh', 'bash', 'zsh', 'dash', 'ksh', 'fish']);
@@ -123,12 +110,64 @@ function tokenizeShellWords(input, start = 0, end = input.length) {
 }
 
 /**
+ * Read the delimiter of a here-document redirect `<<WORD` / `<<-WORD` starting
+ * at `start` (the first `<`). Quotes around the word are removed. Returns null
+ * for a here-string `<<<` or when no word follows.
+ */
+function readHeredocDelimiter(input, start) {
+  if (input.charAt(start + 2) === '<') return null;
+  let i = start + 2;
+  const stripTabs = input.charAt(i) === '-';
+  if (stripTabs) i++;
+  while (input.charAt(i) === ' ' || input.charAt(i) === '\t') i++;
+
+  let delimiter = '';
+  while (i < input.length && !/[\s;|&<>()]/.test(input.charAt(i))) {
+    const char = input.charAt(i);
+    if (char === "'" || char === '"') {
+      const close = input.indexOf(char, i + 1);
+      const stop = close === -1 ? input.length : close;
+      delimiter += input.slice(i + 1, stop);
+      i = stop + 1;
+    } else if (char === '\\') {
+      delimiter += input.charAt(i + 1);
+      i += 2;
+    } else {
+      delimiter += char;
+      i++;
+    }
+  }
+
+  return delimiter ? { delimiter, stripTabs, end: Math.min(i, input.length) } : null;
+}
+
+/**
+ * Skip the bodies of pending here-documents, which start at `start` (just
+ * after the newline that ends the redirecting line). Returns the index after
+ * the last delimiter line.
+ */
+function skipHeredocBodies(input, start, pending) {
+  let i = start;
+  for (const { delimiter, stripTabs } of pending) {
+    while (i < input.length) {
+      const newline = input.indexOf('\n', i);
+      const lineEnd = newline === -1 ? input.length : newline;
+      const line = input.slice(i, lineEnd);
+      i = lineEnd + 1;
+      if ((stripTabs ? line.replace(/^\t+/, '') : line) === delimiter) break;
+    }
+  }
+  return Math.min(i, input.length);
+}
+
+/**
  * Read a command substitution body starting at `start`.
  * `closer` is ')' for `$(...)` (nesting allowed) or '`' for backticks.
  */
 function readSubstitution(input, start, closer) {
   let depth = 0;
   let quote = null;
+  let heredocs = [];
 
   for (let i = start; i < input.length; i++) {
     const char = input.charAt(i);
@@ -145,6 +184,26 @@ function readSubstitution(input, start, closer) {
 
     if (char === "'" || char === '"') {
       quote = char;
+      continue;
+    }
+
+    if (input.startsWith('<<<', i)) {
+      i += 2;
+      continue;
+    }
+
+    if (char === '<' && input.charAt(i + 1) === '<') {
+      const heredoc = readHeredocDelimiter(input, i);
+      if (heredoc) {
+        heredocs.push(heredoc);
+        i = heredoc.end - 1;
+        continue;
+      }
+    }
+
+    if (char === '\n' && heredocs.length) {
+      i = skipHeredocBodies(input, i + 1, heredocs) - 1;
+      heredocs = [];
       continue;
     }
 
@@ -180,6 +239,7 @@ function scanSegments(command) {
   const substitutions = [];
   let current = '';
   let quote = null;
+  let heredocs = [];
   let i = 0;
 
   function flush() {
@@ -236,6 +296,30 @@ function scanSegments(command) {
       continue;
     }
 
+    if (command.startsWith('<<<', i)) {
+      current += '<<<';
+      i += 3;
+      continue;
+    }
+
+    // Here-document: its body lines are input text, not commands.
+    if (char === '<' && next === '<') {
+      const heredoc = readHeredocDelimiter(command, i);
+      if (heredoc) {
+        heredocs.push(heredoc);
+        current += command.slice(i, heredoc.end);
+        i = heredoc.end;
+        continue;
+      }
+    }
+
+    if (char === '\n' && heredocs.length) {
+      flush();
+      i = skipHeredocBodies(command, i + 1, heredocs);
+      heredocs = [];
+      continue;
+    }
+
     // Comment: everything to end of line is text, not a command.
     if (char === '#' && (i === 0 || /\s/.test(command.charAt(i - 1)))) {
       const newline = command.indexOf('\n', i);
@@ -243,8 +327,7 @@ function scanSegments(command) {
       continue;
     }
 
-    if (char === ';' || char === '|' || char === '&' || char === '\n'
-      || char === '(' || char === ')' || char === '{' || char === '}') {
+    if (char === ';' || char === '|' || char === '&' || char === '\n' || char === '(' || char === ')' || char === '{' || char === '}') {
       flush();
       i++;
       continue;
@@ -362,16 +445,7 @@ function findInvocations(command, name) {
 
 // Git global flags that consume the following token as their value; the
 // subcommand is the first bare word that is not one of those values.
-const GIT_GLOBAL_FLAGS_WITH_VALUE = new Set([
-  '-c',
-  '-C',
-  '--git-dir',
-  '--work-tree',
-  '--namespace',
-  '--super-prefix',
-  '--exec-path',
-  '--config-env',
-]);
+const GIT_GLOBAL_FLAGS_WITH_VALUE = new Set(['-c', '-C', '--git-dir', '--work-tree', '--namespace', '--super-prefix', '--exec-path', '--config-env']);
 
 /**
  * Split `git` arguments into its subcommand and that subcommand's arguments.
@@ -409,5 +483,5 @@ module.exports = {
   gitSubcommands,
   commandName,
   WRAPPER_COMMANDS,
-  SHELL_COMMANDS,
+  SHELL_COMMANDS
 };

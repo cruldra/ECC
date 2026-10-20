@@ -6,14 +6,7 @@
 
 const assert = require('assert');
 
-const {
-  tokenizeShellWords,
-  parseInvocations,
-  findInvocations,
-  gitSubcommand,
-  gitSubcommands,
-  commandName,
-} = require('../../scripts/lib/shell-invocations');
+const { tokenizeShellWords, parseInvocations, findInvocations, gitSubcommand, gitSubcommands, commandName } = require('../../scripts/lib/shell-invocations');
 
 let passed = 0;
 let failed = 0;
@@ -47,9 +40,7 @@ test('tokenizes backslash escapes outside quotes', () => {
 });
 
 test('parses a single invocation', () => {
-  assert.deepStrictEqual(parseInvocations('git status --short'), [
-    { name: 'git', args: ['status', '--short'] },
-  ]);
+  assert.deepStrictEqual(parseInvocations('git status --short'), [{ name: 'git', args: ['status', '--short'] }]);
 });
 
 test('splits on operators', () => {
@@ -61,9 +52,7 @@ test('splits on operators', () => {
 
 test('quoted operators do not split segments', () => {
   const invocations = parseInvocations('grep -rn "git add|git commit" vendor/');
-  assert.deepStrictEqual(invocations, [
-    { name: 'grep', args: ['-rn', 'git add|git commit', 'vendor/'] },
-  ]);
+  assert.deepStrictEqual(invocations, [{ name: 'grep', args: ['-rn', 'git add|git commit', 'vendor/'] }]);
 });
 
 test('a quoted command name is an argument, not an invocation', () => {
@@ -72,9 +61,7 @@ test('a quoted command name is an argument, not an invocation', () => {
 });
 
 test('steps past environment assignments', () => {
-  assert.deepStrictEqual(parseInvocations('FOO=bar BAZ=1 git commit'), [
-    { name: 'git', args: ['commit'] },
-  ]);
+  assert.deepStrictEqual(parseInvocations('FOO=bar BAZ=1 git commit'), [{ name: 'git', args: ['commit'] }]);
 });
 
 test('steps past wrapper commands', () => {
@@ -128,11 +115,31 @@ test('gitSubcommand skips global flags and their values', () => {
 
 test('gitSubcommands reads every git call in a chain', () => {
   const subs = gitSubcommands('git add -A && git commit -m x && npm test');
-  assert.deepStrictEqual(subs.map(s => s.name), ['add', 'commit']);
+  assert.deepStrictEqual(
+    subs.map(s => s.name),
+    ['add', 'commit']
+  );
 });
 
 test('gitSubcommands ignores git named inside arguments', () => {
   assert.deepStrictEqual(gitSubcommands('grep -rn "git add|git commit" vendor/'), []);
+});
+
+test('heredoc bodies are text, not commands', () => {
+  assert.deepStrictEqual(names("cat > /tmp/x.py <<'EOF'\nrun('git commit -m x')\ngit push\nEOF\npython3 /tmp/x.py"), ['cat', 'python3']);
+  assert.deepStrictEqual(names('cat <<EOF | sh\ngit commit\nEOF'), ['cat', 'sh']);
+  assert.deepStrictEqual(names('cat <<-"END"\n\tgit commit\n\tEND\necho done'), ['cat', 'echo']);
+  assert.deepStrictEqual(names('cat <<A <<B\ngit commit\nA\ngit push\nB\nls'), ['cat', 'ls']);
+  assert.deepStrictEqual(
+    gitSubcommands("git commit -F- <<'EOF'\nfix: don't (x\nEOF\n").map(s => s.name),
+    ['commit']
+  );
+  assert.deepStrictEqual(names("git commit -m \"$(cat <<'EOF'\nit's (done\nEOF\n)\" && npm test"), ['git', 'npm', 'cat']);
+});
+
+test('here-strings and shifts are not heredocs', () => {
+  assert.deepStrictEqual(names("grep x <<< 'a\nb'\nls"), ['grep', 'ls']);
+  assert.ok(names('echo $((1 << 2))\nls').includes('ls'));
 });
 
 test('empty and malformed input parse to nothing', () => {

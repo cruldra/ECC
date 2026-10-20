@@ -4,12 +4,20 @@
 const { spawnSync } = require('child_process');
 const path = require('path');
 const { parseBoolean } = require('../lib/hook-flags');
-const { gitSubcommands } = require('../lib/shell-invocations');
+const { gitSubcommands, parseInvocations } = require('../lib/shell-invocations');
 
 const MAX_STDIN = 1024 * 1024;
 
 const COMMIT_REASON = '当前在 main 分支。提交需要你点一次授权，避免未经审查就写入历史。';
 const BRANCH_REASON = '在主工作区新建分支或 worktree 需要你点一次授权。小改动可以直接在 main 做完。';
+const SPLIT_REASON = '这条命令把需要授权的 git 提交或建分支和别的命令混在了一起，用户一拒绝，别的命令也跟着白跑。先单独执行其余命令，再把 git 操作（可连同 git add、git push）单独作为一条命令执行。';
+
+// 只做这些事的命令才算「纯 git 操作」：cd 切目录，cat/echo/printf 用来拼提交说明。
+const GIT_ONLY_PROGRAMS = new Set(['git', 'cd', 'cat', 'echo', 'printf']);
+
+function mixesOtherCommands(command) {
+  return parseInvocations(command).some(invocation => !GIT_ONLY_PROGRAMS.has(invocation.name));
+}
 
 function parseInput(rawInput) {
   if (rawInput && typeof rawInput === 'object') return rawInput;
@@ -121,17 +129,22 @@ function isPrimaryWorktree(cwd) {
   return path.resolve(common) === path.resolve(gitdir);
 }
 
-function ask(reason) {
+function decide(permissionDecision, reason) {
   return {
     stdout: JSON.stringify({
       hookSpecificOutput: {
         hookEventName: 'PreToolUse',
-        permissionDecision: 'ask',
+        permissionDecision,
         permissionDecisionReason: reason,
       },
     }),
     exitCode: 0,
   };
+}
+
+// 要授权的 git 操作必须单独成一条命令：授权框只能整条批或整条拒，混着别的命令时拒绝会连它们一起丢掉。
+function ask(command, reason) {
+  return mixesOtherCommands(command) ? decide('deny', SPLIT_REASON) : decide('ask', reason);
 }
 
 function isMainGitAskEnabled(env = process.env) {
@@ -151,10 +164,10 @@ function run(rawInput) {
 
   const cwd = extractCwd(data);
   if (commitsOnAny(subcommands) && currentBranch(cwd) === 'main') {
-    return ask(COMMIT_REASON);
+    return ask(command, COMMIT_REASON);
   }
   if (createsBranchOnAny(subcommands) && isPrimaryWorktree(cwd)) {
-    return ask(BRANCH_REASON);
+    return ask(command, BRANCH_REASON);
   }
   return { exitCode: 0 };
 }
@@ -166,6 +179,7 @@ module.exports = {
   isMainGitAskEnabled,
   COMMIT_REASON,
   BRANCH_REASON,
+  SPLIT_REASON,
 };
 
 if (require.main === module) {
