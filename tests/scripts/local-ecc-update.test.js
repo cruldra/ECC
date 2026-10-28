@@ -6,6 +6,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const {
+  assertNativeSkillSources,
   applyCodexOverrides,
   claudeMarketplaceUsesSource,
   codexMarketplaceUsesSource,
@@ -18,6 +19,35 @@ function fixture(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ecc-local-test-'));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   return root;
+}
+
+for (const enabled of [false, true]) {
+  test(`native skill source check preserves the ability to update disabled=${!enabled} plugins`, t => {
+    const home = fixture(t);
+    const root = path.resolve(__dirname, '../..');
+    const cache = path.join(home, 'cache');
+    fs.mkdirSync(path.join(cache, 'skills'), { recursive: true });
+    fs.mkdirSync(path.join(home, '.claude/plugins'), { recursive: true });
+    fs.writeFileSync(path.join(home, '.claude/settings.json'), JSON.stringify({
+      enabledPlugins: { 'ecc@ecc': enabled },
+      extraKnownMarketplaces: { ecc: { source: { source: 'directory', path: root } } },
+    }));
+    fs.writeFileSync(path.join(home, '.claude/plugins/installed_plugins.json'), JSON.stringify({
+      plugins: { 'ecc@ecc': [{ scope: 'user', installPath: cache }] },
+    }));
+    const run = () => JSON.stringify({ installed: [{
+      pluginId: 'ecc@ecc', name: 'ecc', enabled,
+      marketplaceSource: { sourceType: 'local', source: root },
+    }] });
+    assert.doesNotThrow(() => assertNativeSkillSources(home, false, run));
+    if (enabled) assert.doesNotThrow(() => assertNativeSkillSources(home, true, run));
+    else assert.throws(() => assertNativeSkillSources(home, true, run), /Enable/);
+    const foreign = () => JSON.stringify({ installed: [{
+      pluginId: 'ecc@ecc', name: 'ecc', enabled: true,
+      marketplaceSource: { sourceType: 'local', source: path.join(home, 'foreign') },
+    }] });
+    assert.throws(() => assertNativeSkillSources(home, false, foreign), /local source/);
+  });
 }
 
 for (const enabled of [false, true, undefined]) {

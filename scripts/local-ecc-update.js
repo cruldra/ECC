@@ -8,6 +8,7 @@ const { execFileSync } = require('child_process');
 
 const pluginId = 'ecc@ecc';
 const sourceRoot = path.resolve(__dirname, '..');
+const { excludeCodexSkillCopies, reconcileSkillSources } = require('./lib/local-ecc-skills');
 
 function run(command, args, cwd) {
   return execFileSync(command, args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] });
@@ -98,14 +99,56 @@ function restoreEnabled(snapshot) {
   if (next !== text) fs.writeFileSync(snapshot.file, next);
 }
 
-async function main(args = process.argv.slice(2)) {
-  if (args.some(arg => !['--pull', '--dry-run'].includes(arg))) {
-    throw new Error('Usage: node scripts/local-ecc-update.js [--pull | --dry-run]');
+function assertNativeSkillSources(home, requireEnabled, runCommand = run) {
+  const settings = JSON.parse(fs.readFileSync(path.join(home, '.claude/settings.json'), 'utf8'));
+  const registry = JSON.parse(fs.readFileSync(path.join(home, '.claude/plugins/installed_plugins.json'), 'utf8'));
+  const installed = registry.plugins?.[pluginId]?.some(entry => entry.scope === 'user'
+    && fs.existsSync(path.join(entry.installPath, 'skills')));
+  const marketplace = settings.extraKnownMarketplaces?.ecc?.source;
+  const isLocalClaude = claudeMarketplaceUsesSource([{ name: 'ecc', ...marketplace }], sourceRoot);
+  if (!installed || !isLocalClaude || (requireEnabled && settings.enabledPlugins?.[pluginId] !== true)) {
+    throw new Error('Enable the user-scoped Claude ECC plugin from the local source before removing duplicate skill sources.');
   }
-  if (args.includes('--pull') && args.includes('--dry-run')) {
-    throw new Error('--pull and --dry-run cannot be combined');
+  const inventory = JSON.parse(runCommand('codex', ['plugin', 'list', '--marketplace', 'ecc', '--json'], home));
+  if (!inventory.installed?.some(plugin => plugin.pluginId === pluginId && (!requireEnabled || plugin.enabled))
+    || !codexMarketplaceUsesSource(inventory.installed, sourceRoot)) {
+    throw new Error('Enable the native Codex ECC plugin from the local source before removing duplicate skill sources.');
+  }
+}
+
+async function syncSkillSources(home, dryRun, { requireEnabled = true } = {}) {
+  if (!dryRun) assertNativeSkillSources(home, requireEnabled);
+  const result = reconcileSkillSources({
+    sourceRoot, homeDir: home, dryRun, run,
+    onProgress: message => console.log(message),
+  });
+  if (!dryRun && result.codexState) {
+    const { projectCanonicalInstallState } = require('./lib/install-state-store-sync');
+    const projection = await projectCanonicalInstallState(result.codexState, { homeDir: home });
+    if (projection.warning) console.warn(projection.warning.message);
+  }
+  console.log(JSON.stringify({
+    changed: result.changed,
+    magpieRoutes: result.routes.length,
+    archivedCodexSkills: result.archives.length,
+    piPackageChanged: Boolean(result.piSettings),
+    backupRoot: result.backupRoot,
+  }, null, 2));
+  return result;
+}
+
+async function main(args = process.argv.slice(2)) {
+  if (args.some(arg => !['--pull', '--dry-run', '--dedupe-skills'].includes(arg))) {
+    throw new Error('Usage: node scripts/local-ecc-update.js [--dry-run] [--dedupe-skills]');
+  }
+  if (args.includes('--pull') && (args.includes('--dry-run') || args.includes('--dedupe-skills'))) {
+    throw new Error('--pull cannot be combined with --dry-run or --dedupe-skills');
   }
   const home = os.homedir();
+  if (args.includes('--dedupe-skills')) {
+    await syncSkillSources(home, args.includes('--dry-run'));
+    return;
+  }
   if (args.includes('--pull')) {
     if (run('git', ['status', '--porcelain'], sourceRoot).trim()) {
       throw new Error('Commit your local changes before updating upstream.');
@@ -126,15 +169,16 @@ async function main(args = process.argv.slice(2)) {
   const statePath = path.join(home, '.codex/ecc-install-state.json');
   const previous = JSON.parse(fs.readFileSync(statePath, 'utf8'));
   const { createManifestInstallPlan, applyInstallPlan, previewInstallPlan } = require('./lib/install-executor');
-  const plan = applyCodexOverrides(createManifestInstallPlan({
+  const plan = excludeCodexSkillCopies(createManifestInstallPlan({
     target: 'codex', profileId: previous.request.profile,
     moduleIds: previous.request.modules,
     includeComponentIds: previous.request.includeComponents,
     excludeComponentIds: previous.request.excludeComponents,
     sourceRoot, projectRoot: sourceRoot, homeDir: home,
-  }), sourceRoot);
+  }), home);
   if (args.includes('--dry-run')) {
-    console.log(JSON.stringify({ sourceRoot, scopes: existing.map(({ scope, projectPath }) => ({ scope, projectPath })), skipped, plan: previewInstallPlan(plan) }, null, 2));
+    const skillSources = reconcileSkillSources({ sourceRoot, homeDir: home, dryRun: true });
+    console.log(JSON.stringify({ sourceRoot, scopes: existing.map(({ scope, projectPath }) => ({ scope, projectPath })), skipped, plan: previewInstallPlan(plan), skillSources }, null, 2));
     return;
   }
   const { projectCanonicalInstallState } = require('./lib/install-state-store-sync');
@@ -159,11 +203,12 @@ async function main(args = process.argv.slice(2)) {
       console.log(`Claude ${entry.scope}: ${entry.projectPath || home}`);
     }
     ensureCodexMarketplace(home, sourceRoot);
-    const inventory = JSON.parse(run('codex', ['plugin', 'list', '--json'], home));
+    const inventory = JSON.parse(run('codex', ['plugin', 'list', '--marketplace', 'ecc', '--json'], home));
     if (inventory.installed.some(plugin => plugin.pluginId === pluginId)) {
       run('codex', ['plugin', 'remove', pluginId, '--json'], home);
     }
     const installed = JSON.parse(run('codex', ['plugin', 'add', pluginId, '--json'], home));
+    await syncSkillSources(home, false, { requireEnabled: false });
     const result = applyInstallPlan(plan);
     const projection = await projectCanonicalInstallState(result.statePreview, { homeDir: home });
     if (projection.warning) console.warn(projection.warning.message);
@@ -175,6 +220,7 @@ async function main(args = process.argv.slice(2)) {
 }
 
 module.exports = {
+  assertNativeSkillSources,
   applyCodexOverrides,
   claudeMarketplaceUsesSource,
   codexMarketplaceUsesSource,
