@@ -248,7 +248,7 @@ ActiveUserDep = Annotated[User, Depends(get_current_active_user)]
 ```python
 # app/user/routes.py
 from typing import Annotated
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.core.db import DbDep

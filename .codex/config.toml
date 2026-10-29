@@ -1,13 +1,18 @@
 #:schema https://developers.openai.com/codex/config-schema.json
 
-# Everything Claude Code (ECC) — Codex Reference Configuration
+# ECC project-scoped reference: guidance, features and local role definitions.
+# Trusted-project loading, precedence and supported keys depend on the Codex
+# version and higher-level policy. Omitted settings inherit other config layers.
+# This file does not certify effective permissions or prevent configured tools
+# from running. The referenced role files retain their read-only sandbox requests.
 #
-# Copy this file to ~/.codex/config.toml for global defaults, or keep it in
-# the project root as .codex/config.toml for project-local settings.
-#
-# Official docs:
-# - https://developers.openai.com/codex/config-reference
-# - https://developers.openai.com/codex/multi-agent
+# Explicit user installs use the separate user-config.example.toml reference.
+# Do not copy this project file as an equivalent user-level baseline. The user
+# reference preserves ECC's existing runtime defaults, profiles and integrations;
+# review them before installation. Current Codex docs ignore notify/profiles in
+# project config; that is not a universal claim about older versions.
+# https://developers.openai.com/codex/config-reference
+# https://developers.openai.com/codex/multi-agent
 
 # Model selection
 # Leave `model` and `model_provider` unset so Codex CLI uses its current
@@ -76,8 +81,6 @@ startup_timeout_sec = 30
 # args = ["-y", "@cloudflare/mcp-server-cloudflare"]
 
 [features]
-# Codex multi-agent collaboration is stable and on by default in current builds.
-# Keep the explicit toggle here so the repo documents its expectation clearly.
 multi_agent = true
 
 [agents]
