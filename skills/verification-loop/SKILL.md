@@ -1,71 +1,135 @@
 ---
 name: verification-loop
-description: 'Use after changing code or configuration and before claiming completion, committing, or opening a PR in Claude Code, Codex, or Pi. Select checks for the changed behavior and risk, honor explicit test limits, and report observed evidence and remaining gaps.'
+description: Run a six-phase verification of a Claude Code session's work — build, type check, lint, tests with coverage, security grep, and diff review — then produce a PASS/FAIL verification report. Use when verifying work after completing a feature or refactor, before creating a PR, or when quality gates must pass.
 license: MIT
 metadata:
   origin: ECC
 ---
 
-# Verification Loop
+# Verification Loop Skill
 
-Verify the result of a change in Claude Code, Codex, or Pi before reporting it complete. Use the smallest set of checks that proves the affected behavior; expand only when a change, failure, or unresolved risk requires it.
+A comprehensive verification system for Claude Code sessions.
 
 ## When to Use
 
-- After modifying code or configuration, before delivery.
-- Before a commit or pull request that contains those changes.
-- After a refactor or a fix whose behavior needs confirmation.
+Invoke this skill:
+- After completing a feature or significant code change
+- Before creating a PR
+- When you want to ensure quality gates pass
+- After refactoring
 
-Read-only questions and unchanged files do not require a build or test run. Documentation changes need checks appropriate to the documentation.
+## Verification Phases
 
-## Choose the Scope First
+### Phase 1: Build Verification
+```bash
+set -o pipefail  # report the build's exit status, not tail's
+# Check if project builds
+npm run build 2>&1 | tail -20
+# OR
+pnpm build 2>&1 | tail -20
+```
 
-1. Read the active project instructions and the existing build, check, and test scripts. Use the project's tools and package manager; do not invent commands or install a checker just to satisfy this skill.
-2. Identify what changed, who uses it, and the observable result that must hold. Include failure and recovery paths when the change affects them.
-3. Select the relevant checks from the table below. Follow the project's existing coverage requirements when they apply; do not invent coverage numbers or require a full suite for every small change.
-4. Respect explicit user limits. If tests, shared simulators, or another environment must not be used, perform only allowed checks and report the relevant behavior as not verified. Do not ask again for a restriction already settled in the session.
-5. Reuse completed evidence when the relevant files, configuration, and environment have not changed. Repeat only the checks invalidated by a new change or failure.
+If build fails, STOP and fix before continuing.
 
-| Change | Relevant evidence |
-|---|---|
-| Documentation or comments | Links and examples affected by the edit, document checks, and the diff |
-| Configuration or skill routing | Parse or validate it, inspect the effective configuration, and confirm the affected loader or service sees the intended result |
-| Business logic or bug fix | Targeted tests for the affected behavior and any meaningful failure path; for a fixed bug, a reproducible case that protects the fix |
-| Interface fields or events | Provider output and affected consumers checked against the same existing contract; use `contract-first` |
-| Interactive state | The affected user action through to its final state, including cancellation or recovery where applicable; use `click-path-audit` |
-| Authentication, payments, secrets, or personal data | Relevant boundary and regression checks; use `security-review` |
-| Broad refactor or shared build configuration | The applicable build, type checks, code checks, and wider tests justified by the affected consumers |
+### Phase 2: Type Check
+```bash
+set -o pipefail
+# TypeScript projects
+npx --no-install tsc --noEmit 2>&1 | sed -n '1,30p'
 
-If there is no relevant test yet, choose a small meaningful test or another direct observation that proves the requested result. Do not add tests that only repeat implementation details, or run unrelated checks to make the report look fuller.
+# Python projects
+pyright . 2>&1 | sed -n '1,30p'
+```
 
-## Run and Judge the Checks
+Report all type errors. Fix critical ones before continuing.
 
-- Run the selected project commands and inspect their exit status and results. A command that was proposed, launched, or compiled is not evidence that its assertions passed.
-- Preserve failures when reducing output. Do not let a command piped through `head` or `tail` turn a failing check into an apparent success.
-- Confirm a test selection actually ran the intended tests. A successful process with no applicable tests does not verify the behavior.
-- When a required check fails, investigate and rerun that check after the fix. Do not declare the affected work complete while its failure is unresolved.
-- Keep credentials, private payloads, and sensitive logs out of tool output and reports. Secret checks should report redacted findings or filenames, never print the matched values.
-- Test live or production behavior only within the user's authorization. Prefer existing isolated fixtures when a check would otherwise change shared data.
+### Phase 3: Lint Check
 
-## Review the Actual Change
+Use `sed` to limit displayed output while consuming the whole stream. This keeps a
+successful linter from failing on SIGPIPE when `pipefail` is enabled.
+```bash
+set -o pipefail
+# JavaScript/TypeScript
+npm run lint 2>&1 | sed -n '1,30p'
 
-Review the files belonging to this task, including new files. For a pending commit, inspect staged content; for unstaged changes, inspect the working diff; for committed work, use the relevant commit or branch base. Do not assume `HEAD~1` is always the right comparison.
+# Python
+ruff check . 2>&1 | sed -n '1,30p'
+```
 
-Check for unintended edits, missing failure handling, affected callers, and private data. Keep unrelated user changes outside the task's commit. Use the project's existing review mechanism when required.
+### Phase 4: Test Suite
+```bash
+set -o pipefail
+# Run tests with coverage
+npm run test -- --coverage 2>&1 | tail -50
 
-For configuration changes, confirm the effective state after applying them. A valid source file alone does not prove a running client has reloaded it; identify any required reload or restart.
+# Check coverage threshold
+# Target: 80% minimum
+```
 
-## Report What Was Observed
+Report:
+- Total tests: X
+- Passed: X
+- Failed: X
+- Coverage: X%
 
-Keep the report proportional to the task. Include:
+### Phase 5: Security Scan
+```bash
+# Check for secrets
+grep -rn "sk-" --include="*.ts" --include="*.js" . 2>/dev/null | head -10
+grep -rn "api_key" --include="*.ts" --include="*.js" . 2>/dev/null | head -10
 
-- what was checked and the observed result;
-- relevant checks not run and the resulting uncertainty;
-- whether the change is local, installed, committed, pushed, or deployed;
-- any reload or restart needed before existing sessions use the new state.
+# Check for console.log
+grep -rn "console.log" --include="*.ts" --include="*.tsx" src/ 2>/dev/null | head -10
+```
 
-Only mark a check passed after observing it pass. Use not applicable, not run, or blocked for other states; never turn omitted checks into passes. Separate implementation completion from behavior that remains unverified because of an explicit user restriction.
+### Phase 6: Diff Review
+```bash
+# Show what changed
+git diff --stat
+git diff HEAD~1 --name-only
+```
 
-## Recheck at Meaningful Boundaries
+Review each changed file for:
+- Unintended changes
+- Missing error handling
+- Potential edge cases
 
-Reassess verification before delivery or a commit, and when another change invalidates earlier evidence. Do not restart the whole verification process on a timer or after every function when the relevant evidence remains valid.
+## Output Format
+
+After running all phases, produce a verification report:
+
+```
+VERIFICATION REPORT
+==================
+
+Build:     [PASS/FAIL]
+Types:     [PASS/FAIL] (X errors)
+Lint:      [PASS/FAIL] (X warnings)
+Tests:     [PASS/FAIL] (X/Y passed, Z% coverage)
+Security:  [PASS/FAIL] (X issues)
+Diff:      [X files changed]
+
+Overall:   [READY/NOT READY] for PR
+
+Issues to Fix:
+1. ...
+2. ...
+```
+
+## Continuous Mode
+
+For long sessions, run verification every 15 minutes or after major changes:
+
+```markdown
+Set a mental checkpoint:
+- After completing each function
+- After finishing a component
+- Before moving to next task
+
+Run: /verify
+```
+
+## Integration with Hooks
+
+This skill complements PostToolUse hooks but provides deeper verification.
+Hooks catch issues immediately; this skill provides comprehensive review.

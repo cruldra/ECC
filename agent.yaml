@@ -13,6 +13,7 @@ skills:
   - agent-eval
   - agent-harness-construction
   - agent-payment-x402
+  - agent-runtime-gateway-smoke-test
   - agentic-engineering
   - agentic-os
   - ai-first-engineering
@@ -25,6 +26,7 @@ skills:
   - autonomous-loops
   - backend-patterns
   - benchmark
+  - bengali-nlp
   - blueprint
   - browser-qa
   - bugsink
@@ -42,6 +44,7 @@ skills:
   - compose-multiplatform-patterns
   - configure-ecc
   - contract-first
+  - context-and-decisions
   - content-engine
   - content-hash-cache-pattern
   - context-budget
@@ -65,6 +68,7 @@ skills:
   - dmux-workflows
   - docker-patterns
   - documentation-lookup
+  - docs-governance
   - e2e-testing
   - energy-procurement
   - enterprise-agent-ops
@@ -104,8 +108,13 @@ skills:
   - liquid-glass-design
   - logistics-exception-management
   - market-research
+  - mcp-dependency-review
   - mcp-server-patterns
-  - motion-ui
+  - module-regression
+  - mybatis-patterns
+  - motion-advanced
+  - motion-foundations
+  - motion-patterns
   - nanoclaw-repl
   - nextjs-turbopack
   - nutrient-document-processing
@@ -129,6 +138,7 @@ skills:
   - quarkus-security
   - quarkus-tdd
   - quarkus-verification
+  - rails-patterns
   - ralphinho-rfc-pipeline
   - react-patterns
   - react-performance
@@ -145,6 +155,7 @@ skills:
   - security-review
   - security-scan
   - skill-comply
+  - skill-host-compat
   - skill-stocktake
   - spawning-peer-sessions
   - springboot-patterns
@@ -156,8 +167,12 @@ skills:
   - swift-concurrency-6-2
   - swift-protocol-di-testing
   - swiftui-patterns
+  - taste-application
+  - taste-distillation
+  - tasteforge-video
   - tdd-workflow
   - team-builder
+  - test-collaboration
   - token-budget-advisor
   - ui-prototyping
   - unified-memory
@@ -170,6 +185,7 @@ skills:
   - x-api
 commands:
   - aside
+  - astra-review
   - auto-update
   - bugsink
   - build-fix
@@ -258,7 +274,9 @@ commands:
   - setup-pm
   - skill-create
   - skill-health
+  - skill-host-compat
   - test-coverage
+  - token-card
   - translate-skill
   - update-codemaps
   - update-docs
