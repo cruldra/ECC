@@ -1,16 +1,3 @@
 {
-  "mcpServers": {
-    "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp"]
-    },
-    "firecrawl": {
-      "command": "npx",
-      "args": ["-y", "firecrawl-mcp@latest"]
-    },
-    "searxng": {
-      "command": "npx",
-      "args": ["-y", "mcp-searxng"]
-    }
-  }
+  "mcpServers": {}
 }

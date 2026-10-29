@@ -1,30 +1,23 @@
 # MCP Connector Policy
 
-This fork ships three default MCP connectors in `.mcp.json`: `context7`, `searxng`, `firecrawl`. Browser automation is still `opencli browser`, not chrome-devtools.
+This fork ships **zero** MCP connectors: `.mcp.json` `mcpServers` is empty. Browser automation is `opencli browser`, not chrome-devtools.
 
-Secrets stay out of the repo. The host environment must provide `CONTEXT7_API_KEY`, `SEARXNG_URL`, and `FIRECRAWL_API_URL` / `FIRECRAWL_API_KEY`.
+Shared MCP servers (`context7`, `searxng`, `firecrawl`, …) come from the host, which gives the same set to Claude Code, Codex, and Pi in each agent's own config, with its URLs and keys. A copy in the plugin would load next to the host's in Claude Code and Codex, and Codex would start it without those URLs and keys.
 
 ## The rule
 
 A default connector earns its slot only if both hold:
 
-1. **This plugin actually uses it every session** — not a catalog of other people's servers.
-2. **MCP beats a CLI for that job** — or the operator has chosen to keep the MCP they already run.
+1. **No agent already gets it from the host** — the plugin never ships a second copy of a server.
+2. **MCP beats a CLI for that job.**
 
 Do not add GitHub / Figma / Playwright / chrome-devtools back as defaults.
-
-## Current default set
-
-| Server | Why |
-|---|---|
-| `context7` | Library docs lookup this operator uses every session. |
-| `searxng` | Self-hosted search. |
-| `firecrawl` | Page scrape / crawl. |
 
 ## Not default
 
 | Server | Replacement |
 |---|---|
+| `context7` / `searxng` / `firecrawl` | The host's shared MCP servers |
 | `chrome-devtools` | `opencli browser` via `opencli-browser` |
 | `github` | `gh` via `github-ops` |
 | `playwright` | E2E skills / `opencli browser` |

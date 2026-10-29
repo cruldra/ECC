@@ -255,8 +255,7 @@ function runTests() {
       assert.strictEqual(hooksConfig.version, 1);
       assert.ok(hooksConfig.hooks.sessionStart, 'Should keep Cursor sessionStart hooks');
       assert.ok(mcpConfig.mcpServers, 'Should write Cursor mcp.json');
-      assert.ok(mcpConfig.mcpServers.context7, 'Should ship plugin-owned context7');
-      assert.ok(!mcpConfig.mcpServers['chrome-devtools']);
+      assert.deepStrictEqual(Object.keys(mcpConfig.mcpServers), [], 'Should ship no plugin-owned MCP servers');
 
       const statePath = path.join(projectDir, '.cursor', 'ecc-install-state.json');
       const state = readJson(statePath);
@@ -278,7 +277,7 @@ function runTests() {
     }
   })) passed++; else failed++;
 
-  if (test('installs Cursor MCP config by merging bundled servers into an existing mcp.json', () => {
+  if (test('installs Cursor MCP config without dropping servers already in mcp.json', () => {
     const homeDir = createTempDir('install-apply-home-');
     const projectDir = createTempDir('install-apply-project-');
 
@@ -298,9 +297,7 @@ function runTests() {
       assert.strictEqual(result.code, 0, result.stderr);
 
       const mcpConfig = readJson(path.join(projectDir, '.cursor', 'mcp.json'));
-      assert.ok(mcpConfig.mcpServers.custom, 'Should preserve existing custom Cursor MCP servers');
-      assert.ok(mcpConfig.mcpServers.context7);
-      assert.ok(!mcpConfig.mcpServers['chrome-devtools']);
+      assert.deepStrictEqual(Object.keys(mcpConfig.mcpServers), ['custom'], 'Should preserve existing custom Cursor MCP servers');
     } finally {
       cleanup(homeDir);
       cleanup(projectDir);

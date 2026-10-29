@@ -100,7 +100,7 @@ test('package.json has version field', () => {
 });
 
 test('package.json declares a stable release after the install PR published baseline', () => {
-  const parseStableSemver = (version) => {
+  const parseStableSemver = version => {
     const match = version.match(/^(\d+)\.(\d+)\.(\d+)$/);
     assert.ok(match, `Expected a stable semver version, got ${version}`);
     return match.slice(1).map(Number);
@@ -247,37 +247,24 @@ test('claude plugin.json does NOT have explicit hooks declaration', () => {
 });
 
 test('claude plugin.json exposes only supported durable hook preferences', () => {
-  assert.deepStrictEqual(
-    Object.keys(claudePlugin.userConfig || {}).sort(),
-    ['hook_profile', 'hooks_enabled', 'main_git_ask']
-  );
+  assert.deepStrictEqual(Object.keys(claudePlugin.userConfig || {}).sort(), ['hook_profile', 'hooks_enabled', 'main_git_ask']);
 
   const hooksEnabled = claudePlugin.userConfig.hooks_enabled;
-  assert.deepStrictEqual(
-    Object.keys(hooksEnabled).sort(),
-    ['default', 'description', 'title', 'type']
-  );
+  assert.deepStrictEqual(Object.keys(hooksEnabled).sort(), ['default', 'description', 'title', 'type']);
   assert.strictEqual(hooksEnabled.type, 'boolean');
   assert.strictEqual(hooksEnabled.default, true);
   assert.ok(typeof hooksEnabled.title === 'string' && hooksEnabled.title.trim());
   assert.ok(typeof hooksEnabled.description === 'string' && hooksEnabled.description.trim());
 
   const hookProfile = claudePlugin.userConfig.hook_profile;
-  assert.deepStrictEqual(
-    Object.keys(hookProfile).sort(),
-    ['default', 'description', 'title', 'type'],
-    'Claude userConfig does not support enum'
-  );
+  assert.deepStrictEqual(Object.keys(hookProfile).sort(), ['default', 'description', 'title', 'type'], 'Claude userConfig does not support enum');
   assert.strictEqual(hookProfile.type, 'string');
   assert.strictEqual(hookProfile.default, 'standard');
   assert.ok(typeof hookProfile.title === 'string' && hookProfile.title.trim());
   assert.ok(typeof hookProfile.description === 'string' && hookProfile.description.trim());
 
   const mainGitAsk = claudePlugin.userConfig.main_git_ask;
-  assert.deepStrictEqual(
-    Object.keys(mainGitAsk).sort(),
-    ['default', 'description', 'title', 'type']
-  );
+  assert.deepStrictEqual(Object.keys(mainGitAsk).sort(), ['default', 'description', 'title', 'type']);
   assert.strictEqual(mainGitAsk.type, 'boolean');
   assert.strictEqual(mainGitAsk.default, true);
   assert.ok(typeof mainGitAsk.title === 'string' && mainGitAsk.title.trim());
@@ -355,11 +342,7 @@ test('codex plugin.json mcpServers exactly matches "./.mcp.json"', () => {
 });
 
 test('codex plugin.json explicitly declares the supported lifecycle hook bundle', () => {
-  assert.strictEqual(
-    codexPlugin.hooks,
-    './hooks/codex-hooks.json',
-    'Codex supports a top-level hooks path; keep the ECC hook bundle explicit instead of inventing provider-specific settings'
-  );
+  assert.strictEqual(codexPlugin.hooks, './hooks/codex-hooks.json', 'Codex supports a top-level hooks path; keep the ECC hook bundle explicit instead of inventing provider-specific settings');
   const hooksPath = path.join(repoRoot, codexPlugin.hooks.replace(/^\.\//, ''));
   assert.ok(fs.existsSync(hooksPath), `Codex hooks file missing at plugin root: ${codexPlugin.hooks}`);
 });
@@ -367,18 +350,22 @@ test('codex plugin.json explicitly declares the supported lifecycle hook bundle'
 test('codex lifecycle hook bundle contains only Codex 0.146-supported schema', () => {
   const hooksPath = path.join(repoRoot, 'hooks', 'codex-hooks.json');
   const config = loadJsonObject(hooksPath, 'hooks/codex-hooks.json');
-  assert.deepStrictEqual(Object.keys(config).sort(), ['description', 'hooks'], 'Codex rejects Claude\'s top-level $schema field');
+  assert.deepStrictEqual(Object.keys(config).sort(), ['description', 'hooks'], "Codex rejects Claude's top-level $schema field");
 
   const supportedEvents = new Set([
-    'PreToolUse', 'PermissionRequest', 'PostToolUse', 'PreCompact', 'PostCompact',
-    'SessionStart', 'SessionEnd', 'SubagentStart', 'SubagentStop',
-    'UserPromptSubmit', 'Stop'
+    'PreToolUse',
+    'PermissionRequest',
+    'PostToolUse',
+    'PreCompact',
+    'PostCompact',
+    'SessionStart',
+    'SessionEnd',
+    'SubagentStart',
+    'SubagentStop',
+    'UserPromptSubmit',
+    'Stop'
   ]);
-  assert.deepStrictEqual(
-    Object.keys(config.hooks || {}),
-    ['SessionStart'],
-    'Only the verified, non-blocking SessionStart hook ships natively; Claude hook profiles are not Codex hook profiles'
-  );
+  assert.deepStrictEqual(Object.keys(config.hooks || {}), ['SessionStart'], 'Only the verified, non-blocking SessionStart hook ships natively; Claude hook profiles are not Codex hook profiles');
   assert.deepStrictEqual(
     config.hooks.SessionStart.map(group => group.id),
     ['session:start'],
@@ -410,10 +397,7 @@ test('codex lifecycle hook bundle contains only Codex 0.146-supported schema', (
     ...sourceSessionStart,
     hooks: sourceSessionStart.hooks.map(handler => ({
       ...handler,
-      command: handler.command.replace(
-        'node -e "',
-        'node -e "if(!process.env.PLUGIN_ROOT)throw new Error(\'Missing Codex PLUGIN_ROOT\');process.env.CLAUDE_PLUGIN_ROOT=process.env.PLUGIN_ROOT;'
-      )
+      command: handler.command.replace('node -e "', "node -e \"if(!process.env.PLUGIN_ROOT)throw new Error('Missing Codex PLUGIN_ROOT');process.env.CLAUDE_PLUGIN_ROOT=process.env.PLUGIN_ROOT;")
     }))
   };
   assert.deepStrictEqual(config.hooks.SessionStart[0], expectedSessionStart, 'Codex SessionStart hook must track its canonical implementation with a Codex-root bootstrap');
@@ -440,10 +424,7 @@ test('Chinese capability matrix documents the native Codex SessionStart hook', (
     source.includes('| **钩子脚本** | 20+ 个脚本               | 16 个脚本 (DRY 适配器) | 1 个 SessionStart 引导脚本 | 插件钩子 |'),
     'Expected the Codex capability column to document the SessionStart bootstrap script'
   );
-  assert.ok(
-    !source.includes('Codex 缺少钩子功能'),
-    'Codex architecture guidance must not contradict its native SessionStart hook'
-  );
+  assert.ok(!source.includes('Codex 缺少钩子功能'), 'Codex architecture guidance must not contradict its native SessionStart hook');
 });
 
 test('codex plugin.json has interface.displayName', () => {
@@ -489,14 +470,14 @@ test('.mcp.json has mcpServers object', () => {
 
 test('.mcp.json default set follows the connector policy', () => {
   const servers = Object.keys(mcpConfig.mcpServers).sort();
-  assert.deepStrictEqual(servers, ['context7', 'firecrawl', 'searxng']);
+  assert.deepStrictEqual(servers, []);
 });
 
 test('.mcp.json does not reintroduce retired default connectors', () => {
-  const retired = ['chrome-devtools', 'github', 'exa', 'memory', 'playwright', 'sequential-thinking'];
+  const retired = ['chrome-devtools', 'context7', 'exa', 'firecrawl', 'github', 'memory', 'playwright', 'searxng', 'sequential-thinking'];
   const servers = Object.keys(mcpConfig.mcpServers);
   for (const name of retired) {
-    assert.ok(!servers.includes(name), `${name} was retired from the default set (June 2026 audit) — it lives in mcp-configs/mcp-servers.json as opt-in; see docs/MCP-CONNECTOR-POLICY.md`);
+    assert.ok(!servers.includes(name), `${name} is not a default connector; see docs/MCP-CONNECTOR-POLICY.md`);
   }
 });
 
