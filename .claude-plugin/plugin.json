@@ -1,6 +1,6 @@
 {
   "name": "ecc",
-  "version": "2.2.60",
+  "version": "2.2.61",
   "description": "Harness-native ECC plugin for engineering teams - 71 agents, 326 skills, 97 commands, reusable hooks, rules, MCP conventions, and operator workflows for Claude Code plus adjacent agent harnesses",
   "author": {
     "name": "Affaan Mustafa",

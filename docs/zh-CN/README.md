@@ -81,7 +81,7 @@
 
 ## 最新动态
 
-### v2.2.60 — 合并上游 main（2026-09-07 至 2026-10-26）。冲突留本地：版本号仍由本仓库发；已删的翻译和 plan-prd / prp-* 不恢复；GateGuard 默认关闭，要开才设 ECC_GATEGUARD=1（2026年10月）
+### v2.2.61 — 合并上游 main（2026-09-07 至 2026-10-26）。冲突留本地：版本号仍由本仓库发；已删的翻译和 plan-prd / prp-* 不恢复；GateGuard 默认关闭，要开才设 ECC_GATEGUARD=1（2026年10月）
 
 ### v2.2.60 — writing-code-comments：描述压到 1024 字以内，pi 等遵循 Agent Skills 规范的工具能直接加载；在不替换 `${CLAUDE_SKILL_DIR}` 的工具里也能找到出图脚本；技能校验对超过 1024 字的描述给出警告（2026年10月）
 
@@ -1399,7 +1399,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 | **上下文文件** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
 | **秘密检测** | 基于钩子                  | beforeSubmitPrompt 钩子 | 基于沙箱 | 基于钩子 |
 | **自动格式化** | PostToolUse 钩子        | afterFileEdit 钩子 | N/A | file.edited 钩子 |
-| **版本** | 插件 | 插件 | 参考配置 | 2.2.60 |
+| **版本** | 插件 | 插件 | 参考配置 | 2.2.61 |
 
 **关键架构决策：**
 
