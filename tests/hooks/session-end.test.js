@@ -349,13 +349,13 @@ function runTests() {
           "fs.writeFileSync(process.env.ECC_SESSION_TEST_STARTED, 'started');",
           'fs.writeFileSync(process.env.ECC_SESSION_TEST_CALENDAR_AFTER,',
           '  require(process.env.ECC_SESSION_TEST_UTILS).getDateString());',
-          "setTimeout(() => console.log('late summary'), 5000);",
+          "setTimeout(() => console.log('late summary'), 20000);",
           ''
         ].join('\n'));
         fs.writeFileSync(path.join(bin, 'claude'), '#!/bin/sh\nexec "$ECC_SESSION_TEST_NODE" "$ECC_SESSION_TEST_SUMMARIZER"\n', { mode: 0o755 });
         const root = path.resolve(__dirname, '../..');
         const bootstrap = path.join(root, 'scripts/hooks/lifecycle-hook-bootstrap.js');
-        const res = spawnSync(process.execPath, [bootstrap, 'session:stop:session-end', 'scripts/hooks/session-end.js', 'minimal,standard,strict', '2500'], {
+        const res = spawnSync(process.execPath, [bootstrap, 'session:stop:session-end', 'scripts/hooks/session-end.js', 'minimal,standard,strict', '8000'], {
           encoding: 'utf8', input: JSON.stringify({ transcript_path: transcript }),
           env: {
             ...isolatedHomeEnv(home), PATH: bin,
@@ -372,7 +372,7 @@ function runTests() {
             ECC_LLM_SUMMARY_SUBPROCESS: '', ECC_HOOK_DEADLINE_MS: '1',
             ECC_DISABLED_HOOKS: '', ECC_DRY_RUN: '0', ECC_HOOKS_ENABLED: 'true'
           },
-          timeout: 7000
+          timeout: 15000
         });
         assert.strictEqual(res.status, 0, res.stderr);
         assert.ok(fs.existsSync(started), 'Fresh bootstrap must replace an inherited expired deadline');

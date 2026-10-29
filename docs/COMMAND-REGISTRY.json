@@ -674,7 +674,7 @@
     },
     {
       "command": "plan-canvas",
-      "description": "Open a plan or HTML artifact in the browser Plan Canvas for annotate-and-approve review. This is a thin slash-command entrypoint over the plan-canvas skill, which covers the full workflow and rules.",
+      "description": "Open a plan or HTML artifact in the browser Plan Canvas for annotate-and-approve review",
       "type": "review",
       "primaryAgents": [],
       "allAgents": [],
@@ -972,6 +972,17 @@
       "path": "commands/skill-health.md"
     },
     {
+      "command": "skill-host-compat",
+      "description": "Lint ECC skills for Codex/Cursor-safe frontmatter and Claude-only substitutions before a skill PR.",
+      "type": "general",
+      "primaryAgents": [],
+      "allAgents": [],
+      "skills": [
+        "skill-host-compat"
+      ],
+      "path": "commands/skill-host-compat.md"
+    },
+    {
       "command": "spec",
       "description": "Write a design spec after grilling has settled the idea. Does not write a PRD or an implementation plan.",
       "type": "planning",
@@ -997,6 +1008,17 @@
       "allAgents": [],
       "skills": [],
       "path": "commands/test-coverage.md"
+    },
+    {
+      "command": "token-card",
+      "description": "Render a token-usage stat card from local agent session logs and commit it to the repo. Invokes the token-card skill.",
+      "type": "general",
+      "primaryAgents": [],
+      "allAgents": [],
+      "skills": [
+        "token-card"
+      ],
+      "path": "commands/token-card.md"
     },
     {
       "command": "translate-skill",
@@ -1048,8 +1070,8 @@
   "statistics": {
     "byType": {
       "build": 3,
-      "general": 12,
-      "orchestration": 11,
+      "general": 14,
+      "orchestration": 12,
       "planning": 3,
       "refactoring": 1,
       "review": 14,

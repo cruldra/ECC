@@ -75,6 +75,7 @@ function runHook(hookId, payload, env = {}) {
       CLAUDE_PROJECT_DIR: projectRoot,
       CLAUDE_TRANSCRIPT_PATH: '',
       GATEGUARD_METRICS: '1',
+      ECC_GATEGUARD: 'on',
       ...env
     },
     timeout: 15000

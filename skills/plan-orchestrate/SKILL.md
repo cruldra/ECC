@@ -42,7 +42,7 @@ Every emitted command must carry its step's identity and scope. A command accept
 | `/orch-fix-defect` | `<what is broken>` |
 | `/orch-change-feature` | `<the new desired behavior>` |
 | `/orch-refine-code` | `<what to restructure>` |
-| `/plan` | `[feature description \| path/to/*.prd.md]` |
+| `/plan` | `[path/to/spec.md]` |
 
 **Everything else fails closed.** Commands whose documented arguments cannot carry plan scope — `/build-fix`, `/test-coverage`, `/update-docs` (no argument form at all), `/code-review` (only `[pr-number | pr-url | blank]`), `/security-scan` (`[path]` and format/severity flags only), `/loop-start` (`[pattern]` and `--mode` only) — are never emitted. A step that classifies to one of them is reported as:
 

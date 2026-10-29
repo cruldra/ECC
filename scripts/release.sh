@@ -21,6 +21,7 @@ CODEX_MARKETPLACE_PLUGIN_JSON="plugins/ecc/.codex-plugin/plugin.json"
 OPENCODE_PACKAGE_JSON=".opencode/package.json"
 OPENCODE_PACKAGE_LOCK_JSON=".opencode/package-lock.json"
 OPENCODE_ECC_HOOKS_PLUGIN=".opencode/plugins/ecc-hooks.ts"
+README_FILE="README.md"
 ROOT_ZH_CN_README_FILE="README.zh-CN.md"
 TR_README_FILE="docs/tr/README.md"
 PT_BR_README_FILE="docs/pt-BR/README.md"
@@ -116,6 +117,26 @@ update_package_lock_version() {
     lock.packages[""].version = version;
     fs.writeFileSync(file, `${JSON.stringify(lock, null, 2)}\n`);
   ' "$1" "$VERSION"
+}
+
+
+update_readme_package_pins() {
+  local file="$1"
+  node -e '
+    const fs = require("fs");
+    const file = process.argv[1];
+    const version = process.argv[2];
+    const oldVersion = process.argv[3];
+    const current = fs.readFileSync(file, "utf8");
+    const updated = current
+      .split(`ecc-universal@${oldVersion}`).join(`ecc-universal@${version}`)
+      .split(`/v/${oldVersion}`).join(`/v/${version}`);
+    if (updated === current) {
+      console.error(`Error: could not update package pins for v${oldVersion} in ${file}`);
+      process.exit(1);
+    }
+    fs.writeFileSync(file, updated);
+  ' "$file" "$VERSION" "$OLD_VERSION"
 }
 
 update_readme_version_row() {
@@ -311,6 +332,7 @@ update_version "$CODEX_MARKETPLACE_PLUGIN_JSON" "s|\"version\": *\"[^\"]*\"|\"ve
 update_version "$OPENCODE_PACKAGE_JSON" "s|\"version\": *\"[^\"]*\"|\"version\": \"$VERSION\"|"
 update_package_lock_version "$OPENCODE_PACKAGE_LOCK_JSON"
 update_opencode_hook_banner_version
+update_readme_package_pins "$README_FILE"
 update_readme_version_row "$ZH_CN_README_FILE" "版本" "插件" "插件" "参考配置"
 update_latest_release_heading "$ROOT_ZH_CN_README_FILE" "$OLD_VERSION"
 update_latest_release_heading "$TR_README_FILE" "$OLD_VERSION"
@@ -328,7 +350,7 @@ node tests/scripts/build-opencode.test.js
 node tests/plugin-manifest.test.js
 
 # Stage, commit, tag, and push
-git add "$ROOT_PACKAGE_JSON" "$PACKAGE_LOCK_JSON" "$ROOT_AGENTS_MD" "$TR_AGENTS_MD" "$ZH_CN_AGENTS_MD" "$AGENT_YAML" "$VERSION_FILE" "$PLUGIN_JSON" "$MARKETPLACE_JSON" "$CODEX_MARKETPLACE_JSON" "$CODEX_PLUGIN_JSON" "$QODER_PLUGIN_JSON" "$CODEX_MARKETPLACE_PLUGIN_JSON" "$OPENCODE_PACKAGE_JSON" "$OPENCODE_PACKAGE_LOCK_JSON" "$OPENCODE_ECC_HOOKS_PLUGIN" "$ROOT_ZH_CN_README_FILE" "$TR_README_FILE" "$PT_BR_README_FILE" "$ZH_CN_README_FILE" "$SELECTIVE_INSTALL_ARCHITECTURE_DOC"
+git add "$ROOT_PACKAGE_JSON" "$PACKAGE_LOCK_JSON" "$ROOT_AGENTS_MD" "$TR_AGENTS_MD" "$ZH_CN_AGENTS_MD" "$AGENT_YAML" "$VERSION_FILE" "$PLUGIN_JSON" "$MARKETPLACE_JSON" "$CODEX_MARKETPLACE_JSON" "$CODEX_PLUGIN_JSON" "$QODER_PLUGIN_JSON" "$CODEX_MARKETPLACE_PLUGIN_JSON" "$OPENCODE_PACKAGE_JSON" "$OPENCODE_PACKAGE_LOCK_JSON" "$OPENCODE_ECC_HOOKS_PLUGIN" "$README_FILE" "$ROOT_ZH_CN_README_FILE" "$TR_README_FILE" "$PT_BR_README_FILE" "$ZH_CN_README_FILE" "$SELECTIVE_INSTALL_ARCHITECTURE_DOC"
 git commit -m "chore: bump plugin version to $VERSION"
 git tag -s "v$VERSION" -m "Release v$VERSION"
 git push origin main "v$VERSION"

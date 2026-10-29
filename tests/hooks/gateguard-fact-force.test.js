@@ -7538,7 +7538,7 @@ function runTests() {
   // --- Modules load only on the paths that need them ---
   const loadedLibs = (payload, setup = []) => {
     const dir = fs.mkdtempSync(path.join(tmpRoot, 'gateguard-lazy-'));
-    const env = { PATH: process.env.PATH, HOME: dir, GATEGUARD_STATE_DIR: path.join(dir, 'state'), CLAUDE_PROJECT_DIR: dir };
+    const env = { PATH: process.env.PATH, HOME: dir, GATEGUARD_STATE_DIR: path.join(dir, 'state'), CLAUDE_PROJECT_DIR: dir, ECC_GATEGUARD: 'on' };
     const probe = [
       'const hook = require(process.argv[1]);',
       'hook.run(process.argv[2]);',

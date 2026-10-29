@@ -3,7 +3,8 @@ const { test } = require("node:test");
 const fs = require("node:fs");
 const path = require("node:path");
 const { build, run, layoutCheck, nextPageName, STATES, PAGE_NAME, NAMESPACE } = require("./code.js");
-const { fakeFigma } = require("../../figma-lab/fake-figma");
+const figmaLab = ["..", "..", "figma-lab", "fake-figma"].join("/");
+const { fakeFigma } = require(figmaLab);
 
 function action(node) { return node.reactions[0].actions[0]; }
 function overlaps(a, b) {

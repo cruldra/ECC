@@ -239,6 +239,8 @@ const checks = [
       const raw = fs.readFileSync(target, 'utf8');
       const expected = readUserReference();
       delete expected.mcp_servers;
+      delete expected.notify;
+      delete expected.persistent_instructions;
       assert.deepStrictEqual(TOML.parse(raw), expected);
       assert.strictEqual(run().status, 0);
       assert.strictEqual(fs.readFileSync(target, 'utf8'), raw);

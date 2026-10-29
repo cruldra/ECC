@@ -80,6 +80,8 @@
 
 ## 最新动态
 
+### v2.2.60 — 合并上游 main（2026-09-07 至 2026-10-26）。冲突留本地：版本号仍由本仓库发；已删的翻译和 plan-prd / prp-* 不恢复；GateGuard 默认关闭，要开才设 ECC_GATEGUARD=1（2026年10月）
+
 ### v2.2.60 — writing-code-comments：描述压到 1024 字以内，pi 等遵循 Agent Skills 规范的工具能直接加载；在不替换 `${CLAUDE_SKILL_DIR}` 的工具里也能找到出图脚本；技能校验对超过 1024 字的描述给出警告（2026年10月）
 
 ### v2.2.59 — fastapi-patterns、python-patterns：示例目录改成先按业务、再按层（`user/` 里放 models、schemas、service、routes，共享设施放 `core/`），去掉顶层 routers/、services/、utils/，与 organizing-code 一致（2026年10月）
