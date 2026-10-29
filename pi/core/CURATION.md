@@ -1,6 +1,6 @@
 # Curation
 
-pi/core includes 132 of 326 skills and 18 of 97 commands from the root of ECC.
+pi/core includes 131 of 325 skills and 18 of 97 commands from the root of ECC.
 Everything excluded is listed here with its reason.
 
 ## Rules
