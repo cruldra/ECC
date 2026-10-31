@@ -1,6 +1,6 @@
 ---
 name: lightweb-fastapi-starter
-description: 快速创建基于 FastAPI + Metro UI 5 + TailwindCSS + Lit 的轻量级 Web 项目模板。用于初始化现代化的 Python Web 应用，包含完整的项目结构、Web Components 前端、配置文件和 Docker 支持。当用户需要创建一个轻量级的 Web 项目时使用此 skill。
+description: 用户要从零新建轻量 Python Web 项目（FastAPI 带页面）时使用：生成 FastAPI + Metro UI 5 + TailwindCSS + Lit 模板，含完整目录、Web Components 前端、配置文件和 Docker。触发词：新建、初始化、脚手架 FastAPI 网站或小后台。不用于修改已有项目。
 ---
 
 # FastAPI 轻量级 Web 项目启动器
