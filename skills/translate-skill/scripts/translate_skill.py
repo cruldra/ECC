@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Faithfully translate an ECC SKILL.md into skills/<id>/i18n/<locale>.md using GLM 5.3 Flash."""
+"""Faithfully translate an ECC SKILL.md into skills/<id>/i18n/<locale>.md using gpt-6-luna."""
 
 from __future__ import annotations
 
@@ -15,8 +15,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 DEFAULT_LOCALE = "zh-CN"
-DEFAULT_MODEL = "z-ai/glm-5.3-flash"
-DEFAULT_PROFILE = Path.home() / "Sources/cruldra-profile/claude-config/profiles/glm53f.json"
+DEFAULT_MODEL = "gpt-6-luna"
+DEFAULT_PROFILE = Path.home() / "Sources/cruldra-profile/claude-config/profiles/gpt-6-luna.json"
 SKILL_ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 LOCALE_RE = re.compile(r"^[a-z]{2}(-[A-Z]{2})?$")
 
@@ -53,7 +53,7 @@ def _profile_env(path: Path) -> dict[str, str]:
 
 
 def credentials() -> tuple[str, str, str]:
-    profile = Path(os.environ.get("GLM53F_PROFILE") or DEFAULT_PROFILE)
+    profile = Path(os.environ.get("TRANSLATE_PROFILE") or DEFAULT_PROFILE)
     data = _profile_env(profile)
     base = (data.get("ANTHROPIC_BASE_URL") or os.environ.get("ANTHROPIC_BASE_URL") or "").rstrip("/")
     token = (
@@ -65,7 +65,7 @@ def credentials() -> tuple[str, str, str]:
     )
     model = _strip_model(data.get("ANTHROPIC_MODEL") or os.environ.get("ANTHROPIC_MODEL") or DEFAULT_MODEL)
     if not base or not token:
-        raise SystemExit("缺少 ANTHROPIC_BASE_URL 或 ANTHROPIC_AUTH_TOKEN。可设 GLM53F_PROFILE 指向 glm53f.json。")
+        raise SystemExit("缺少 ANTHROPIC_BASE_URL 或 ANTHROPIC_AUTH_TOKEN。可设 TRANSLATE_PROFILE 指向 gpt-6-luna.json。")
     return base, token, model
 
 
