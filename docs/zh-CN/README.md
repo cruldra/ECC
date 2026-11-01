@@ -81,7 +81,7 @@
 
 ## 最新动态
 
-### v2.2.62 — 钩子修复：插件缓存没有 node_modules 时，session-start 不再因缺少 js-yaml 报错（2026年11月）
+### v2.2.63 — 钩子修复：插件缓存没有 node_modules 时，session-start 不再因缺少 js-yaml 报错（2026年11月）
 
 ### v2.2.62 — 钩子修复：Windows 的 Git Bash 下全部钩子不再因语法错误退出，内联路径解析不再含反斜杠（2026年11月）
 
@@ -1403,7 +1403,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 | **上下文文件** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
 | **秘密检测** | 基于钩子                  | beforeSubmitPrompt 钩子 | 基于沙箱 | 基于钩子 |
 | **自动格式化** | PostToolUse 钩子        | afterFileEdit 钩子 | N/A | file.edited 钩子 |
-| **版本** | 插件 | 插件 | 参考配置 | 2.2.62 |
+| **版本** | 插件 | 插件 | 参考配置 | 2.2.63 |
 
 **关键架构决策：**
 

@@ -79,7 +79,7 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ## Yenilikler
 
-### v2.2.62 — Hook fix: session-start no longer fails on a missing js-yaml when the plugin cache has no node_modules (Nov 2026)
+### v2.2.63 — Hook fix: session-start no longer fails on a missing js-yaml when the plugin cache has no node_modules (Nov 2026)
 
 ### v2.2.62 — Hook fix: hooks no longer exit with a syntax error under Git Bash on Windows; the inline path resolver no longer contains backslashes (Nov 2026)
 

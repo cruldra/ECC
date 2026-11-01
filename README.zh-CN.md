@@ -80,7 +80,7 @@
 
 ## 最新动态
 
-### v2.2.62 — 钩子修复：插件缓存没有 node_modules 时，session-start 不再因缺少 js-yaml 报错（2026年11月）
+### v2.2.63 — 钩子修复：插件缓存没有 node_modules 时，session-start 不再因缺少 js-yaml 报错（2026年11月）
 
 ### v2.2.62 — 钩子修复：Windows 的 Git Bash 下全部钩子不再因语法错误退出，内联路径解析不再含反斜杠（2026年11月）
 
