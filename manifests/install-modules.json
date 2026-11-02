@@ -261,7 +261,8 @@
         "skills/vite-patterns",
         "skills/wechat-developing",
         "skills/writing-code-comments",
-        "skills/organizing-code"
+        "skills/organizing-code",
+        "skills/applying-design-patterns"
       ],
       "targets": [
         "claude",
