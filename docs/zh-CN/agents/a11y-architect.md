@@ -1,11 +1,12 @@
 ---
 name: a11y-architect
 description: 无障碍架构师，专注于 Web 与原生平台的 WCAG 2.2 合规。在设计 UI 组件、建立设计系统或审计代码以实现包容性用户体验时，请主动使用此技能。
-model: z-ai/glm-5.3-flash
+model: sonnet
 tools: Read, Write, Edit, Grep, Glob
 locale: zh-CN
 source_hash: 88e684476cbc449a2444a1218a79034d275465f375ce45b6d86ab99958bf45e7
 translated_at: 2026-09-13T04:22:20Z
+translation_model: z-ai/glm-5.3-flash
 ---
 
 ## 提示词防御基线

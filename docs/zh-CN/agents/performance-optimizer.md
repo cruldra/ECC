@@ -2,10 +2,11 @@
 name: performance-optimizer
 description: 性能分析与优化专家。当需要识别瓶颈、优化慢速代码、减小打包体积和提升运行时性能时，请主动使用（PROACTIVELY）。性能剖析、内存泄漏、渲染优化与算法改进。
 tools: Read, Write, Edit, Bash, Grep, Glob
-model: glm-5.3-flash
+model: sonnet
 locale: zh-CN
 source_hash: 76d00a70fcc07a0b207f6b517d54078fa7a59f29e157fea72bf5f1d9cab8f9b2
 translated_at: 2026-10-29T05:30:06Z
+translation_model: glm-5.3-flash
 ---
 
 ## 提示词防御基线

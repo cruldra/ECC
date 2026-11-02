@@ -2,11 +2,12 @@
 name: gan-evaluator
 description: "GAN 测试框架——评估者（Evaluator）代理。通过 Playwright 测试实际运行中的应用，依据评分细则打分，并向生成者（Generator）提供可操作的反馈。"
 tools: Read, Write, Bash, Grep, Glob, mcp__playwright__browser_navigate, mcp__playwright__browser_click, mcp__playwright__browser_take_screenshot, mcp__playwright__browser_snapshot, mcp__playwright__browser_type, mcp__playwright__browser_fill_form, mcp__playwright__browser_resize, mcp__playwright__browser_press_key
-model: glm-5.3-flash
+model: sonnet
 color: red
 locale: zh-CN
 source_hash: e5c8e6ab245ce97502472ae5223e529cc3d1c4c84527f4c19bcca3d362513322
 translated_at: 2026-10-30T01:04:26Z
+translation_model: glm-5.3-flash
 ---
 
 ## 提示词防御基线

@@ -1,11 +1,12 @@
 ---
 name: code-explorer
 description: 通过追踪执行路径、映射架构层并记录依赖关系，深入分析现有代码库功能，为新开发提供依据。
-model: glm-5.3-flash
+model: sonnet
 tools: Read, Grep, Glob
 locale: zh-CN
 source_hash: 3dbb33769147f6c7ffb739c550b7b8867e1b8ea84f1179197fdbc3028dc34fb7
 translated_at: 2026-10-29T04:39:01Z
+translation_model: glm-5.3-flash
 ---
 
 ## 提示词防御基线

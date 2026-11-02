@@ -7,7 +7,7 @@ description: >-
 locale: zh-CN
 source_hash: 0c6ef1b72b0fe635d1681abf3857ec34214fd6580fad7708a96a8f4abc096ef5
 translated_at: 2026-09-15T04:06:58Z
-model: z-ai/glm-5.3-flash
+translation_model: z-ai/glm-5.3-flash
 ---
 
 # 品牌发现

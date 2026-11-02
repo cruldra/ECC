@@ -2,10 +2,11 @@
 name: code-reviewer
 description: 专家代码审查专员。主动审查代码的质量、安全性与可维护性。在编写或修改代码后立即使用。必须用于所有代码变更。
 tools: Read, Grep, Glob, Bash
-model: glm-5.3-flash
+model: sonnet
 locale: zh-CN
 source_hash: 9dd23be23d65f18126e10f7680fc1eb2576ec54a427d076ff2f870bd0bafd5d2
 translated_at: 2026-10-29T04:42:52Z
+translation_model: glm-5.3-flash
 ---
 
 ## 提示词防御基线

@@ -1,11 +1,12 @@
 ---
 name: comment-analyzer
 description: 分析代码注释的准确性、完整性、可维护性以及注释腐化风险。
-model: glm-5.3-flash
+model: haiku
 tools: Read, Grep, Glob
 locale: zh-CN
 source_hash: ce7fdf759885ba9ef5ee1bdc9da4ce88d78ba65501facf53e581082fcf402b07
 translated_at: 2026-10-29T23:25:50Z
+translation_model: glm-5.3-flash
 ---
 
 ## 提示词防御基线

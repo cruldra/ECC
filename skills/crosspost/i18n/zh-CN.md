@@ -6,7 +6,7 @@ metadata:
 locale: zh-CN
 source_hash: 03bd2ef6e08191cd336e9b8e7a55c29040e7a3225defdaeab1b51d983565661f
 translated_at: 2026-09-13T07:49:47Z
-model: z-ai/glm-5.3-flash
+translation_model: z-ai/glm-5.3-flash
 ---
 
 # Crosspost

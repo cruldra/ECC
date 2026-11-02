@@ -6,7 +6,7 @@ metadata:
 locale: zh-CN
 source_hash: 459d8467dbd6fb475d49f75124c2c92fb2120cfde3418312b77c575ad723d649
 translated_at: 2026-09-09T03:36:00Z
-model: z-ai/glm-5.3-flash
+translation_model: z-ai/glm-5.3-flash
 ---
 
 # NanoClaw REPL

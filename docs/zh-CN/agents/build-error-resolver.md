@@ -3,9 +3,10 @@ name: build-error-resolver
 locale: zh-CN
 description: 构建与 TypeScript 错误解决专家。当构建失败或出现类型错误时，请主动使用。仅以最小差异修复构建/类型错误，不做架构性修改。专注于尽快让构建恢复通过。
 tools: Read, Write, Edit, Bash, Grep, Glob
-model: glm-5.3-flash
+model: sonnet
 source_hash: acc9e14df59dd28d00f966b3a6cf0d9aeeda7e8a9ab7f1bc442466c0219c35ec
 translated_at: 2026-10-29T04:18:23Z
+translation_model: glm-5.3-flash
 ---
 
 ## 提示词防御基线

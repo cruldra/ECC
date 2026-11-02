@@ -1,11 +1,12 @@
 ---
 name: conversation-analyzer
 description: 在分析对话记录、找出值得通过 hooks 加以阻止的行为时使用此代理。由不带参数的 /hookify 触发。
-model: glm-5.3-flash
+model: haiku
 tools: Read, Grep
 locale: zh-CN
 source_hash: f86fcf4317a41158dc55641f606c97a8d4d3ccacf7157ff70e0811ca7b42ba75
 translated_at: 2026-10-30T00:22:22Z
+translation_model: glm-5.3-flash
 ---
 
 ## 提示词防御基线

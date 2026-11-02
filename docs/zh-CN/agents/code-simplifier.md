@@ -2,10 +2,11 @@
 name: code-simplifier
 description: 在保持行为不变的前提下，为提升清晰度、一致性和可维护性而简化和优化代码。除非另有指示，否则聚焦于最近修改的代码。
 locale: zh-CN
-model: glm-5.3-flash
+model: sonnet
 tools: Read, Write, Edit, Bash, Grep, Glob
 source_hash: 4020b1466f4a635ed33b87a3d734bda45363514defc7d1613b81d5c59e426c6b
 translated_at: 2026-10-29T05:13:36Z
+translation_model: glm-5.3-flash
 ---
 
 ## 提示词防御基线

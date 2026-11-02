@@ -4,7 +4,7 @@ description: '用于重构或审查总在同一处反复修改的代码，或有
 locale: zh-CN
 source_hash: 05cad24cd9bafc06561a55fbdc77be0a91cd581df0758f8fb51daa362dfd6ecc
 translated_at: 2026-11-02T09:30:00Z
-model: claude-opus-5-5
+translation_model: claude-opus-5-5
 ---
 
 # 应用设计模式

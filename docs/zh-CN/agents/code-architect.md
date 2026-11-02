@@ -2,10 +2,11 @@
 name: code-architect
 description: 通过分析现有代码库的模式与约定来设计功能架构，然后提供包含具体文件、接口、数据流和构建顺序的实现蓝图。
 locale: zh-CN
-model: glm-5.3-flash
+model: sonnet
 tools: Read, Grep, Glob, Bash
 source_hash: 1a2ce1d231b7427ff863522f6f19e7738cd668279ac60af520aa0c45ac14772b
 translated_at: 2026-10-29T04:34:30Z
+translation_model: glm-5.3-flash
 ---
 
 ## 提示词防御基线

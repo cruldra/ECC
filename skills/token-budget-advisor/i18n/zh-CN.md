@@ -6,7 +6,7 @@ metadata:
 locale: zh-CN
 source_hash: 7f037a58306a6bd5c5a024491a6c4529cd8373309e413eda517ad2430420e25a
 translated_at: 2026-10-31T23:48:21Z
-model: gpt-6-luna
+translation_model: gpt-6-luna
 ---
 
 # Token 预算顾问（TBA）

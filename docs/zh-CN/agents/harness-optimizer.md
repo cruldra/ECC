@@ -2,11 +2,12 @@
 name: harness-optimizer
 description: 使用源自 eval-harness 技能的评估驱动评分（pass@k/pass^k）改进本地 agent-harness 配置的可靠性与成本。
 tools: Read, Grep, Glob, Bash, Edit
-model: glm-5.3-flash
+model: sonnet
 color: cyan
 locale: zh-CN
 source_hash: 54444fd46afdfacb87a885bef4dcef129915740d35b5fe6f07a5a7e804f2b053
 translated_at: 2026-10-30T01:13:09Z
+translation_model: glm-5.3-flash
 ---
 
 ## 提示词防御基线

@@ -7,7 +7,7 @@ metadata:
 locale: zh-CN
 source_hash: d15e0af4d6f57ea085482f163d0d1658279301202b161087e9e6f66e7f4b91c9
 translated_at: 2026-09-14T07:46:50Z
-model: z-ai/glm-5.3-flash
+translation_model: z-ai/glm-5.3-flash
 ---
 
 # Flox 环境

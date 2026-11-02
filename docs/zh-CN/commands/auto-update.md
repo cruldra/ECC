@@ -3,7 +3,7 @@ description: 拉取最新的 ECC 仓库变更,并重新安装当前受管的目�
 locale: zh-CN
 source_hash: ff05c3e0416541168480346e9bce6e18088e090df915a5cfe3fd5e77dda8e094
 translated_at: 2026-10-31T06:03:12Z
-model: glm-5.3-flash
+translation_model: glm-5.3-flash
 ---
 
 # 自动更新

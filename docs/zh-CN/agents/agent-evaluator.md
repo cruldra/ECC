@@ -2,10 +2,11 @@
 name: agent-evaluator
 description: 依据 5 维度质量评分标准（准确性、完整性、清晰性、可执行性、简洁性）评估智能体输出。在完成任何非平凡任务后，当用户需要质量评估，或 agent-self-evaluation 技能处于激活状态时使用。生成包含证据和改进建议的结构化评分卡。
 tools: Read, Grep, Glob, Bash
-model: glm-5.3-flash
+model: sonnet
 locale: zh-CN
 source_hash: 7ef0739152e7bbc837e9bab4fbae7164f29719a4d1dbdaa1e3b62b4f34358e3c
 translated_at: 2026-10-29T04:15:12Z
+translation_model: glm-5.3-flash
 ---
 
 ## 提示词防御基线

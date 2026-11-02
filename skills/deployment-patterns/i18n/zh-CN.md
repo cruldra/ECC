@@ -6,7 +6,7 @@ metadata:
 locale: zh-CN
 source_hash: b864abd1954570c4a469b7e1deb897e57858d25db2fd98d035ff7bca4a15b9b6
 translated_at: 2026-09-14T07:39:52Z
-model: z-ai/glm-5.3-flash
+translation_model: z-ai/glm-5.3-flash
 ---
 
 # 部署模式

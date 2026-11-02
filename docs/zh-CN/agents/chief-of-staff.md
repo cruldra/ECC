@@ -2,10 +2,11 @@
 name: chief-of-staff
 description: 个人通讯首席幕僚，对邮件、Slack、LINE 和 Messenger 进行分类筛选。将消息划分为 4 个层级（skip/info_only/meeting_info/action_required），生成回复草稿，并通过 hooks 强制执行发送后的跟进落实。管理多渠道通讯工作流时使用。
 tools: Read, Grep, Glob, Bash, Edit, Write
-model: glm-5.3-flash
+model: sonnet
 locale: zh-CN
 source_hash: d3dca9a474011410256dfcd0cc553f926bd30b4efdaaf6ec41b4f6ec86e88e6f
 translated_at: 2026-10-29T04:28:28Z
+translation_model: glm-5.3-flash
 ---
 
 ## 提示词防御基线

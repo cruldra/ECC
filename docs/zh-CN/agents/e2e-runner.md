@@ -2,10 +2,11 @@
 name: e2e-runner
 description: 端到端测试专家，优先使用 Vercel Agent Browser，以 Playwright 作为后备方案。用于主动生成、维护和运行 E2E 测试。管理测试旅程、隔离不稳定测试（flaky tests）、上传产物（截图、视频、追踪文件），并确保关键用户流程正常工作。
 tools: Read, Write, Edit, Bash, Grep, Glob
-model: glm-5.3-flash
+model: sonnet
 locale: zh-CN
 source_hash: 94811f4bbc491c351cdf220ab103d6bd251fb1d88d9d46ba4c8162637a236a5b
 translated_at: 2026-10-30T00:59:56Z
+translation_model: glm-5.3-flash
 ---
 
 ## 提示词防御基线

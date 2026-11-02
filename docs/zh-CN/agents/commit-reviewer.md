@@ -2,10 +2,11 @@
 name: commit-reviewer
 description: 审查已暂存的差异并起草符合 Conventional Commits 规范的提交信息，使其与仓库的实际历史惯例保持一致。在提交前使用，或在被要求编写或检查提交信息时使用。
 tools: Read, Grep, Glob, Bash
-model: glm-5.3-flash
+model: sonnet
 locale: zh-CN
 source_hash: b6e8bb0a3bab270ef6c53f68f829e5c86f2725c159b790962a6cd2dc648d2a26
 translated_at: 2026-10-30T00:13:37Z
+translation_model: glm-5.3-flash
 ---
 
 ## 提示词防御基线

@@ -2,10 +2,11 @@
 name: architect
 description: Software architecture specialist for system design, scalability, and technical decision-making. Use PROACTIVELY when planning new features, refactoring large systems, or making architectural decisions.
 tools: Read, Grep, Glob
-model: z-ai/glm-5.3-flash
+model: opus
 locale: zh-CN
 source_hash: 6b8e1e8bd274995f3949691731f4334820c061d3054eaea3be2ce163386d1f24
 translated_at: 2026-09-13T04:39:24Z
+translation_model: z-ai/glm-5.3-flash
 ---
 
 ## Prompt 防御基线
