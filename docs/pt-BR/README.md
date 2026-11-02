@@ -81,7 +81,7 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ### v2.2.64 — New applying-design-patterns skill: name the pain ("every time we change X, we edit Y") and pass a four-check gate (enough variants, different reasons to change, no language feature already does it, the next change gets smaller) before using a pattern; maps code signals to the 22 GoF patterns, prefers functions, closures and generators over class hierarchies, and refactors in small test-guarded steps; ships creational, structural and behavioral pattern cards; fix: translations record their model as translation_model, so translated agents keep their own model tier (Nov 2026)
 
-### v2.2.63 — Hook fix: session-start no longer fails on a missing js-yaml when the plugin cache has no node_modules (Nov 2026)
+### v2.2.64 — Hook fix: session-start no longer fails on a missing js-yaml when the plugin cache has no node_modules (Nov 2026)
 
 ### v2.2.62 — Hook fix: hooks no longer exit with a syntax error under Git Bash on Windows; the inline path resolver no longer contains backslashes (Nov 2026)
 

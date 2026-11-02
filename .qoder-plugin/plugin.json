@@ -1,7 +1,7 @@
 {
   "name": "ecc",
   "displayName": "ECC",
-  "version": "2.2.63",
+  "version": "2.2.64",
   "description": "Harness-native engineering workflows for Qoder: canonical skills and agents, legacy command shims, a reviewed SessionStart hook, and optional MCP tooling.",
   "author": {
     "name": "Affaan Mustafa",
