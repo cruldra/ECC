@@ -23,7 +23,7 @@
 
 **Language / 语言 / 語言 / Dil / Язык / Ngôn ngữ**
 
-[**English**](README.md) | [Português (Brasil)](docs/pt-BR/README.md) | [简体中文](README.zh-CN.md) | [繁體中文](docs/zh-TW/README.md) | [日本語](docs/ja-JP/README.md) | [한국어](docs/ko-KR/README.md) | [Türkçe](docs/tr/README.md) | [Русский](docs/ru/README.md) | [Tiếng Việt](docs/vi-VN/README.md) | [ไทย](docs/th/README.md) | [Deutsch](docs/de-DE/README.md) | [Polski](docs/pl/README.md) | [বাংলা](docs/bn/README.md) | [العربية](docs/ar/README.md)
+[**English**](README.md) | [Português (Brasil)](docs/pt-BR/README.md) | [简体中文](README.zh-CN.md) | [繁體中文](docs/zh-TW/README.md) | [日本語](docs/ja-JP/README.md) | [한국어](docs/ko-KR/README.md) | [Türkçe](docs/tr/README.md) | [Русский](docs/ru/README.md) | [Tiếng Việt](docs/vi-VN/README.md) | [ไทย](docs/th/README.md) | [Deutsch](docs/de-DE/README.md) | [Polski](docs/pl/README.md) | [العربية](docs/ar/README.md)
 
 </div>
 
@@ -79,6 +79,10 @@
 ---
 
 ## 最新动态
+
+### v2.2.63 — 钩子修复：插件缓存没有 node_modules 时，session-start 不再因缺少 js-yaml 报错（2026年11月）
+
+### v2.2.62 — 钩子修复：Windows 的 Git Bash 下全部钩子不再因语法错误退出，内联路径解析不再含反斜杠（2026年11月）
 
 ### v2.2.61 — 合并上游 main（2026-09-07 至 2026-10-26）。冲突留本地：版本号仍由本仓库发；已删的翻译和 plan-prd / prp-* 不恢复；GateGuard 默认关闭，要开才设 ECC_GATEGUARD=1（2026年10月）
 
@@ -321,7 +325,7 @@ Copy-Item -Recurse rules/typescript "$HOME/.claude/rules/"
 /plugin list ecc@ecc
 ```
 
-**完成！** 你现在可以使用 71 个代理、326 个技能和 97 个命令。
+**完成！** 你现在可以使用 70 个代理、325 个技能和 97 个命令。
 
 ### multi-* 命令需要额外配置
 

@@ -9,7 +9,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const yaml = require('js-yaml');
 
 /**
  * Language detection rules.
@@ -350,6 +349,8 @@ function hasFlutterSdkDependency(projectDir) {
     const pubspecPath = path.join(projectDir, 'pubspec.yaml');
     if (!fs.existsSync(pubspecPath)) return false;
     const content = fs.readFileSync(pubspecPath, 'utf8');
+    // Loaded here so the session-start hook still runs in a plugin copy with no node_modules; Flutter then goes undetected.
+    const yaml = require('js-yaml');
     const pubspec = yaml.load(content, { schema: yaml.JSON_SCHEMA });
     // Only a declared Flutter SDK dependency identifies the framework.
     // Unrelated configuration, comments, and strings must not count.

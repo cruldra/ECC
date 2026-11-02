@@ -191,7 +191,6 @@
         "skills/angular-developer",
         "skills/api-design",
         "skills/backend-patterns",
-        "skills/bengali-nlp",
         "skills/coding-standards",
         "skills/compose-multiplatform-patterns",
         "skills/contract-first",
@@ -1296,22 +1295,6 @@
       "dependencies": [],
       "defaultInstall": false,
       "cost": "heavy",
-      "stability": "stable"
-    },
-    {
-      "id": "docs-bn",
-      "kind": "docs",
-      "description": "Bengali (bn) translated reference documentation.",
-      "paths": [
-        "docs/bn"
-      ],
-      "targets": [
-        "claude",
-        "claude-project"
-      ],
-      "dependencies": [],
-      "defaultInstall": false,
-      "cost": "light",
       "stability": "stable"
     },
     {

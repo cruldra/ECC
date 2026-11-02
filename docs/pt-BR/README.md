@@ -1,4 +1,4 @@
-**Idioma:** [English](../../README.md) | [简体中文](../../README.zh-CN.md) | [繁體中文](../zh-TW/README.md) | [日本語](../ja-JP/README.md) | [한국어](../ko-KR/README.md) | Português (Brasil) | [Türkçe](../tr/README.md) | [Русский](../ru/README.md) | [Tiếng Việt](../vi-VN/README.md) | [ไทย](../th/README.md) | [Deutsch](../de-DE/README.md) | [Українська](../uk-UA/README.md) | [Polski](../pl/README.md) | [বাংলা](../bn/README.md) | [العربية](../ar/README.md)
+**Idioma:** [English](../../README.md) | [简体中文](../../README.zh-CN.md) | [繁體中文](../zh-TW/README.md) | [日本語](../ja-JP/README.md) | [한국어](../ko-KR/README.md) | Português (Brasil) | [Türkçe](../tr/README.md) | [Русский](../ru/README.md) | [Tiếng Việt](../vi-VN/README.md) | [ไทย](../th/README.md) | [Deutsch](../de-DE/README.md) | [Українська](../uk-UA/README.md) | [Polski](../pl/README.md) | [العربية](../ar/README.md)
 
 # ECC
 
@@ -24,7 +24,7 @@
 
 **Idioma / Language / 语言 / Dil / Язык / Ngôn ngữ**
 
-[**English**](../../README.md) | [简体中文](../../README.zh-CN.md) | [繁體中文](../zh-TW/README.md) | [日本語](../ja-JP/README.md) | [한국어](../ko-KR/README.md) | [Português (Brasil)](README.md) | [Türkçe](../tr/README.md) | [Русский](../ru/README.md) | [Tiếng Việt](../vi-VN/README.md) | [ไทย](../th/README.md) | [Deutsch](../de-DE/README.md) | [Українська](../uk-UA/README.md) | [Polski](../pl/README.md) | [বাংলা](../bn/README.md)
+[**English**](../../README.md) | [简体中文](../../README.zh-CN.md) | [繁體中文](../zh-TW/README.md) | [日本語](../ja-JP/README.md) | [한국어](../ko-KR/README.md) | [Português (Brasil)](README.md) | [Türkçe](../tr/README.md) | [Русский](../ru/README.md) | [Tiếng Việt](../vi-VN/README.md) | [ไทย](../th/README.md) | [Deutsch](../de-DE/README.md) | [Українська](../uk-UA/README.md) | [Polski](../pl/README.md)
 </div>
 
 ---
@@ -78,6 +78,10 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 ---
 
 ## O Que Há de Novo
+
+### v2.2.63 — Hook fix: session-start no longer fails on a missing js-yaml when the plugin cache has no node_modules (Nov 2026)
+
+### v2.2.62 — Hook fix: hooks no longer exit with a syntax error under Git Bash on Windows; the inline path resolver no longer contains backslashes (Nov 2026)
 
 ### v2.2.61 — Merge upstream main (2026-09-07 through 2026-10-26). Local changes win conflicts: this repo keeps its own version; deleted translations and plan-prd / prp-* stay deleted; GateGuard stays off unless ECC_GATEGUARD=1 (Oct 2026)
 

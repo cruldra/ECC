@@ -36,9 +36,8 @@ function setWSLForTesting(value) {
 // Windows path pattern: drive letter followed by :\ or :/
 const WINDOWS_PATH_PATTERN = /^[A-Za-z]:[\\/]/;
 
-// Compact WSL conversion snippet for inline resolvers embedded in commands and hooks.
-// Uses 8 backslashes in regex source so it preserves shell escaping when inlined into `node -e "..."`.
-const INLINE_WSL_CONVERSION = `try{if(o.platform()==='linux'){var v=f.readFileSync('/proc/version','utf8').toLowerCase();if(v.includes('microsoft')){var m=d.match(/^([A-Za-z]):[\\\\\\\\/]/);if(m){var dl=m[1].toLowerCase();d='/mnt/'+dl+d.slice(2).replace(/\\\\\\\\/g,'/')}}}}catch(_){}`;
+// WSL path conversion inlined into hook and command resolvers; it avoids backslashes because Git Bash on Windows unescapes `node -e "..."` one round more than a POSIX shell, which would break the script.
+const INLINE_WSL_CONVERSION = `try{if(o.platform()==='linux'){var v=f.readFileSync('/proc/version','utf8').toLowerCase();if(v.includes('microsoft')){var dc=d.charCodeAt(0)|32,sc=d.charCodeAt(2);if(dc>=97&&dc<=122&&d.charAt(1)===':'&&(sc===92||sc===47)){d='/mnt/'+d.charAt(0).toLowerCase()+d.slice(2).split(String.fromCharCode(92)).join('/')}}}}catch(_){}`;
 
 /**
  * Convert a Windows path to a WSL path.

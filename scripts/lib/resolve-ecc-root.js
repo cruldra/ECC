@@ -176,14 +176,14 @@ function normalizePluginRootForPlatform(rootDir, platform = process.platform) {
  */
 // Lazily loaded so this module can be required from stripped-down directories
 // (e.g., temp dirs in tests that copy only resolve-ecc-root.js + utils.js).
-// Falls back to canonical inline string with identical escaping when unavailable.
+// Falls back to the canonical inline string when unavailable.
 let _inlineWslConversion = null;
 function getInlineWslConversion() {
   if (_inlineWslConversion === null) {
     try {
       _inlineWslConversion = require('./install-targets/helpers').INLINE_WSL_CONVERSION;
     } catch (_) {
-      _inlineWslConversion = `try{if(o.platform()==='linux'){var v=f.readFileSync('/proc/version','utf8').toLowerCase();if(v.includes('microsoft')){var m=d.match(/^([A-Za-z]):[\\\\\\\\/]/);if(m){var dl=m[1].toLowerCase();d='/mnt/'+dl+d.slice(2).replace(/\\\\\\\\/g,'/')}}}}catch(_){}`;
+      _inlineWslConversion = `try{if(o.platform()==='linux'){var v=f.readFileSync('/proc/version','utf8').toLowerCase();if(v.includes('microsoft')){var dc=d.charCodeAt(0)|32,sc=d.charCodeAt(2);if(dc>=97&&dc<=122&&d.charAt(1)===':'&&(sc===92||sc===47)){d='/mnt/'+d.charAt(0).toLowerCase()+d.slice(2).split(String.fromCharCode(92)).join('/')}}}}catch(_){}`;
     }
   }
   return _inlineWslConversion;

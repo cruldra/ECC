@@ -493,6 +493,40 @@ function runTests() {
     }
   })) passed++; else failed++;
 
+  console.log('\nRunning Without Installed Dependencies:');
+
+  if (test('still detects a project when js-yaml is not installed', () => {
+    const dir = createTempDir();
+    try {
+      writeTestFile(dir, 'package.json', '{"dependencies":{"react":"19.0.0"}}');
+      writeTestFile(dir, 'pubspec.yaml', 'dependencies:\n  flutter:\n    sdk: flutter\n');
+      const script = `
+        const Module = require('module');
+        const load = Module._load;
+        Module._load = function (request, ...rest) {
+          if (request === 'js-yaml') {
+            const error = new Error("Cannot find module 'js-yaml'");
+            error.code = 'MODULE_NOT_FOUND';
+            throw error;
+          }
+          return load.call(this, request, ...rest);
+        };
+        const { detectProjectType } = require(process.argv[1]);
+        process.stdout.write(JSON.stringify(detectProjectType(process.argv[2])));
+      `;
+      const output = require('child_process').execFileSync(
+        process.execPath,
+        ['-e', script, path.resolve(__dirname, '../../scripts/lib/project-detect.js'), dir],
+        { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }
+      );
+      const result = JSON.parse(output);
+      assert.ok(result.frameworks.includes('react'));
+      assert.ok(!result.frameworks.includes('flutter'));
+    } finally {
+      cleanupDir(dir);
+    }
+  })) passed++; else failed++;
+
   // Dart/Flutter detection
   console.log('\nDart/Flutter Detection:');
 

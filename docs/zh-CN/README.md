@@ -1,4 +1,4 @@
-**语言：** [English](../../README.md) | [Português (Brasil)](../pt-BR/README.md) | [简体中文](../../README.zh-CN.md) | [繁體中文](../zh-TW/README.md) | [日本語](../ja-JP/README.md) | [한국어](../ko-KR/README.md) | [Türkçe](../tr/README.md) | [Русский](../ru/README.md) | [Tiếng Việt](../vi-VN/README.md) | [ไทย](../th/README.md) | [Українська](../uk-UA/README.md) | [Polski](../pl/README.md) | [বাংলা](../bn/README.md) | [العربية](../ar/README.md)
+**语言：** [English](../../README.md) | [Português (Brasil)](../pt-BR/README.md) | [简体中文](../../README.zh-CN.md) | [繁體中文](../zh-TW/README.md) | [日本語](../ja-JP/README.md) | [한국어](../ko-KR/README.md) | [Türkçe](../tr/README.md) | [Русский](../ru/README.md) | [Tiếng Việt](../vi-VN/README.md) | [ไทย](../th/README.md) | [Українська](../uk-UA/README.md) | [Polski](../pl/README.md) | [العربية](../ar/README.md)
 
 # ECC
 
@@ -25,7 +25,7 @@
 
 **语言 / Language / 語言 / Dil / Язык / Ngôn ngữ**
 
-[**English**](../../README.md) | [Português (Brasil)](../pt-BR/README.md) | [简体中文](../../README.zh-CN.md) | [繁體中文](../zh-TW/README.md) | [日本語](../ja-JP/README.md) | [한국어](../ko-KR/README.md) | [Türkçe](../tr/README.md) | [Русский](../ru/README.md) | [Tiếng Việt](../vi-VN/README.md) | [ไทย](../th/README.md) | [Українська](../uk-UA/README.md) | [Polski](../pl/README.md) | [বাংলা](../bn/README.md)
+[**English**](../../README.md) | [Português (Brasil)](../pt-BR/README.md) | [简体中文](../../README.zh-CN.md) | [繁體中文](../zh-TW/README.md) | [日本語](../ja-JP/README.md) | [한국어](../ko-KR/README.md) | [Türkçe](../tr/README.md) | [Русский](../ru/README.md) | [Tiếng Việt](../vi-VN/README.md) | [ไทย](../th/README.md) | [Українська](../uk-UA/README.md) | [Polski](../pl/README.md)
 
 </div>
 
@@ -80,6 +80,10 @@
 ***
 
 ## 最新动态
+
+### v2.2.63 — 钩子修复：插件缓存没有 node_modules 时，session-start 不再因缺少 js-yaml 报错（2026年11月）
+
+### v2.2.62 — 钩子修复：Windows 的 Git Bash 下全部钩子不再因语法错误退出，内联路径解析不再含反斜杠（2026年11月）
 
 ### v2.2.61 — 合并上游 main（2026-09-07 至 2026-10-26）。冲突留本地：版本号仍由本仓库发；已删的翻译和 plan-prd / prp-* 不恢复；GateGuard 默认关闭，要开才设 ECC_GATEGUARD=1（2026年10月）
 
@@ -367,7 +371,7 @@ Copy-Item -Recurse rules/typescript "$HOME/.claude/rules/"
 /plugin list ecc@ecc
 ```
 
-**搞定！** 你现在可以使用 71 个智能体、326 项技能和 97 个命令了。
+**搞定！** 你现在可以使用 70 个智能体、325 项技能和 97 个命令了。
 
 ***
 
@@ -1279,9 +1283,9 @@ opencode
 
 | 功能特性 | Claude Code   | OpenCode | 状态 |
 |---------|---------------|----------|--------|
-| 智能体 | PASS: 71 个    | PASS: 12 个 | **Claude Code 领先** |
+| 智能体 | PASS: 70 个    | PASS: 12 个 | **Claude Code 领先** |
 | 命令 | PASS: 97 个    | PASS: 35 个 | **Claude Code 领先** |
-| 技能 | PASS: 326 项   | PASS: 37 项 | **Claude Code 领先** |
+| 技能 | PASS: 325 项   | PASS: 37 项 | **Claude Code 领先** |
 | 钩子 | PASS: 8 种事件类型 | PASS: 11 种事件 | **OpenCode 更多！** |
 | 规则 | PASS: 29 条    | PASS: 13 条指令 | **Claude Code 领先** |
 | MCP 服务器 | PASS: 14 个    | PASS: 完整 | **完全对等** |
@@ -1387,9 +1391,9 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 
 | 功能特性 | Claude Code           | Cursor IDE | Codex CLI | OpenCode |
 |---------|-----------------------|------------|-----------|----------|
-| **智能体** | 71                    | 共享 (AGENTS.md) | 共享 (AGENTS.md) | 12 |
+| **智能体** | 70                    | 共享 (AGENTS.md) | 共享 (AGENTS.md) | 12 |
 | **命令** | 97                    | 共享 | 基于指令 | 35 |
-| **技能** | 326                   | 共享 | 10 (原生格式) | 37 |
+| **技能** | 325                   | 共享 | 10 (原生格式) | 37 |
 | **钩子事件** | 8 种类型                 | 15 种类型 | SessionStart（1 种类型） | 11 种类型 |
 | **钩子脚本** | 20+ 个脚本               | 16 个脚本 (DRY 适配器) | 1 个 SessionStart 引导脚本 | 插件钩子 |
 | **规则** | 34 (通用 + 语言)          | 34 (YAML 前页) | 基于指令 | 13 条指令 |
@@ -1399,7 +1403,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 | **上下文文件** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
 | **秘密检测** | 基于钩子                  | beforeSubmitPrompt 钩子 | 基于沙箱 | 基于钩子 |
 | **自动格式化** | PostToolUse 钩子        | afterFileEdit 钩子 | N/A | file.edited 钩子 |
-| **版本** | 插件 | 插件 | 参考配置 | 2.2.61 |
+| **版本** | 插件 | 插件 | 参考配置 | 2.2.63 |
 
 **关键架构决策：**
 

@@ -232,6 +232,24 @@ test('codex-hooks.json inline resolver includes WSL path conversion for CLAUDE_C
   assert.ok(checked >= 1, 'Expected at least one codex-hooks.json resolver with CLAUDE_CONFIG_DIR WSL conversion');
 });
 
+test('inline resolver has no backslashes, so Git Bash on Windows cannot corrupt it', () => {
+  const { INLINE_RESOLVE, buildInlineResolve } = require('../../scripts/lib/resolve-ecc-root');
+  assert.ok(!INLINE_RESOLVE.includes('\\'), 'INLINE_RESOLVE must not contain a backslash');
+  assert.ok(!buildInlineResolve({ probe: 'scripts/auto-update.js' }).includes('\\'), 'Probed resolver must not contain a backslash');
+  for (const hookFile of ['hooks/hooks.json', 'hooks/codex-hooks.json']) {
+    const config = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', hookFile), 'utf8'));
+    for (const entries of Object.values(config.hooks)) {
+      for (const entry of entries) {
+        for (const hook of entry.hooks || []) {
+          if (typeof hook.command === 'string' && hook.command.includes('CLAUDE_PLUGIN_ROOT')) {
+            assert.ok(!hook.command.includes('\\'), `${hookFile} has a backslash in: ${hook.command.slice(0, 60)}`);
+          }
+        }
+      }
+    }
+  }
+});
+
 test('inline resolver copies in commands and hooks match canonical buildInlineResolve', () => {
   const { INLINE_RESOLVE, buildInlineResolve } = require('../../scripts/lib/resolve-ecc-root');
   const { INLINE_WSL_CONVERSION } = require('../../scripts/lib/install-targets/helpers');

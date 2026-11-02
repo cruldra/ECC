@@ -102,7 +102,7 @@ def test_script_status_and_skip_without_network(tmp_path, monkeypatch):
     monkeypatch.delenv("ANTHROPIC_BASE_URL", raising=False)
     monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-    monkeypatch.setenv("GLM53F_PROFILE", str(tmp_path / "missing.json"))
+    monkeypatch.setenv("TRANSLATE_PROFILE", str(tmp_path / "missing.json"))
 
     status = module.status_payload(root, "skill", "demo", "zh-CN")
     assert status["exists"] is True
@@ -131,7 +131,7 @@ def test_profile_beats_session_env(tmp_path, monkeypatch):
         ),
         encoding="utf-8",
     )
-    monkeypatch.setenv("GLM53F_PROFILE", str(profile))
+    monkeypatch.setenv("TRANSLATE_PROFILE", str(profile))
     monkeypatch.setenv("ANTHROPIC_BASE_URL", "https://example.invalid/grok")
     monkeypatch.setenv("ANTHROPIC_AUTH_TOKEN", "session-token")
     monkeypatch.setenv("ANTHROPIC_MODEL", "grok-4.6")

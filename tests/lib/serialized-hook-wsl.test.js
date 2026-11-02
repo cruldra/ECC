@@ -67,7 +67,7 @@ try {
   assert.strictEqual(actual.bootstrap, expected + '/scripts/hooks/plugin-hook-bootstrap.js');
   assert.deepStrictEqual(actual.args, ['node', 'scripts/hooks/session-start-bootstrap.js']);
   console.log('PASS full JSON-decoded SessionStart hook resolves exact WSL path through Bash and forwards continuation');
-  const mutation = command.replace(",'/'", ",'_'");
+  const mutation = command.replace(".join('/')", ".join('_')");
   assert.notStrictEqual(mutation, command, 'Mutation must modify the shipped replacement');
   const broken = execute(mutation);
   assert.notStrictEqual(broken.root, expected, 'Mutation must be detected by exact expected-path assertion');
