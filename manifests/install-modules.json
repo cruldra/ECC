@@ -451,7 +451,8 @@
         "skills/rules-distill",
         "skills/santa-method",
         "skills/git-workflow",
-        "skills/bugsink"
+        "skills/bugsink",
+        "skills/using-spx-cli"
       ],
       "targets": [
         "claude",

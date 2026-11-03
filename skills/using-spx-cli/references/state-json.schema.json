@@ -1,0 +1,153 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/cruldra/superpowers-vscode/schemas/state-json.schema.json",
+  "title": "Superpowers VSCode issue state JSON",
+  "description": "看板用来恢复工单的列、关联的 spec/plan/PR/分支、各个会话 id 和工作树等状态。标了 `x-local: true` 的是本机字段，只存在这台机器的 `<git common dir>/superwork/local-issue-state.json`，不进工单评论；其余字段存在工单最新一条 state 评论里。所有字段均可选，缺失字段由 issueLoader 用默认值兜底。",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "column": {
+      "type": "string",
+      "description": "看板列 id；缺失时 issueLoader 按 issue.state 兜底为 todo/done。",
+      "enum": ["todo", "in-progress", "review", "done"]
+    },
+    "sessionId": {
+      "type": "string",
+      "x-local": true,
+      "description": "讨论/头脑风暴会话的 Claude Code session id，用于 resume 已有对话。",
+      "minLength": 1
+    },
+    "implementSessionId": {
+      "type": "string",
+      "x-local": true,
+      "description": "实施阶段 (implement) 的 Claude Code session id，与讨论 sessionId 隔离。",
+      "minLength": 1
+    },
+    "reviewSessionId": {
+      "type": "string",
+      "x-local": true,
+      "description": "审查阶段的会话 id（v1 存 codex thread id），用于 webhook synchronize 时 resume。",
+      "minLength": 1
+    },
+    "testSessionId": {
+      "type": "string",
+      "x-local": true,
+      "description": "测试阶段的 Claude Code session id；PR 合并后手动启动的测试会话，用于 resume。",
+      "minLength": 1
+    },
+    "prototypeSessionId": {
+      "type": "string",
+      "x-local": true,
+      "description": "原型阶段的 Claude Code session id；画 Figma 原型的会话，用于 resume。",
+      "minLength": 1
+    },
+    "profilePath": {
+      "type": "string",
+      "x-local": true,
+      "description": "创建工单时使用的 Claude settings 配置文件绝对路径，resume 时作为 --settings 传入。",
+      "minLength": 1
+    },
+    "brainstormProfilePath": {
+      "type": "string",
+      "x-local": true,
+      "description": "头脑风暴/规划会话使用的 Claude settings 配置文件绝对路径；与实施 profilePath 独立，空则用默认。",
+      "minLength": 1
+    },
+    "testProfilePath": {
+      "type": "string",
+      "x-local": true,
+      "description": "测试会话使用的 Claude settings 配置文件绝对路径；与实施 profilePath 独立，空则用默认。",
+      "minLength": 1
+    },
+    "prototypeProfilePath": {
+      "type": "string",
+      "x-local": true,
+      "description": "原型会话使用的 Claude settings 配置文件绝对路径；与实施 profilePath 独立，空则用默认。",
+      "minLength": 1
+    },
+    "specFile": {
+      "type": "string",
+      "description": "本工单的 spec 文档路径，相对 workspace，必须形如 `dir/.../name.md`。",
+      "minLength": 1,
+      "pattern": "^[^\\s]+/[^\\s]+\\.md$"
+    },
+    "planFile": {
+      "type": "string",
+      "description": "本工单的 plan 文档路径，相对 workspace，必须形如 `dir/.../name.md`。",
+      "minLength": 1,
+      "pattern": "^[^\\s]+/[^\\s]+\\.md$"
+    },
+    "prototypeFile": {
+      "type": "string",
+      "description": "本工单的 Figma 原型插件 manifest.json 路径，仓库相对或绝对，必须形如 `dir/.../manifest.json`。",
+      "minLength": 1,
+      "pattern": "^[^\\s]+/[^\\s]+\\.json$"
+    },
+    "prDiffFile": {
+      "type": "string",
+      "x-local": true,
+      "description": "本工单的 PR 变更摘要文件路径，相对 workspace，必须位于 docs/pr-diff/ 下。",
+      "minLength": 1,
+      "pattern": "^docs/pr-diff/[^\\s]+\\.md$"
+    },
+    "pr": {
+      "type": "string",
+      "description": "本工单关联的 PR number（字符串形式，webhook 触发后写入）。",
+      "minLength": 1
+    },
+    "prMerged": {
+      "type": "boolean",
+      "description": "关联 PR 是否已合并；优先以 PR API 实时结果为准，此字段是 fallback。"
+    },
+    "prMergedAt": {
+      "type": "string",
+      "description": "关联 PR 合并时间（ISO 8601）；webhook 在标记 prMerged 时写入。",
+      "minLength": 1
+    },
+    "branch": {
+      "type": "string",
+      "description": "实施分支名，例如 `feature/<hash>`。",
+      "minLength": 1
+    },
+    "worktreePath": {
+      "type": "string",
+      "x-local": true,
+      "description": "实施 worktree 路径：通常为绝对路径，也可为 `~/...` 或 workspace 相对路径；扩展端经 resolveWorktreePath 解析。",
+      "minLength": 1
+    },
+    "implementStatus": {
+      "type": "string",
+      "description": "实施流程生命周期状态。",
+      "enum": ["running", "done", "failed"]
+    },
+    "color": {
+      "type": "string",
+      "description": "Terminal/tab 配色（一个 terminal.ansi* ThemeColor key），首次开会话时固化，后续所有会话复用同一色。",
+      "minLength": 1
+    },
+    "autoReview": {
+      "type": "boolean",
+      "description": "本工单是否启用自动审查（覆盖全局 autoReview 设置）。"
+    },
+    "reviewPassed": {
+      "type": "boolean",
+      "description": "最近一次审查是否认为可以过。true 表示通过；false 或不写表示还在审，或审出了必须改的问题。PR 有新提交时合并成 false。不改变看板列。"
+    },
+    "handoffBundleKey": {
+      "type": "string",
+      "description": "移交会话包在阿里云 OSS 上的对象 key（spx-handoff/<owner>/<repo>/issue-<N>-<时间>.tar.xz）；存在即「待接管」，接管完成后清空；清空时写空串。"
+    },
+    "handoffFrom": {
+      "type": "string",
+      "description": "发起移交的 Gitea login；清空时写空串。"
+    },
+    "handoffRequestFrom": {
+      "type": "string",
+      "description": "谁在申请把审查中的工单移交给自己；清空时写空串。"
+    },
+    "handoffRequestError": {
+      "type": "string",
+      "description": "最近一次同意移交失败的原因；对方拒绝时写 rejected；清空时写空串。"
+    }
+  }
+}
