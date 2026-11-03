@@ -81,7 +81,7 @@
 
 ## 最新动态
 
-### v2.2.64 — 新增 using-spx-cli（原在个人技能仓库，改由 ECC 维护，技能名变为 ecc:using-spx-cli）：用 spx 在 GitHub、Gitea 上看工单、建工单、改 spec/plan/prototype 标记、读写工单状态 JSON、看 PR、发 PR、发审查评论；会话 id、profile 路径、worktreePath、prDiffFile 这些本机字段由 `spx issue state merge` 写进 `<git common dir>/superwork/local-issue-state.json`，其余字段写进工单的隐藏状态评论；附状态字段 schema（2026年11月）
+### v2.2.65 — 新增 using-spx-cli（原在个人技能仓库，改由 ECC 维护，技能名变为 ecc:using-spx-cli）：用 spx 在 GitHub、Gitea 上看工单、建工单、改 spec/plan/prototype 标记、读写工单状态 JSON、看 PR、发 PR、发审查评论；会话 id、profile 路径、worktreePath、prDiffFile 这些本机字段由 `spx issue state merge` 写进 `<git common dir>/superwork/local-issue-state.json`，其余字段写进工单的隐藏状态评论；附状态字段 schema（2026年11月）
 
 ### v2.2.64 — 新增 applying-design-patterns：先写出“每次改 X 都要动 Y”的痛点，过四项门槛（变体够多、因不同原因而变、语言没有现成写法、下次改动变小）才上模式；按代码信号对应 GoF 22 个模式，优先函数、闭包、生成器等语言自带写法，测试保护下小步重构；附创建型、结构型、行为型三份模式卡片；修复：译本的翻译模型改记在 translation_model，代理译本恢复原本的模型档位（2026年11月）
 
@@ -1407,7 +1407,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 | **上下文文件** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
 | **秘密检测** | 基于钩子                  | beforeSubmitPrompt 钩子 | 基于沙箱 | 基于钩子 |
 | **自动格式化** | PostToolUse 钩子        | afterFileEdit 钩子 | N/A | file.edited 钩子 |
-| **版本** | 插件 | 插件 | 参考配置 | 2.2.64 |
+| **版本** | 插件 | 插件 | 参考配置 | 2.2.65 |
 
 **关键架构决策：**
 
