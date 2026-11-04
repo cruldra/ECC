@@ -49,7 +49,9 @@ test('routes to a reference that exists', () => {
 test('OpenPencil route drives the editor with the app-bundled op command line', () => {
   assert.ok(openpencil.includes('OP=/Applications/OpenPencil.app/Contents/MacOS/op'));
   assert.ok(openpencil.includes('OPENPENCIL_DESKTOP_BIN'));
-  assert.ok(openpencil.includes('"$OP" start --headless --file'));
+  assert.ok(openpencil.includes('"$OP" start --headless > /tmp/openpencil-start.log 2>&1 &'));
+  assert.ok(openpencil.includes('"$OP" open "$PWD/docs/prototype/<feature>/openpencil/<feature>.op"'));
+  assert.ok(!openpencil.includes('start --headless --file'), 'op stop rewrites a --file document lossily after a rebuild');
   assert.ok(openpencil.includes('"$OP" design @build.js'));
   assert.ok(openpencil.includes('"$OP" export --item <id>'));
   assert.ok(!openpencil.includes('op install --target'), 'official skill is bundled, not installed as a plugin');

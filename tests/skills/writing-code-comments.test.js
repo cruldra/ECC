@@ -96,7 +96,9 @@ test("from the preview op and the export script run one command per call, into t
   assert.ok(body.includes("without `OPENPENCIL_DESKTOP_BIN`"));
   assert.ok(body.includes("docs/prototype/<feature>/openpencil/build.js"));
   assert.ok(body.includes("With the markers already in place, do not run `op design`."));
-  assert.ok(body.includes("/Applications/OpenPencil.app/Contents/MacOS/op start --headless --file docs/prototype/<feature>/openpencil/<feature>.op"));
+  assert.ok(body.includes("/Applications/OpenPencil.app/Contents/MacOS/op start --headless\n/Applications/OpenPencil.app/Contents/MacOS/op open docs/prototype/<feature>/openpencil/<feature>.op"));
+  assert.ok(body.includes('"$OP" open "$PWD/docs/prototype/<feature>/openpencil/<feature>.op"'));
+  assert.doesNotMatch(body, /start --headless --file/, "op stop rewrites a --file document lossily after a rebuild");
   assert.ok(body.includes("/Applications/OpenPencil.app/Contents/MacOS/op delete <id>"));
   assert.ok(body.includes("uv run ${CLAUDE_SKILL_DIR}/scripts/export-component.py docs/prototype/<feature>/openpencil desktop <path>#<Component>"));
   assert.doesNotMatch(body, /op export --item|mkdir -p/, "every picture goes through the script, which makes exports/ itself");
@@ -175,7 +177,7 @@ test("each component gets its own picture, found by the marker in node names", (
 test("a missing marker is appended in build.js and the .op rebuilt, nothing drawn changes", () => {
   assert.ok(body.includes("**No marker yet: add it to `build.js`, then rebuild the `.op`.**"));
   assert.ok(body.includes("Change nothing that is drawn: the rebuilt page looks as it did."));
-  assert.ok(body.includes("delete every board `op get --depth 1` lists (a new file has none), run `op design` on `build.js`"));
+  assert.ok(body.includes("delete every board `op get --depth 1` lists (for a new file these are leftovers from the last `op` session), run `op design` on `build.js`"));
   assert.ok(body.includes("Export every picture with the script, not with `op export`."));
 });
 

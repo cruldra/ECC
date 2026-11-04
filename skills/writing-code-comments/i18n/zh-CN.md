@@ -204,7 +204,7 @@ export function SiteNav() {
 
 - 文件放在 `docs/prototype/<feature>/openpencil/`：`build.js`、`<feature>.op` 和 `exports/`。绝不放临时目录。
 - 先运行 `op status`。已经在运行的编辑器不是你的：可能是用户或别的会话开的，`op start` 只会把它原样交回来，不管它打开的是哪个文件。不要停掉它，也不要在里面删画板、运行 `op design` 或保存。只有 `op get --depth 1` 列出的正是这份原型的画板、而且不需要重建时，才用它导出；否则请用户先关掉它，从预览调用时则这次不放图。`op stop` 只停你自己启动的编辑器。
-- `build.js` 是 `.op` 的源头。只有 `build.js` 是新写的或改过时才重建 `.op`：删掉 `op get --depth 1` 列出的每块画板（新文件一块也没有），对 `build.js` 运行 `op design`，对它打印的每块画板运行 `op design:refine`，然后保存。其余情况不要运行 `op design`，也不要保存。
+- `build.js` 是 `.op` 的源头。只有 `build.js` 是新写的或改过时才重建 `.op`：删掉 `op get --depth 1` 列出的每块画板（新文件列出的是上一次 `op` 会话留下的画板），对 `build.js` 运行 `op design`，对它打印的每块画板运行 `op design:refine`，然后保存。其余情况不要运行 `op design`，也不要保存。
 - 每张图都用脚本导出，不用 `op export`。
 - 跳过第 8 步。不要在编辑器中打开绘图。
 
@@ -212,7 +212,8 @@ export function SiteNav() {
 OP=/Applications/OpenPencil.app/Contents/MacOS/op
 export OPENPENCIL_DESKTOP_BIN=/Applications/OpenPencil.app/Contents/MacOS/openpencil-desktop
 "$OP" status                          # 已经在运行：不是你的，见上
-"$OP" start --headless --file "$PWD/docs/prototype/<feature>/openpencil/<feature>.op" > /tmp/openpencil-start.log 2>&1 &
+"$OP" start --headless > /tmp/openpencil-start.log 2>&1 &
+"$OP" open "$PWD/docs/prototype/<feature>/openpencil/<feature>.op"   # 不要 start --file：op stop 会把它有损地重写
 "$OP" get --depth 1
 # 只在 build.js 新写或改过时：重建 .op
 "$OP" delete <id>                     # 上面列出的每块画板
@@ -240,7 +241,8 @@ uv run ${CLAUDE_SKILL_DIR}/scripts/export-component.py docs/prototype/<feature>/
 
 ```bash
 /Applications/OpenPencil.app/Contents/MacOS/op status
-/Applications/OpenPencil.app/Contents/MacOS/op start --headless --file docs/prototype/<feature>/openpencil/<feature>.op
+/Applications/OpenPencil.app/Contents/MacOS/op start --headless
+/Applications/OpenPencil.app/Contents/MacOS/op open docs/prototype/<feature>/openpencil/<feature>.op
 /Applications/OpenPencil.app/Contents/MacOS/op get --depth 1
 uv run ${CLAUDE_SKILL_DIR}/scripts/export-component.py docs/prototype/<feature>/openpencil desktop <path>#<Component>
 /Applications/OpenPencil.app/Contents/MacOS/op stop
@@ -250,7 +252,8 @@ uv run ${CLAUDE_SKILL_DIR}/scripts/export-component.py docs/prototype/<feature>/
 
 ```bash
 /Applications/OpenPencil.app/Contents/MacOS/op status
-/Applications/OpenPencil.app/Contents/MacOS/op start --headless --file docs/prototype/<feature>/openpencil/<feature>.op
+/Applications/OpenPencil.app/Contents/MacOS/op start --headless
+/Applications/OpenPencil.app/Contents/MacOS/op open docs/prototype/<feature>/openpencil/<feature>.op
 /Applications/OpenPencil.app/Contents/MacOS/op get --depth 1
 /Applications/OpenPencil.app/Contents/MacOS/op delete <id>
 /Applications/OpenPencil.app/Contents/MacOS/op design @docs/prototype/<feature>/openpencil/build.js

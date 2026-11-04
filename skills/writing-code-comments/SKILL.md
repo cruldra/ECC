@@ -200,7 +200,7 @@ Drive `op` the way the `ui-prototyping` skill does: read its [OpenPencil route](
 
 - The files live at `docs/prototype/<feature>/openpencil/`: `build.js`, `<feature>.op`, and `exports/`. Never a temporary directory.
 - Run `op status` first. An editor that is already running is not yours: it may be the user's or another session's, and `op start` only hands it back, whatever it has open. Do not stop it, and do not delete, design, or save in it. Export from it only when `op get --depth 1` lists this prototype's boards and no rebuild is needed; otherwise ask the user to close it, or, called from the preview, leave the picture out. `op stop` only an editor you started.
-- `build.js` is the source of the `.op`. Rebuild the `.op` only when `build.js` is new or changed: delete every board `op get --depth 1` lists (a new file has none), run `op design` on `build.js`, run `op design:refine` on each board it prints, then save. Otherwise do not run `op design` and do not save.
+- `build.js` is the source of the `.op`. Rebuild the `.op` only when `build.js` is new or changed: delete every board `op get --depth 1` lists (for a new file these are leftovers from the last `op` session), run `op design` on `build.js`, run `op design:refine` on each board it prints, then save. Otherwise do not run `op design` and do not save.
 - Export every picture with the script, not with `op export`.
 - Skip step 8. Do not open the drawing in the editor.
 
@@ -208,7 +208,8 @@ Drive `op` the way the `ui-prototyping` skill does: read its [OpenPencil route](
 OP=/Applications/OpenPencil.app/Contents/MacOS/op
 export OPENPENCIL_DESKTOP_BIN=/Applications/OpenPencil.app/Contents/MacOS/openpencil-desktop
 "$OP" status                          # already running: not yours, see above
-"$OP" start --headless --file "$PWD/docs/prototype/<feature>/openpencil/<feature>.op" > /tmp/openpencil-start.log 2>&1 &
+"$OP" start --headless > /tmp/openpencil-start.log 2>&1 &
+"$OP" open "$PWD/docs/prototype/<feature>/openpencil/<feature>.op"   # never start --file: op stop rewrites it lossily
 "$OP" get --depth 1
 # only when build.js is new or changed: rebuild the .op
 "$OP" delete <id>                     # each board listed above
@@ -236,7 +237,8 @@ Markers already in place:
 
 ```bash
 /Applications/OpenPencil.app/Contents/MacOS/op status
-/Applications/OpenPencil.app/Contents/MacOS/op start --headless --file docs/prototype/<feature>/openpencil/<feature>.op
+/Applications/OpenPencil.app/Contents/MacOS/op start --headless
+/Applications/OpenPencil.app/Contents/MacOS/op open docs/prototype/<feature>/openpencil/<feature>.op
 /Applications/OpenPencil.app/Contents/MacOS/op get --depth 1
 uv run ${CLAUDE_SKILL_DIR}/scripts/export-component.py docs/prototype/<feature>/openpencil desktop <path>#<Component>
 /Applications/OpenPencil.app/Contents/MacOS/op stop
@@ -246,7 +248,8 @@ New or changed `build.js`:
 
 ```bash
 /Applications/OpenPencil.app/Contents/MacOS/op status
-/Applications/OpenPencil.app/Contents/MacOS/op start --headless --file docs/prototype/<feature>/openpencil/<feature>.op
+/Applications/OpenPencil.app/Contents/MacOS/op start --headless
+/Applications/OpenPencil.app/Contents/MacOS/op open docs/prototype/<feature>/openpencil/<feature>.op
 /Applications/OpenPencil.app/Contents/MacOS/op get --depth 1
 /Applications/OpenPencil.app/Contents/MacOS/op delete <id>
 /Applications/OpenPencil.app/Contents/MacOS/op design @docs/prototype/<feature>/openpencil/build.js

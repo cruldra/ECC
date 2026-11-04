@@ -37,13 +37,14 @@ docs/prototype/<feature>/openpencil/
 Do the shared steps in `SKILL.md` first (decision, tokens, data). Then:
 
 1. **Close a running editor.** `"$OP" status`. If it says `"running": true`, run `"$OP" stop` without asking: every `op` command is far slower while the desktop editor is open, and the user wants it closed during drawing and reopened at the end (step 8). Do every edit, including small fixes after review, in the headless instance, never in the desktop editor. Read the issue's relevant pages, components, and theme files; avoid scanning unrelated source trees for Chinese text or guessing directories.
-2. **Start headless on the file.**
+2. **Start headless, then open the file.**
 
    ```bash
-   "$OP" start --headless --file "$PWD/docs/prototype/<feature>/openpencil/<feature>.op" > /tmp/openpencil-start.log 2>&1 &
+   "$OP" start --headless > /tmp/openpencil-start.log 2>&1 &
+   "$OP" open "$PWD/docs/prototype/<feature>/openpencil/<feature>.op"
    ```
 
-   Check `"$OP" status` for at most 20 seconds. If startup fails or the deadline expires, read `/tmp/openpencil-start.log` and report the error. Do not wait indefinitely or start another instance while the first is still starting.
+   Check `"$OP" status` for at most 20 seconds before `op open`. If startup fails or the deadline expires, read `/tmp/openpencil-start.log` and report the error. Do not wait indefinitely or start another instance while the first is still starting. Never pass `--file` to the headless start; see the first trap. When the `.op` does not exist yet, `op open` keeps whatever boards the last `op` session left: delete every board `"$OP" get --depth 1` lists before the first `op design`.
 
 3. **Write `build.js` in script mode.** One `I(null, {...})` root frame per board, with `x` / `y` on the roots only (for example board width plus an 80 px gap). Loop over the data constants for repeated rows and cards. Node fields follow `openpencil-design`.
 4. **Run it.** `"$OP" design @build.js`. It prints `{"results":[{"binding":…,"nodeId":"n1"},…]}`; record the root node ids as the board ids.
@@ -54,11 +55,12 @@ Do the shared steps in `SKILL.md` first (decision, tokens, data). Then:
 
 ## Traps
 
+- **`op stop` rewrites a `--file` document lossily.** In OpenPencil 0.8.5, a headless instance started with `--file <x>.op` writes `<x>.op` again when it stops if boards were deleted or designed. The rewrite drops `cornerRadius` from every nested frame and drops some nodes, so switches, buttons, and menu items turn square. Exports taken before `op stop` still look right, so only the `.op` shows it. Start bare and `op open` the file instead: rebuilding, starting a new file, and export-only runs all leave the saved `.op` byte for byte as `op save` wrote it.
 - **`op start` from `~/.local/bin/op` fails** with `OpenPencil desktop binary not found; set OPENPENCIL_DESKTOP_BIN`. That copy cannot find the app next to it. Set `OPENPENCIL_DESKTOP_BIN` as in step 2. Commands that talk to a running editor (`design`, `layout`, `export`, `save`, `stop`) work from either copy.
 - **`design:refine` reports pre-layout sizes.** Its `layoutSnapshot` showed a root 48 px tall with 100 × 100 text boxes, while `op layout` and the export showed the real 182 px card. Trust `op layout` and the PNG, not the refine snapshot.
 - **`op export` needs `--item` when headless.** Without it, `op export` exports the selection, and a headless editor has none: `no node is selected on the Live Canvas`.
 - **Script mode inserts new boards on every run.** To rebuild during this task, delete only the recorded root ids created by the previous run with `"$OP" delete <id>`, then rerun `build.js`. Do not clear the whole document or replace the user's existing `.op`. Ask before modifying or replacing boards that predate this task. A failed design command may have inserted partial content; inspect the document before retrying.
-- **Headless edits land in the file.** The `.op` already holds the boards before `op save`; save anyway so the file is complete before `op stop`.
+- **Save before `op stop`.** Write the `.op` with `"$OP" save "<abs path>.op"`; never rely on `op stop` to write it.
 - **Chinese text renders in headless exports.** Verified with Chinese titles, body copy, and button labels.
 - **Cards side by side must share one height.** A horizontal row of cards with `height: "fit_content"` leaves every card at its own height, which reads as broken. Give every card in the row `height: "fill_container"` (the row stays `fit_content` and takes the tallest card), and put a `{type:"frame", height:"fill_container"}` spacer before the card's bottom button so the buttons line up. Rows inside cards that must align across columns (a pricing comparison) get a fixed height computed from the data (the most value lines in that row across all columns), not `fit_content`. Equal card heights are not enough when a block above varies in length (a one-line vs two-line description pushes the price down): give that block one fixed height for the whole row, computed from the longest text in the row. Verify with `op layout` that the same element (price, button) has the same `y` in every card, then check the exported PNG before handing off.
 - **`design:refine` resets a `layout:"none"` root's height.** A root with `height: 0` or `"fit_content"` gets "Adjusted root height to fit content" from its pre-layout pass, which can crop the page to an overlay's height. Give such roots an explicit height measured from `op layout` and rebuild when content changes.
