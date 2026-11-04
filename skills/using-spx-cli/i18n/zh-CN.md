@@ -2,8 +2,8 @@
 name: using-spx-cli
 description: '当你需要在使用 spx CLI（superwork / superpowers-vscode 看板工作流）的 GitHub 或 Gitea 仓库中查看或创建工单、更新其 spec/plan/prototype 标记、读取或合并工单的状态 JSON、查看或创建 PR，或发布 PR 审查评论时使用。涵盖 spx 如何根据 git origin 选择代码托管平台和凭据、隐藏的状态评论、spx 写入 <git common dir>/superwork/local-issue-state.json 而非工单的本机字段（会话 ID、配置文件路径、worktreePath、prDiffFile），以及 references/state-json.schema.json 中严格的字段 schema。'
 locale: zh-CN
-source_hash: aeaf6c55d4f2ea69e8eb176bc7a976c0606388da1831cd37cc4bd48c3faaed42
-translated_at: 2026-11-03T05:21:05Z
+source_hash: 7fe7822db887c79c3e2349f0470fdc421642d88d574ff50e580a3aa98b95736c
+translated_at: 2026-11-04T00:00:18Z
 translation_model: gpt-6-luna
 ---
 
@@ -83,11 +83,11 @@ spx 会在工单或 PR 正文的 HTML 注释行中保存元数据：
 ```
 <!-- spx:spec=docs/specs/foo.md -->
 <!-- spx:plan=docs/plans/foo.md -->
-<!-- spx:prototype=prototypes/foo/manifest.json -->
+<!-- spx:prototype=docs/prototype/foo/openpencil/foo.op -->
 <!-- spx:review=1 -->
 ```
 
-`issue marker` 会在原位替换该类型的现有标记；若不存在，则追加标记。其他标记保持不变。它还会将值合并到状态 JSON 中（`specFile` / `planFile` / `prototypeFile`，均为共享字段）。在发送任何请求之前，会根据 schema 中对应字段的模式检查该值：`specFile` 和 `planFile` 的格式类似 `dir/.../name.md`，`prototypeFile` 的格式类似 `dir/.../manifest.json`。
+`issue marker` 会在原位替换该类型的现有标记；若不存在，则追加标记。其他标记保持不变。它还会将值合并到状态 JSON 中（`specFile` / `planFile` / `prototypeFile`，均为共享字段）。在发送任何请求之前，会根据 schema 中对应字段的模式检查该值：`specFile` 和 `planFile` 的格式类似 `dir/.../name.md`；`prototypeFile` 对 Figma 插件类似 `dir/.../manifest.json`，对 OpenPencil 画板类似 `dir/.../name.op`，看板按这个后缀选打开它的工具。
 
 ### 5. 命令
 

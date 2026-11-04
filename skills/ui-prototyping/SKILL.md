@@ -1,6 +1,6 @@
 ---
 name: ui-prototyping
-description: 'Draw UI prototypes, design boards, state variants, and click-through demos. First ask which tool to use, the Figma development plugin or OpenPencil, unless the user already named one, then follow that tool''s reference. Use when the user asks for a 原型 / 设计稿 / 画板 / Design Lab / 状态变体 / 点击演示, says 用 figma 插件画 or 用 openpencil 画, or wants a feature''s screens mocked up. Not for reading an existing Figma file into code (use figma-design-to-code).'
+description: 'Draw UI prototypes, design boards, state variants, and click-through demos. First ask which tool to use, the Figma development plugin or OpenPencil, unless the user already named one, then follow that tool''s reference. When the issue is known from context, attaches the finished prototype to it with spx. Use when the user asks for a 原型 / 设计稿 / 画板 / Design Lab / 状态变体 / 点击演示, says 用 figma 插件画 or 用 openpencil 画, or wants a feature''s screens mocked up. Not for reading an existing Figma file into code (use figma-design-to-code).'
 ---
 
 # UI Prototyping
@@ -54,8 +54,39 @@ The only text allowed on a board is text that belongs to the product: labels, va
 
 Reproducing a current screen is fine when the user asks to compare — draw it as its own board named `现状`, still with no annotations on it. Put what is wrong with it in the reply.
 
+### 4. Attach the prototype to its issue
+
+The superwork kanban shows each issue's 原型路径 and opens it in the tool that drew it. When the boards are done and the issue number is known, attach the prototype without asking.
+
+1. **Find the issue number.** The first source that names one wins:
+   - The user's message or the session prompt: `#521`, `521 号工单`, `issue 521`.
+   - The worktree the session runs in. The kanban records each issue's worktree in the local issue-state file of the repo:
+
+     ```bash
+     jq -r --arg w "$(git rev-parse --show-toplevel)" \
+       'to_entries[] | select(.key | startswith("forge:")) | select(.value.worktreePath == $w) | .key | ltrimstr("forge:")' \
+       "$(git rev-parse --git-common-dir)/superwork/local-issue-state.json"
+     ```
+
+   Never guess the number from a branch name or an issue title. No number found: skip the next step and say in the reply that the prototype is not attached to any issue.
+2. **Attach it.** Run from inside the repo, with the path relative to the repo root. The path points at the file the tool opens:
+
+   | Tool | `--value` |
+   | --- | --- |
+   | Figma 插件 | the plugin's `manifest.json` |
+   | OpenPencil | the `.op` file |
+
+   ```bash
+   opencli spx issue marker --issue <N> --type prototype --value docs/prototype/<feature>/openpencil/<feature>.op
+   ```
+
+   The command replaces the issue's existing prototype marker, so a redraw at the same path needs no second run. When it fails, report the error; do not hand-edit the issue body. The `ecc:using-spx-cli` skill covers spx.
+3. **Report it.** Name the issue number and the attached path in the reply.
+
 ## Examples
 
 **Tool not named.** User: "会员中心要加个额度进度条，会员 / 非会员 / 扣款失败三种，画个原型看看。" Ask Figma 插件 or OpenPencil. On Figma 插件, follow `references/figma-plugin.md`. On OpenPencil, follow `references/openpencil.md`: `build.js` draws three boards, each exported to PNG and checked, then open `membership.op` in OpenPencil.
 
 **Tool named.** User: "用 openpencil 画一下报名页的报名中和已截止两个状态。" Skip the question and follow `references/openpencil.md`.
+
+**Issue known.** The session prompt says "给 521 号工单画原型" and the user picks OpenPencil. After the boards are saved and opened, run `opencli spx issue marker --issue 521 --type prototype --value docs/prototype/desktop-settings/openpencil/desktop-settings.op` and report the issue number and path.

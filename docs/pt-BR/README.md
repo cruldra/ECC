@@ -79,6 +79,8 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ## O Que Há de Novo
 
+### v2.2.65 — ui-prototyping attaches the finished prototype to its issue with `spx issue marker --type prototype` when the issue number is known from the user's message, the session prompt, or the worktree it runs in (`manifest.json` for a Figma plugin, the `.op` board for OpenPencil); using-spx-cli's prototype marker and state-field schema accept OpenPencil `.op` paths (Nov 2026)
+
 ### v2.2.65 — New using-spx-cli skill (moved from a personal skill repo, now maintained in ECC as ecc:using-spx-cli): view and create issues, update spec/plan/prototype markers, read and merge issue state JSON, view and open PRs, and post review comments on GitHub or Gitea through spx; local fields (session ids, profile paths, worktreePath, prDiffFile) go to `<git common dir>/superwork/local-issue-state.json` through `spx issue state merge`, the rest to the hidden state comment on the issue; ships the state-field schema (Nov 2026)
 
 ### v2.2.64 — New applying-design-patterns skill: name the pain ("every time we change X, we edit Y") and pass a four-check gate (enough variants, different reasons to change, no language feature already does it, the next change gets smaller) before using a pattern; maps code signals to the 22 GoF patterns, prefers functions, closures and generators over class hierarchies, and refactors in small test-guarded steps; ships creational, structural and behavioral pattern cards; fix: translations record their model as translation_model, so translated agents keep their own model tier (Nov 2026)

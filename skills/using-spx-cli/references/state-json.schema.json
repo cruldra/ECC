@@ -79,9 +79,9 @@
     },
     "prototypeFile": {
       "type": "string",
-      "description": "本工单的 Figma 原型插件 manifest.json 路径，仓库相对或绝对，必须形如 `dir/.../manifest.json`。",
+      "description": "本工单的原型路径，仓库相对或绝对：Figma 插件指向 `dir/.../manifest.json`，OpenPencil 指向画板文件 `dir/.../name.op`。看板按后缀决定用哪个工具打开。",
       "minLength": 1,
-      "pattern": "^[^\\s]+/[^\\s]+\\.json$"
+      "pattern": "^[^\\s]+/[^\\s]+\\.(json|op)$"
     },
     "prDiffFile": {
       "type": "string",

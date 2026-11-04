@@ -37,7 +37,7 @@ Not for: merging PRs, pushing to the default branch, or rewriting issue bodies b
 
 The kanban keeps the orchestration state of an issue as a JSON object in a **state comment** on the issue. Every write appends a new state comment; the current state is the **newest valid state comment**, found by scanning comments from the end, so later review notes or chatter do not hide it.
 
-spx hides the state comment from the web page by wrapping compact one-line JSON in an HTML comment, with `<`, `>` and `&` escaped as `<`, `>` and `&` so the body never contains `-->`:
+spx hides the state comment from the web page by wrapping compact one-line JSON in an HTML comment, with `<`, `>` and `&` escaped as `\u003c`, `\u003e` and `\u0026` so the body never contains `-->`:
 
 ```
 <!-- spx-state
@@ -79,11 +79,11 @@ spx keeps metadata in HTML comment lines in the issue or PR body:
 ```
 <!-- spx:spec=docs/specs/foo.md -->
 <!-- spx:plan=docs/plans/foo.md -->
-<!-- spx:prototype=prototypes/foo/manifest.json -->
+<!-- spx:prototype=docs/prototype/foo/openpencil/foo.op -->
 <!-- spx:review=1 -->
 ```
 
-`issue marker` replaces the existing marker of that type in place, or appends it; other markers stay. It also merges the value into the state JSON (`specFile` / `planFile` / `prototypeFile`, all shared fields). The value is checked against the pattern of that field in the schema before any request: `specFile` and `planFile` look like `dir/.../name.md`, `prototypeFile` like `dir/.../manifest.json`.
+`issue marker` replaces the existing marker of that type in place, or appends it; other markers stay. It also merges the value into the state JSON (`specFile` / `planFile` / `prototypeFile`, all shared fields). The value is checked against the pattern of that field in the schema before any request: `specFile` and `planFile` look like `dir/.../name.md`; `prototypeFile` looks like `dir/.../manifest.json` for a Figma plugin or `dir/.../name.op` for an OpenPencil board, and the kanban picks the tool that opens it from that suffix.
 
 ### 5. Commands
 
