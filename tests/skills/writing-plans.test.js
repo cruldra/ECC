@@ -76,6 +76,28 @@ test("sibling lines in the example never share a leading directory", () => {
   });
 });
 
+test("the file tree requires one shared annotation column padded with spaces", () => {
+  assert.ok(body.includes("Align all change markers and reasons in one shared annotation column"));
+  assert.ok(body.includes("including tree indentation and the full displayed path"));
+  assert.ok(body.includes("Use spaces, never tabs, with at least two spaces after the longest file line"));
+  assert.ok(body.includes("Count rendered character widths, not bytes"));
+  assert.ok(body.includes("**Annotation alignment:** all change markers start in the same display column"));
+});
+
+test("the example aligns every change marker with spaces, across all tree depths", () => {
+  const section = body.split("## File structure section")[1].split("\n## Task size")[0];
+  const tree = section.split("\n```\n")[1];
+  assert.ok(!tree.includes("\t"), "The tree must not use tabs");
+  const annotatedLines = tree.split("\n").filter((line) => /[🆕✏]/u.test(line));
+  assert.ok(annotatedLines.length > 1, "Expected several annotated file lines");
+  const columns = annotatedLines.map((line) => {
+    const column = line.search(/[🆕✏]/u);
+    assert.match(line.slice(0, column), /\S {2,}$/, "Leave at least two spaces after the path");
+    return column;
+  });
+  assert.strictEqual(new Set(columns).size, 1, "All markers must start in the same column");
+});
+
 test("self-review checks the file tree", () => {
   assert.ok(body.includes("**File tree:** no test files, and no two sibling lines whose paths start with the same directory"));
 });
