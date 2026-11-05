@@ -2,14 +2,14 @@
 name: using-spx-cli
 description: '当你需要在使用 spx CLI（superwork / superpowers-vscode 看板工作流）的 GitHub 或 Gitea 仓库中查看或创建工单、更新其 spec/plan/prototype 标记、读取或合并工单的状态 JSON、查看或创建 PR，或发布 PR 审查评论时使用。涵盖 spx 如何根据 git origin 选择代码托管平台和凭据、隐藏的状态评论、spx 写入 <git common dir>/superwork/local-issue-state.json 而非工单的本机字段（会话 ID、配置文件路径、worktreePath、prDiffFile），以及 references/state-json.schema.json 中严格的字段 schema。'
 locale: zh-CN
-source_hash: 7fe7822db887c79c3e2349f0470fdc421642d88d574ff50e580a3aa98b95736c
-translated_at: 2026-11-04T00:00:18Z
-translation_model: gpt-6-luna
+source_hash: d9de18f47c081981e2d934ffa07e0ef1df4ebcf9a4a1a5f4d9969c4b8210b82a
+translated_at: 2026-11-05T09:49:29Z
+translation_model: claude-opus-5-5
 ---
 
 # 使用 spx CLI
 
-`spx` 是随 superwork（superpowers-vscode 看板）一同提供的轻量代码托管平台包装器，供 Claude Code 和 Codex 等代理使用。它在 GitHub 和 Gitea 上的工作方式相同：读取当前目录的 git `origin`，根据主机选择代码托管平台，并与该仓库交互。执行 `opencli external register spx` 后，`spx ...` 和 `opencli spx ...` 都可以使用；建议优先使用 `opencli spx ...`。
+`spx` 是随 superwork（superpowers-vscode 看板）一同提供的轻量代码托管平台包装器，供 Claude Code 和 Codex 等代理使用。它在 GitHub 和 Gitea 上的工作方式相同：读取当前目录的 git `origin`，根据主机选择代码托管平台，并与该仓库交互。直接调用 `spx ...`；opencli 2.x 已不再透传外部 CLI，`opencli spx` 会报错。
 
 ## 适用场景
 
@@ -93,16 +93,16 @@ spx 会在工单或 PR 正文的 HTML 注释行中保存元数据：
 
 | 操作 | 命令 |
 |---|---|
-| 读取工单 | `opencli spx issue view --issue N` |
-| 读取工单和讨论 | `opencli spx issue view --issue N --comments` |
-| 创建工单 | `opencli spx issue create --json --title "T" --body-file F [--spec PATH] [--plan PATH]` |
-| 创建工单并设置初始状态 | `opencli spx issue create --json --title "T" --body-file F --state-json '{...}'` |
-| 更新 spec / plan / prototype 标记 | `opencli spx issue marker --issue N --type spec\|plan\|prototype --value PATH` |
-| 读取状态 JSON | `opencli spx issue state get --issue N` |
-| 合并状态 JSON | `opencli spx issue state merge --issue N --state-json '{...}'` |
-| 读取 PR | `opencli spx pr view --pr N` |
-| 创建 PR | `opencli spx pr create --title "T" --body-file F --head BRANCH [--base BRANCH]` |
-| 发布审查评论 | `opencli spx pr review-comment --pr N --body-file /tmp/x.md` |
+| 读取工单 | `spx issue view --issue N` |
+| 读取工单和讨论 | `spx issue view --issue N --comments` |
+| 创建工单 | `spx issue create --json --title "T" --body-file F [--spec PATH] [--plan PATH]` |
+| 创建工单并设置初始状态 | `spx issue create --json --title "T" --body-file F --state-json '{...}'` |
+| 更新 spec / plan / prototype 标记 | `spx issue marker --issue N --type spec\|plan\|prototype --value PATH` |
+| 读取状态 JSON | `spx issue state get --issue N` |
+| 合并状态 JSON | `spx issue state merge --issue N --state-json '{...}'` |
+| 读取 PR | `spx pr view --pr N` |
+| 创建 PR | `spx pr create --title "T" --body-file F --head BRANCH [--base BRANCH]` |
+| 发布审查评论 | `spx pr review-comment --pr N --body-file /tmp/x.md` |
 
 成对的标志不能同时使用：`--body` / `--body-file`（`issue create`、`pr create`、`pr review-comment`）以及 `--state-json` / `--state-file`（`issue create`、`issue state merge`）。`pr create` 必须提供正文，`issue state merge` 必须提供状态。
 
@@ -126,13 +126,13 @@ spx 会在工单或 PR 正文的 HTML 注释行中保存元数据：
 读取正在处理的工单及其讨论：
 
 ```
-opencli spx issue view --issue 42 --comments
+spx issue view --issue 42 --comments
 ```
 
 一次性创建工单、添加标记并设置初始状态：
 
 ```
-opencli spx issue create --json \
+spx issue create --json \
   --title "看板加 .env 锁定开关" \
   --body-file /tmp/issue-body.md \
   --spec .claude/specs/env-lock.md \
@@ -145,20 +145,20 @@ opencli spx issue create --json \
 更新现有工单的 plan 标记：
 
 ```
-opencli spx issue marker --issue 42 --type plan \
+spx issue marker --issue 42 --type plan \
   --value .claude/plans/env-lock.md
 ```
 
 读取当前状态，然后合并新字段。`reviewPassed` 会写入新的状态评论；`implementSessionId` 和 `worktreePath` 只会写入本机文件：
 
 ```
-opencli spx issue state get --issue 42
+spx issue state get --issue 42
 # {"branch":"feature/x","column":"in-progress","implementStatus":"running","pr":"73"}
 
-opencli spx issue state merge --issue 42 \
+spx issue state merge --issue 42 \
   --state-json '{"reviewPassed":true}'
 
-opencli spx issue state merge --issue 42 \
+spx issue state merge --issue 42 \
   --state-json '{"implementSessionId":"5a749776-d1c8-4cf0-8f85-3b8d7b804498","worktreePath":".claude/worktrees/42"}'
 ```
 
@@ -166,7 +166,7 @@ opencli spx issue state merge --issue 42 \
 
 ```
 git push -u origin feature/env-lock
-opencli spx pr create --json \
+spx pr create --json \
   --title "看板加 .env 锁定开关" \
   --body-file /tmp/pr-42.md \
   --head feature/env-lock
@@ -176,9 +176,9 @@ opencli spx pr create --json \
 根据 PR 自身的 base 分支进行审查，然后从文件发布审查意见（避免对较长的 markdown 进行 shell 转义）：
 
 ```
-opencli spx pr view --pr 73 --json     # base.branch → 例如 master
+spx pr view --pr 73 --json     # base.branch → 例如 master
 git fetch origin master && git diff origin/master...HEAD
-opencli spx pr review-comment --pr 73 --body-file /tmp/review-73.md
+spx pr review-comment --pr 73 --body-file /tmp/review-73.md
 ```
 
 ## 常见错误

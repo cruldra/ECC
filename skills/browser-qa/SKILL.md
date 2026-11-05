@@ -17,7 +17,7 @@ metadata:
 
 ## How It Works
 
-Uses `opencli browser <session> …` to interact with live pages like a real user. Do not start chrome-devtools MCP.
+Uses `opencli browser <command> --session <name> …` to interact with live pages like a real user. Do not start chrome-devtools MCP.
 
 ### Safety first — blast radius (run read-only by default)
 

@@ -77,7 +77,7 @@ The superwork kanban shows each issue's 原型路径 and opens it in the tool th
    | OpenPencil | the `.op` file |
 
    ```bash
-   opencli spx issue marker --issue <N> --type prototype --value docs/prototype/<feature>/openpencil/<feature>.op
+   spx issue marker --issue <N> --type prototype --value docs/prototype/<feature>/openpencil/<feature>.op
    ```
 
    The command replaces the issue's existing prototype marker, so a redraw at the same path needs no second run. When it fails, report the error; do not hand-edit the issue body. The `ecc:using-spx-cli` skill covers spx.
@@ -89,4 +89,4 @@ The superwork kanban shows each issue's 原型路径 and opens it in the tool th
 
 **Tool named.** User: "用 openpencil 画一下报名页的报名中和已截止两个状态。" Skip the question and follow `references/openpencil.md`.
 
-**Issue known.** The session prompt says "给 521 号工单画原型" and the user picks OpenPencil. After the boards are saved and opened, run `opencli spx issue marker --issue 521 --type prototype --value docs/prototype/desktop-settings/openpencil/desktop-settings.op` and report the issue number and path.
+**Issue known.** The session prompt says "给 521 号工单画原型" and the user picks OpenPencil. After the boards are saved and opened, run `spx issue marker --issue 521 --type prototype --value docs/prototype/desktop-settings/openpencil/desktop-settings.op` and report the issue number and path.

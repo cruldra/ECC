@@ -108,7 +108,7 @@ test("every --state-json example only uses schema fields with valid values", () 
 
 test("every spx command in SKILL.md is a real spx subcommand, and each subcommand is documented", () => {
   const used = new Set(
-    [...body.matchAll(/opencli spx ((?:issue|pr) (?:state )?[a-z-]+)/g)].map((m) => m[1])
+    [...body.matchAll(/spx ((?:issue|pr) (?:state )?[a-z-]+)/g)].map((m) => m[1])
   );
   assert.deepStrictEqual([...used].filter((cmd) => !SPX_COMMANDS.includes(cmd)), []);
   assert.deepStrictEqual(SPX_COMMANDS.filter((cmd) => !used.has(cmd)), []);

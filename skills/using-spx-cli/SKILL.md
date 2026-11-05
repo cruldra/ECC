@@ -5,7 +5,7 @@ description: 'Use when you need to view or create an issue, update its spec/plan
 
 # Using spx CLI
 
-`spx` is a thin forge wrapper shipped with superwork (the superpowers-vscode kanban) for agents such as Claude Code and Codex. It works the same way on GitHub and Gitea: it reads the git `origin` of the current directory, picks the forge from the host, and talks to that repo. After `opencli external register spx`, both `spx ...` and `opencli spx ...` work; prefer `opencli spx ...`.
+`spx` is a thin forge wrapper shipped with superwork (the superpowers-vscode kanban) for agents such as Claude Code and Codex. It works the same way on GitHub and Gitea: it reads the git `origin` of the current directory, picks the forge from the host, and talks to that repo. Call it directly as `spx ...`; opencli 2.x no longer passes through external CLIs, so `opencli spx` fails.
 
 ## When to Use
 
@@ -89,16 +89,16 @@ spx keeps metadata in HTML comment lines in the issue or PR body:
 
 | Want to do | Command |
 |---|---|
-| Read issue | `opencli spx issue view --issue N` |
-| Read issue + discussion | `opencli spx issue view --issue N --comments` |
-| Create issue | `opencli spx issue create --json --title "T" --body-file F [--spec PATH] [--plan PATH]` |
-| Create issue + initial state | `opencli spx issue create --json --title "T" --body-file F --state-json '{...}'` |
-| Update spec / plan / prototype marker | `opencli spx issue marker --issue N --type spec\|plan\|prototype --value PATH` |
-| Read state JSON | `opencli spx issue state get --issue N` |
-| Merge state JSON | `opencli spx issue state merge --issue N --state-json '{...}'` |
-| Read PR | `opencli spx pr view --pr N` |
-| Open PR | `opencli spx pr create --title "T" --body-file F --head BRANCH [--base BRANCH]` |
-| Post review comment | `opencli spx pr review-comment --pr N --body-file /tmp/x.md` |
+| Read issue | `spx issue view --issue N` |
+| Read issue + discussion | `spx issue view --issue N --comments` |
+| Create issue | `spx issue create --json --title "T" --body-file F [--spec PATH] [--plan PATH]` |
+| Create issue + initial state | `spx issue create --json --title "T" --body-file F --state-json '{...}'` |
+| Update spec / plan / prototype marker | `spx issue marker --issue N --type spec\|plan\|prototype --value PATH` |
+| Read state JSON | `spx issue state get --issue N` |
+| Merge state JSON | `spx issue state merge --issue N --state-json '{...}'` |
+| Read PR | `spx pr view --pr N` |
+| Open PR | `spx pr create --title "T" --body-file F --head BRANCH [--base BRANCH]` |
+| Post review comment | `spx pr review-comment --pr N --body-file /tmp/x.md` |
 
 Paired flags are mutually exclusive: `--body` / `--body-file` (`issue create`, `pr create`, `pr review-comment`) and `--state-json` / `--state-file` (`issue create`, `issue state merge`). `pr create` requires a body and `issue state merge` requires a state.
 
@@ -122,13 +122,13 @@ Paired flags are mutually exclusive: `--body` / `--body-file` (`issue create`, `
 Read the issue you are working on, with its discussion:
 
 ```
-opencli spx issue view --issue 42 --comments
+spx issue view --issue 42 --comments
 ```
 
 Create an issue with markers and initial state in one shot:
 
 ```
-opencli spx issue create --json \
+spx issue create --json \
   --title "看板加 .env 锁定开关" \
   --body-file /tmp/issue-body.md \
   --spec .claude/specs/env-lock.md \
@@ -141,20 +141,20 @@ stdout: `{"number":42,"html_url":"https://.../issues/42","state":{...}}`. `/tmp/
 Update the plan marker on an existing issue:
 
 ```
-opencli spx issue marker --issue 42 --type plan \
+spx issue marker --issue 42 --type plan \
   --value .claude/plans/env-lock.md
 ```
 
 Read the current state, then merge new fields. `reviewPassed` goes to a new state comment; `implementSessionId` and `worktreePath` go to the local file only:
 
 ```
-opencli spx issue state get --issue 42
+spx issue state get --issue 42
 # {"branch":"feature/x","column":"in-progress","implementStatus":"running","pr":"73"}
 
-opencli spx issue state merge --issue 42 \
+spx issue state merge --issue 42 \
   --state-json '{"reviewPassed":true}'
 
-opencli spx issue state merge --issue 42 \
+spx issue state merge --issue 42 \
   --state-json '{"implementSessionId":"5a749776-d1c8-4cf0-8f85-3b8d7b804498","worktreePath":".claude/worktrees/42"}'
 ```
 
@@ -162,7 +162,7 @@ Open a PR that closes issue 42:
 
 ```
 git push -u origin feature/env-lock
-opencli spx pr create --json \
+spx pr create --json \
   --title "看板加 .env 锁定开关" \
   --body-file /tmp/pr-42.md \
   --head feature/env-lock
@@ -172,9 +172,9 @@ opencli spx pr create --json \
 Review a PR against its own base branch, then post the review from a file (avoids shell-escaping large markdown):
 
 ```
-opencli spx pr view --pr 73 --json     # base.branch → e.g. master
+spx pr view --pr 73 --json     # base.branch → e.g. master
 git fetch origin master && git diff origin/master...HEAD
-opencli spx pr review-comment --pr 73 --body-file /tmp/review-73.md
+spx pr review-comment --pr 73 --body-file /tmp/review-73.md
 ```
 
 ## Common Mistakes
