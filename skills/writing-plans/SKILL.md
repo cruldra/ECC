@@ -53,15 +53,15 @@ Markers: 🆕 new · ✏️ changed
 project-root/
 ├── src/
 │   ├── billing/
-│   │   ├── service.py  🆕 orchestration
-│   │   └── routes.py  ✏️ mount the entry point
-│   ├── api/schema.py  ✏️ quote request model
-│   └── settings.py  ✏️ feature flag
+│   │   ├── service.py        🆕 orchestration
+│   │   └── routes.py         ✏️ mount the entry point
+│   ├── api/schema.py         ✏️ quote request model
+│   └── settings.py           ✏️ feature flag
 └── web/src/
-    ├── lib/billing.ts  🆕 fetch the quote
+    ├── lib/billing.ts        🆕 fetch the quote
     └── app/
         ├── billing/page.tsx  🆕 quote page
-        └── layout.tsx  ✏️ link to the quote page
+        └── layout.tsx        ✏️ link to the quote page
 ```
 ````
 
@@ -76,6 +76,7 @@ Rules:
 - Leave test files out: test code, test fixtures, snapshots. The reader opens this tree to see what the feature changes; tests are listed under each task's **Files:**.
 - Every other file a task touches appears here
 - One short reason per file, on the same line
+- Align all change markers and reasons in one shared annotation column for the entire tree, including tree indentation and the full displayed path. Use spaces, never tabs, with at least two spaces after the longest file line. Count rendered character widths, not bytes, when paths contain wide characters. The markers line up vertically and the reasons start together; do not right-align the ends of the reasons.
 - Nothing merely "mentioned" — if it is in the tree, a task owns it
 - No second file map anywhere: no extra chapter, table, or prose list. This tree is the map.
 
@@ -181,6 +182,7 @@ Plan failures — never write:
 2. **Placeholder scan:** fix any red flag above
 3. **Type consistency:** later tasks use the names earlier tasks produced
 4. **File tree:** no test files, and no two sibling lines whose paths start with the same directory
+5. **Annotation alignment:** all change markers start in the same display column, with space padding and at least two spaces after each path
 
 Fix inline.
 
