@@ -23,6 +23,8 @@ opencli skills read opencli-browser -f plain
 
 Use the installed command's `--help` for exact flags. Do not copy syntax from another release. Page commands require `--session <name>`; a session is not a positional argument after `browser`.
 
+Output is one JSON value: `{"ok": true, "data": ...}` on success, `{"ok": false, "error": {"code", "message", "hint"}}` with a nonzero exit on failure. Read `data`, not the top level.
+
 The bundled skill explains capabilities, not permission to change windows, groups or focus. Operator restrictions take precedence over its examples. Use `opencli doctor` for bridge diagnosis; it does not prove the target is logged in or that hidden-page interaction works.
 
 ## Identify the Allowed Workspace Before Acting

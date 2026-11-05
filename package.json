@@ -1,6 +1,6 @@
 {
   "name": "ecc-universal",
-  "version": "2.2.63",
+  "version": "2.2.67",
   "description": "Harness-native agent operating system for Codex, OpenCode, Cursor, Gemini, Claude Code, and terminal workflows - skills, hooks, rules, MCP conventions, and operator control-plane patterns",
   "main": ".opencode/dist/index.js",
   "types": ".opencode/dist/index.d.ts",
@@ -189,6 +189,7 @@
     "skills/angular-developer/",
     "skills/api-connector-builder/",
     "skills/api-design/",
+    "skills/applying-design-patterns/",
     "skills/article-writing/",
     "skills/automation-audit-ops/",
     "skills/autonomous-loops/",
@@ -390,6 +391,7 @@
     "skills/ui-to-vue/",
     "skills/unified-memory/",
     "skills/unified-notifications-ops/",
+    "skills/using-spx-cli/",
     "skills/verification-loop/",
     "skills/video-editing/",
     "skills/videodb/",

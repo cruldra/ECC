@@ -4,7 +4,7 @@ description: Docker 和 Docker Compose 模式，涵盖本地开发、加固的 C
 locale: zh-CN
 source_hash: 2a880cf2f6401874151daa9bcc0eacd10cf79f5f48b97f98e93a877a8f3fd12b
 translated_at: 2026-09-14T07:43:11Z
-model: z-ai/glm-5.3-flash
+translation_model: z-ai/glm-5.3-flash
 ---
 
 # Docker 模式

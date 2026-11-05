@@ -3,7 +3,7 @@ description: 快速回答一个旁支问题，不会打断或丢失当前任务�
 locale: zh-CN
 source_hash: 828d2739fce0b0d1cce5b5c69b277c445f21c853547e23b317d7fb0cb63ed800
 translated_at: 2026-09-10T06:46:52Z
-model: z-ai/glm-5.3-flash
+translation_model: z-ai/glm-5.3-flash
 ---
 
 # Aside 命令

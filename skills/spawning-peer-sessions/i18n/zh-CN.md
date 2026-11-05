@@ -4,7 +4,7 @@ description: "按需开另一个 Claude Code 会话并与它对话——把任�
 locale: zh-CN
 source_hash: 82dfb389df0d15b7318dfc3b218c4316eb3ec0deb645d300c5c297234a02c1d3
 translated_at: 2026-09-18T17:10:57Z
-model: glm-5.3-flash
+translation_model: glm-5.3-flash
 ---
 
 # 开启对等会话

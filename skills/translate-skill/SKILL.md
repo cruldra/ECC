@@ -25,7 +25,7 @@ Do not replace `SKILL.md`. Do not install `i18n/` files as skills.
 1. Hash `skills/<id>/SKILL.md` with SHA-256.
 2. If `skills/<id>/i18n/zh-CN.md` exists and `source_hash` matches, skip (unless `--force`).
 3. Call `gpt-6-luna` through the Anthropic-compatible endpoint in `ANTHROPIC_BASE_URL`. Token from `ANTHROPIC_AUTH_TOKEN` or `ANTHROPIC_API_KEY`. If those are unset, the script reads `TRANSLATE_PROFILE` or `~/Sources/cruldra-profile/claude-config/profiles/gpt-6-luna.json`.
-4. Write `skills/<id>/i18n/zh-CN.md` with `locale`, `source_hash`, `translated_at`, `model`.
+4. Write `skills/<id>/i18n/zh-CN.md` with `locale`, `source_hash`, `translated_at`, `translation_model`. The source `model` field, such as an agent tier, is kept as is.
 5. If hashes later disagree, the copy is stale — translate again.
 
 ## Command

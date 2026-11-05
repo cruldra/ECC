@@ -7,7 +7,7 @@ metadata:
 tools: Read, Write, Edit, Bash, Grep, Glob
 source_hash: 64f57e232c3533877403703bc95b3c75df9de23f657899a306f13c703009ff57
 translated_at: 2026-09-09T04:55:29Z
-model: z-ai/glm-5.3-flash
+translation_model: z-ai/glm-5.3-flash
 ---
 
 # Agent 架构审计

@@ -4,7 +4,7 @@ locale: zh-CN
 description: 通过随附的 bugsink-cli 分析自托管 Bugsink 实例的错误。当用户粘贴 Bugsink URL(例如 bugsink.ailoveworld.cn/issues/...)、说 /bugsink,或询问 查 bugsink / 看看这个报错 / 哪些是真 bug 时使用。绝不为 Bugsink 打开浏览器 —— CLI 能回答一切。
 source_hash: 47328887f692eb7d885b07457c449601ba10b32195ce006084f97c2ec7fc460e
 translated_at: 2026-09-17T01:17:09Z
-model: glm-5.3-flash
+translation_model: glm-5.3-flash
 ---
 
 # Bugsink

@@ -255,7 +255,7 @@ def translate(root: Path, item_id: str, locale: str, force: bool, kind: str = "s
             "locale": locale,
             "source_hash": digest,
             "translated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "model": model,
+            "translation_model": model,
         },
     )
     path.parent.mkdir(parents=True, exist_ok=True)

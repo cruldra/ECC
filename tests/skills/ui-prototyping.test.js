@@ -73,6 +73,14 @@ test('OpenPencil editor is closed while drawing and opened without asking when d
   assert.ok(skill.includes('open the `.op` in OpenPencil without asking'));
 });
 
+test('attaches the finished prototype to its issue with spx, only when the number is known', () => {
+  assert.ok(skill.includes('### 4. Attach the prototype to its issue'));
+  assert.ok(skill.includes('spx issue marker --issue <N> --type prototype --value'));
+  assert.ok(skill.includes('superwork/local-issue-state.json'), 'finds the issue from the worktree record');
+  assert.ok(skill.includes('Never guess the number from a branch name'));
+  assert.ok(skill.includes('the `.op` file'));
+});
+
 test('no path points at the old skill directory', () => {
   for (const file of ['SKILL.md', 'references/openpencil.md']) {
     assert.ok(!read(file).includes('figma-plugin-prototyping'), `${file} still names figma-plugin-prototyping`);

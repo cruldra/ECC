@@ -5,7 +5,7 @@ argument-hint: '<path>:<start>-<end>'
 locale: zh-CN
 source_hash: 0b4febc3c0bbeff763cc723fb48d252d1393489d4b8a2b16d31d81cce573d2b0
 translated_at: 2026-10-18T06:20:48Z
-model: claude-opus-5-5
+translation_model: claude-opus-5-5
 ---
 
 # 编写代码注释

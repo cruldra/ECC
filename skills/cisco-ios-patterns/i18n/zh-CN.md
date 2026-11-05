@@ -7,7 +7,7 @@ metadata:
 locale: zh-CN
 source_hash: 85b6a97574cc236d4a9336b1c74b42aaf4386338417e787cbed0c88677bf1179
 translated_at: 2026-09-14T07:39:01Z
-model: z-ai/glm-5.3-flash
+translation_model: z-ai/glm-5.3-flash
 ---
 
 # Cisco IOS 模式

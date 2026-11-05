@@ -8,7 +8,7 @@ metadata:
 locale: zh-CN
 source_hash: d8578fe750e7321658450386e2112a46ea1aedca0235fbf97f3db2457e599b3a
 translated_at: 2026-09-09T03:38:19Z
-model: z-ai/glm-5.3-flash
+translation_model: z-ai/glm-5.3-flash
 ---
 
 # 无障碍访问（WCAG 2.2）

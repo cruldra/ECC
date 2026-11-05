@@ -133,19 +133,13 @@ function main() {
     }],
 
     ['locale agent docs declare the canonical model tier', () => {
-      // Fork pins these Chinese docs to the local model instead of the canonical tier.
-      const forkModelPins = new Map([
-        ['docs/zh-CN/agents/a11y-architect.md', 'z-ai/glm-5.3-flash'],
-        ['docs/zh-CN/agents/architect.md', 'z-ai/glm-5.3-flash'],
-      ]);
       const drift = [];
       for (const { file, filePath } of localeFiles) {
         const fields = frontmatter(filePath);
         if (!fields) continue;
-        const relPath = rel(filePath);
-        const want = forkModelPins.get(relPath) || canonical.get(file).model;
+        const want = canonical.get(file).model;
         if (want !== undefined && fields.model !== want) {
-          drift.push(`${relPath}: ${fields.model} != ${want}`);
+          drift.push(`${rel(filePath)}: ${fields.model} != ${want}`);
         }
       }
       assert.deepStrictEqual(

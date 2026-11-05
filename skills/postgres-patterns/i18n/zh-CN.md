@@ -6,7 +6,7 @@ metadata:
 locale: zh-CN
 source_hash: 9c8c391ae9e9aa87faa7ca091e1d395c97766df14080d0bfbea8a97721776163
 translated_at: 2026-09-13T03:58:17Z
-model: z-ai/glm-5.3-flash
+translation_model: z-ai/glm-5.3-flash
 ---
 
 # PostgreSQL 模式

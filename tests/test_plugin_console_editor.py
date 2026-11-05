@@ -293,3 +293,21 @@ def test_agent_translation_lands_in_docs_mirror(isolated_root):
     assert (isolated_root / "agents") not in out.parents
     with pytest.raises(SystemExit, match="路径逃出|非法"):
         module.source_path(isolated_root, "agent", "../secrets", )
+
+
+def test_agent_translation_keeps_the_source_model_tier(isolated_root, monkeypatch):
+    module = _load_script()
+    _write_agent(isolated_root, "demo-agent", AGENT_MD)
+    monkeypatch.setattr(module, "credentials", lambda: ("https://proxy.invalid", "token", "gpt-6-luna"))
+    monkeypatch.setattr(
+        module,
+        "call_model",
+        lambda base, token, model, locale, original: original.replace("Body.", "正文。"),
+    )
+
+    result = module.translate(isolated_root, "demo-agent", "zh-CN", force=False, kind="agent")
+
+    frontmatter, _ = module.split_frontmatter(result["text"])
+    lines = frontmatter.splitlines()
+    assert "model: sonnet" in lines
+    assert "translation_model: gpt-6-luna" in lines

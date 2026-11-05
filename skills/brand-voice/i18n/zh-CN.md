@@ -6,7 +6,7 @@ metadata:
 locale: zh-CN
 source_hash: 57c7f8440b7bd4c91c0d325640b5c6fb7a3dc7fc05595946c7bc705761a987a7
 translated_at: 2026-09-15T04:08:26Z
-model: z-ai/glm-5.3-flash
+translation_model: z-ai/glm-5.3-flash
 ---
 
 # 品牌语调（Brand Voice）

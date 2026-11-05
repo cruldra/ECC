@@ -4,7 +4,7 @@ description: '用于决定代码放在哪、文件和目录叫什么：新增模
 locale: zh-CN
 source_hash: 5f32786f21a0cf295c0e38597199026f2347081bf582c07b2e42cacc0b120104
 translated_at: 2026-10-17T16:24:07Z
-model: claude-opus-5-5
+translation_model: claude-opus-5-5
 ---
 
 # 组织代码

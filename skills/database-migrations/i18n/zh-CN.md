@@ -6,7 +6,7 @@ metadata:
 locale: zh-CN
 source_hash: ad7f2f04ca03e592a16e2a539d8c6e90bf4e08892408820ce99a53e9d07775de
 translated_at: 2026-09-13T03:55:40Z
-model: z-ai/glm-5.3-flash
+translation_model: z-ai/glm-5.3-flash
 ---
 
 # 数据库迁移模式

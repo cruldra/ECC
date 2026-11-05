@@ -6,7 +6,7 @@ metadata:
 locale: zh-CN
 source_hash: d2cb536f8ccb201266e094542cb20af8a4d6474feb5b16116cfb4497c2b8149f
 translated_at: 2026-09-14T06:15:20Z
-model: z-ai/glm-5.3-flash
+translation_model: z-ai/glm-5.3-flash
 ---
 
 # Canary Watch — 部署后监控
