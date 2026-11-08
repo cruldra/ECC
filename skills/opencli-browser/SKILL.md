@@ -68,6 +68,17 @@ Use fresh `state` or `find` results before interaction. Prefer semantic targets 
 
 Cleanup only the task's owned temporary pages. Preserve the reserved window/group and other tasks' pages. Do not run broad cleanup or assume that `close` cannot select a placeholder tab; check the installed lifecycle behavior against the operator's no-focus policy.
 
+## Idle Window Recovery and Interaction Fixes
+
+Extension 1.0.27 adds recovery of marked idle interactive windows after a browser restart. Check the installed extension version with `opencli profile list`; the CLI version alone does not establish this capability.
+
+- A reusable idle page can be the extension's own `idle.html`, not only `about:blank`. Its presence alone does not prove availability or ownership. Let OpenCLI validate its stored marker; do not print marker fragments, construct marker URLs or edit extension storage to make a page eligible.
+- Restart recovery requires one uniquely matching, current marker in a normal, non-incognito window containing only that idle tab, in its existing group, with no pending navigation or conflicting tab reservation. A group title, color or restored numeric ID is not sufficient evidence. Duplicate, stale, busy or missing markers are not permission to choose another window or create a replacement.
+- Recovering an idle container does not restore an unfinished task or prove that old page IDs remain valid. Recheck the allowed profile, window, group, occupancy and returned page identity before resuming. Ordinary same-run reuse still requires the workspace checks above; the single-idle-tab condition describes restart recovery, not every reusable session.
+- Keep the owned idle placeholder when preserving the reserved container; do not close or navigate it merely because it is an extension page. Use scoped background `open` only after confirming the allowed reuse path. Cleanup can select the placeholder inside the automation window, so retain the existing main-window and OS-focus checks.
+
+The paired CLI 2.0.3 fixes retargeted clicks and supplies more complete native keyboard events. These fixes improve targeting and key behavior; they do not establish permission to focus a window, remove hidden-page input restrictions or guarantee that a page accepted an action. Verify the actual result and keep the same background-only boundaries.
+
 ## Diagnose Failures Without Switching to the Foreground
 
 Classify the error before retrying:
