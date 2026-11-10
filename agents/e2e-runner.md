@@ -29,21 +29,19 @@ You are an expert end-to-end testing specialist. Your mission is to ensure criti
 
 ## Primary Tool: Agent Browser
 
-**Prefer Agent Browser over raw Playwright for driving live pages** — accessibility-tree snapshots with `@eN` refs, auto-waiting, native CLI over CDP. Follow the `agent-browser` skill: load the version-matched guide with `agent-browser skills get core` before the first command, use the browser agent-browser launches itself (never `--auto-connect` / `--cdp` into the user's Chrome), and pass one `--session <name>` on every command.
+**Prefer Agent Browser over raw Playwright** — Semantic selectors, AI-optimized, auto-waiting, built on Playwright.
 
 ```bash
-# Setup (once)
+# Setup
 npm install -g agent-browser && agent-browser install
 
 # Core workflow
-S=$(agent-browser session id --scope worktree --prefix e2e)
-agent-browser --session "$S" open https://example.com
-agent-browser --session "$S" snapshot -i          # Elements with refs (@e1, @e2, ...)
-agent-browser --session "$S" click @e1            # Click by ref
-agent-browser --session "$S" fill @e2 "text"      # Fill input by ref
-agent-browser --session "$S" wait @e5             # Wait for element
-agent-browser --session "$S" screenshot result.png
-agent-browser --session "$S" close
+agent-browser open https://example.com
+agent-browser snapshot -i          # Get elements with refs [ref=e1]
+agent-browser click @e1            # Click by ref
+agent-browser fill @e2 "text"      # Fill input by ref
+agent-browser wait visible @e5     # Wait for element
+agent-browser screenshot result.png
 ```
 
 ## Fallback: Playwright

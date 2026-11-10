@@ -1,6 +1,6 @@
 # MCP Connector Policy
 
-This fork ships three default MCP connectors in `.mcp.json`: `context7`, `searxng`, `firecrawl`. Browser automation is the `agent-browser` CLI, not chrome-devtools.
+This fork ships three default MCP connectors in `.mcp.json`: `context7`, `searxng`, `firecrawl`. Browser automation is still `opencli browser`, not chrome-devtools.
 
 Secrets stay out of the repo. The host environment must provide `CONTEXT7_API_KEY`, `SEARXNG_URL`, and `FIRECRAWL_API_URL` / `FIRECRAWL_API_KEY`.
 
@@ -25,8 +25,8 @@ Do not add GitHub / Figma / Playwright / chrome-devtools back as defaults.
 
 | Server | Replacement |
 |---|---|
-| `chrome-devtools` | `agent-browser` CLI via the `agent-browser` skill |
+| `chrome-devtools` | `opencli browser` via `opencli-browser` |
 | `github` | `gh` via `github-ops` |
-| `playwright` | E2E skills / `agent-browser` |
+| `playwright` | E2E skills / `opencli browser` |
 
 Opt-in copies remain in `mcp-configs/mcp-servers.json`.

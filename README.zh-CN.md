@@ -80,6 +80,8 @@
 
 ## 最新动态
 
+### v2.2.69 — 撤回 v2.2.68：浏览器自动化恢复为 `opencli browser`，重新加回 opencli-browser 技能，删除 agent-browser 技能；browser-qa、e2e-runner、MCP 连接器策略和 README 恢复原样（2026年11月）
+
 ### v2.2.68 — 浏览器自动化从 `opencli browser` 换成 vercel-labs 的 `agent-browser` CLI：新增 agent-browser 技能，先用 `agent-browser skills get core` 加载与已装版本匹配的用法，再叠加本地规则（只用 agent-browser 自己启动的浏览器，不用 `--auto-connect` / `--cdp` 接管用户的 Chrome；每个任务一个 `--session`；能写 token cookie 就不走登录表单；密码和 TOTP 从 Bitwarden CLI `bw` 直接填进页面，不回显；只有扫码等人工步骤才截图交给用户）；删除 opencli-browser 技能，browser-qa、e2e-runner、MCP 连接器策略和 README 改指 agent-browser；`opencli` 只保留站点适配器（2026年11月）
 
 ### v2.2.68 — ui-prototyping 画完原型后，能从用户消息、会话提示词或所在工作树认出工单号时，直接用 `spx issue marker --type prototype` 把原型挂到工单上（Figma 插件挂 `manifest.json`，OpenPencil 挂 `.op` 画板）；using-spx-cli 的原型标记和状态字段 schema 支持 OpenPencil 的 `.op`（2026年11月）

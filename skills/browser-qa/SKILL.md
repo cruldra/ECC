@@ -1,6 +1,6 @@
 ---
 name: browser-qa
-description: "Run automated post-deploy UI verification with the agent-browser CLI: console-error and Core Web Vitals smoke checks, form and auth-flow interaction tests, screenshot visual regression across three breakpoints, and axe-core accessibility audits ending in a SHIP / DO-NOT-SHIP verdict. Use when testing a deployed feature on staging or preview, before shipping frontend changes, reviewing a frontend PR, or checking responsive layout and accessibility."
+description: "Run automated post-deploy UI verification with a browser automation MCP (claude-in-chrome, Playwright, or Puppeteer): console-error and Core Web Vitals smoke checks, form and auth-flow interaction tests, screenshot visual regression across three breakpoints, and axe-core accessibility audits ending in a SHIP / DO-NOT-SHIP verdict. Use when testing a deployed feature on staging or preview, before shipping frontend changes, reviewing a frontend PR, or checking responsive layout and accessibility."
 metadata:
   origin: ECC
 ---
@@ -17,7 +17,7 @@ metadata:
 
 ## How It Works
 
-Uses the `agent-browser` CLI (see the `agent-browser` skill: load `agent-browser skills get core` first, use the browser it launches itself, one `--session <name>` per run, `close` at the end) to interact with live pages like a real user. Do not start chrome-devtools MCP or attach to the user's Chrome.
+Uses `opencli browser <command> --session <name> …` to interact with live pages like a real user. Do not start chrome-devtools MCP.
 
 ### Safety first — blast radius (run read-only by default)
 
@@ -30,10 +30,10 @@ credentials/tokens/PII before saving any screenshot.
 ### Phase 1: Smoke Test
 ```
 1. Navigate to target URL
-2. Check for console errors (filter noise: analytics, third-party)  — `console`, `errors`
-3. Verify no 4xx/5xx in network requests                            — `network requests`
-4. Screenshot above-the-fold on desktop + mobile viewport           — `set viewport`, `screenshot`
-5. Check Core Web Vitals: LCP < 2.5s, CLS < 0.1, INP < 200ms         — `vitals`
+2. Check for console errors (filter noise: analytics, third-party)
+3. Verify no 4xx/5xx in network requests
+4. Screenshot above-the-fold on desktop + mobile viewport
+5. Check Core Web Vitals: LCP < 2.5s, CLS < 0.1, INP < 200ms
    (INP replaced FID in March 2024; thresholds per web.dev)
 ```
 
@@ -59,7 +59,7 @@ credentials/tokens/PII before saving any screenshot.
 
 ### Phase 4: Accessibility
 ```
-1. Run axe-core on each page (`agent-browser a11y`)
+1. Run axe-core or equivalent on each page
 2. Flag WCAG 2.2 AA violations (contrast, labels, focus order)
 3. Verify keyboard navigation works end-to-end
 4. Check screen reader landmarks
@@ -97,6 +97,9 @@ credentials/tokens/PII before saving any screenshot.
 
 ## Integration
 
-Drive every phase with `agent-browser`; exact flags come from `agent-browser skills get core --ref commands`. Committed regression suites belong in Playwright via `e2e-testing`.
+Works with any browser MCP:
+- `mChild__claude-in-chrome__*` tools (preferred — uses your actual Chrome)
+- Playwright via `mcp__browserbase__*`
+- Direct Puppeteer scripts
 
 Pair with `/canary-watch` for post-deploy monitoring.

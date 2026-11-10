@@ -79,6 +79,8 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ## Yenilikler
 
+### v2.2.69 — Reverts v2.2.68: browser automation goes back to `opencli browser`; the opencli-browser skill returns, the agent-browser skill is removed, and browser-qa, e2e-runner, the MCP connector policy, and the README are restored (Nov 2026)
+
 ### v2.2.68 — Browser automation moves from `opencli browser` to the vercel-labs `agent-browser` CLI: the new agent-browser skill loads the version-matched guide with `agent-browser skills get core`, then adds local rules (use the browser agent-browser launches itself, never `--auto-connect` / `--cdp` into the user's Chrome; one `--session` per task; token cookies instead of the login form when possible; passwords and TOTP codes filled from the Bitwarden CLI `bw` without echoing them; screenshots go to the user only for QR and other human steps); the opencli-browser skill is removed, and browser-qa, e2e-runner, the MCP connector policy, and the README point at agent-browser; `opencli` stays for site adapters (Nov 2026)
 
 ### v2.2.68 — ui-prototyping attaches the finished prototype to its issue with `spx issue marker --type prototype` when the issue number is known from the user's message, the session prompt, or the worktree it runs in (`manifest.json` for a Figma plugin, the `.op` board for OpenPencil); using-spx-cli's prototype marker and state-field schema accept OpenPencil `.op` paths (Nov 2026)
