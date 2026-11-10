@@ -1,6 +1,6 @@
 ---
 name: browser-qa
-description: "Run post-deploy UI verification through OpenCLI in the operator's permitted Chrome workspace: console-error and Core Web Vitals checks, authorized form and auth-flow tests, screenshot comparisons across three breakpoints, and accessibility audits with an evidence-backed shipping verdict. Use when testing staging or preview features, reviewing frontend changes, or checking responsive layout and accessibility."
+description: "Run automated post-deploy UI verification with the agent-browser CLI: console-error and Core Web Vitals smoke checks, form and auth-flow interaction tests, screenshot visual regression across three breakpoints, and axe-core accessibility audits ending in a SHIP / DO-NOT-SHIP verdict. Use when testing a deployed feature on staging or preview, before shipping frontend changes, reviewing a frontend PR, or checking responsive layout and accessibility."
 metadata:
   origin: ECC
 ---
@@ -17,11 +17,7 @@ metadata:
 
 ## How It Works
 
-Load `opencli-usage` and `opencli-browser` before live browser work. Use `opencli browser <command> --session <name> --window background …`; check installed help for each operation. Do not use Chrome DevTools MCP, another browser automation MCP or direct Playwright/Puppeteer scripts as an alternative route into Chrome.
-
-Before opening a page, confirm the allowed connected profile, reserved automation window, existing group and task occupancy. Establish a stable session only through the verified reuse path; do not bind the current user tab, take another task's page or create a replacement window/group. Verify the returned page identity and actual window/group membership. Preserve the main window's active tab and OS focus throughout QA, including popups, screenshots, viewport changes and cleanup.
-
-Use fresh page evidence before clicking or typing and verify the resulting application state. Updated click/key handling is not proof that hidden-page input is supported. If an operation is blocked or the installed OpenCLI has no supported capability, report that check as blocked or unverified, continue independent authorized checks, and do not switch tools or claim a pass.
+Uses the `agent-browser` CLI (see the `agent-browser` skill: load `agent-browser skills get core` first, use the browser it launches itself, one `--session <name>` per run, `close` at the end) to interact with live pages like a real user. Do not start chrome-devtools MCP or attach to the user's Chrome.
 
 ### Safety first — blast radius (run read-only by default)
 
@@ -31,15 +27,13 @@ mass-update) against a production URL — require an explicit opt-in **and** a s
 URL. Use seeded **test credentials**, never real production logins, and **redact**
 credentials/tokens/PII before saving any screenshot.
 
-Read the project's `~/Profile/<project-short-name>/README.md` and account index before authentication. Windows in the same Chrome profile share login state: stop before login, logout or account switching that could affect the main window. A separate automation window does not provide account isolation.
-
 ### Phase 1: Smoke Test
 ```
 1. Navigate to target URL
-2. Check for console errors (filter noise: analytics, third-party)
-3. Verify no 4xx/5xx in network requests
-4. Screenshot above-the-fold on desktop + mobile viewport
-5. Check Core Web Vitals: LCP < 2.5s, CLS < 0.1, INP < 200ms
+2. Check for console errors (filter noise: analytics, third-party)  — `console`, `errors`
+3. Verify no 4xx/5xx in network requests                            — `network requests`
+4. Screenshot above-the-fold on desktop + mobile viewport           — `set viewport`, `screenshot`
+5. Check Core Web Vitals: LCP < 2.5s, CLS < 0.1, INP < 200ms         — `vitals`
    (INP replaced FID in March 2024; thresholds per web.dev)
 ```
 
@@ -65,7 +59,7 @@ Read the project's `~/Profile/<project-short-name>/README.md` and account index 
 
 ### Phase 4: Accessibility
 ```
-1. Run axe-core or equivalent on each page
+1. Run axe-core on each page (`agent-browser a11y`)
 2. Flag WCAG 2.2 AA violations (contrast, labels, focus order)
 3. Verify keyboard navigation works end-to-end
 4. Check screen reader landmarks
@@ -103,8 +97,6 @@ Read the project's `~/Profile/<project-short-name>/README.md` and account index 
 
 ## Integration
 
-OpenCLI is the only live Chrome operation path in this workflow. Follow `opencli-browser` for window ownership, idle-placeholder recovery, restarts and cleanup; follow `opencli-usage` for capability discovery and separate CLI/extension version checks.
-
-Run accessibility tooling such as axe-core only through a supported OpenCLI page operation within the permitted workspace. Do not assume viewport, screen-reader or performance measurements are available: check the installed capabilities and label unsupported or unmeasured checks explicitly.
+Drive every phase with `agent-browser`; exact flags come from `agent-browser skills get core --ref commands`. Committed regression suites belong in Playwright via `e2e-testing`.
 
 Pair with `/canary-watch` for post-deploy monitoring.
