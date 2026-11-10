@@ -88,7 +88,7 @@ const DEFAULT_MCP_STARTUP_TIMEOUT_SEC = 30;
 const DEFAULT_MCP_STARTUP_TIMEOUT_TOML = `startup_timeout_sec = ${DEFAULT_MCP_STARTUP_TIMEOUT_SEC}`;
 
 // Plugin-owned default connectors (docs/MCP-CONNECTOR-POLICY.md).
-// Browser work stays `opencli browser`. chrome-devtools is not default.
+// Browser work uses the `agent-browser` CLI. chrome-devtools is not default.
 const ECC_SERVERS = {
   context7: dlxServer('context7', '@upstash/context7-mcp', { startup_timeout_sec: DEFAULT_MCP_STARTUP_TIMEOUT_SEC }, DEFAULT_MCP_STARTUP_TIMEOUT_TOML),
   firecrawl: dlxServer('firecrawl', 'firecrawl-mcp@latest', { startup_timeout_sec: DEFAULT_MCP_STARTUP_TIMEOUT_SEC }, DEFAULT_MCP_STARTUP_TIMEOUT_TOML),

@@ -605,7 +605,7 @@ Claude plugin installs intentionally do not auto-enable ECC's bundled MCP server
 
 Use Claude Code's `/mcp` command or CLI-managed MCP setup for live Claude Code server changes; Claude Code persists those choices in `~/.claude.json`. For repo-local MCP access, copy desired MCP server definitions from `mcp-configs/mcp-servers.json` into a project-scoped `.mcp.json`.
 
-This fork ships `context7`, `searxng`, and `firecrawl` in `.mcp.json`. Browser work is `opencli browser`. Other servers stay opt-in. See [docs/MCP-CONNECTOR-POLICY.md](docs/MCP-CONNECTOR-POLICY.md).
+This fork ships `context7`, `searxng`, and `firecrawl` in `.mcp.json`. Browser work is the `agent-browser` CLI via the `agent-browser` skill. Other servers stay opt-in. See [docs/MCP-CONNECTOR-POLICY.md](docs/MCP-CONNECTOR-POLICY.md).
 
 If you already run your own copies of ECC-bundled MCPs, set:
 
