@@ -81,7 +81,7 @@
 
 ## 最新动态
 
-### v2.2.69 — 撤回 v2.2.69：浏览器自动化重新换成 vercel-labs 的 `agent-browser` CLI，加回 agent-browser 技能，删除 opencli-browser 技能；browser-qa、e2e-runner、MCP 连接器策略和 README 重新改指 agent-browser，内容与 v2.2.68 相同（2026年11月）
+### v2.2.70 — 撤回 v2.2.69：浏览器自动化重新换成 vercel-labs 的 `agent-browser` CLI，加回 agent-browser 技能，删除 opencli-browser 技能；browser-qa、e2e-runner、MCP 连接器策略和 README 重新改指 agent-browser，内容与 v2.2.68 相同（2026年11月）
 
 ### v2.2.69 — 撤回 v2.2.68：浏览器自动化恢复为 `opencli browser`，重新加回 opencli-browser 技能，删除 agent-browser 技能；browser-qa、e2e-runner、MCP 连接器策略和 README 恢复原样（2026年11月）
 
@@ -1415,7 +1415,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 | **上下文文件** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
 | **秘密检测** | 基于钩子                  | beforeSubmitPrompt 钩子 | 基于沙箱 | 基于钩子 |
 | **自动格式化** | PostToolUse 钩子        | afterFileEdit 钩子 | N/A | file.edited 钩子 |
-| **版本** | 插件 | 插件 | 参考配置 | 2.2.69 |
+| **版本** | 插件 | 插件 | 参考配置 | 2.2.70 |
 
 **关键架构决策：**
 

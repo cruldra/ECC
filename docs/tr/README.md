@@ -79,7 +79,7 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ## Yenilikler
 
-### v2.2.69 — Reverts v2.2.69: browser automation moves back to the vercel-labs `agent-browser` CLI; the agent-browser skill returns, the opencli-browser skill is removed, and browser-qa, e2e-runner, the MCP connector policy, and the README point at agent-browser again, same as v2.2.68 (Nov 2026)
+### v2.2.70 — Reverts v2.2.69: browser automation moves back to the vercel-labs `agent-browser` CLI; the agent-browser skill returns, the opencli-browser skill is removed, and browser-qa, e2e-runner, the MCP connector policy, and the README point at agent-browser again, same as v2.2.68 (Nov 2026)
 
 ### v2.2.69 — Reverts v2.2.68: browser automation goes back to `opencli browser`; the opencli-browser skill returns, the agent-browser skill is removed, and browser-qa, e2e-runner, the MCP connector policy, and the README are restored (Nov 2026)
 

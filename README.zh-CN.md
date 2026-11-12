@@ -80,7 +80,7 @@
 
 ## 最新动态
 
-### v2.2.69 — 撤回 v2.2.69：浏览器自动化重新换成 vercel-labs 的 `agent-browser` CLI，加回 agent-browser 技能，删除 opencli-browser 技能；browser-qa、e2e-runner、MCP 连接器策略和 README 重新改指 agent-browser，内容与 v2.2.68 相同（2026年11月）
+### v2.2.70 — 撤回 v2.2.69：浏览器自动化重新换成 vercel-labs 的 `agent-browser` CLI，加回 agent-browser 技能，删除 opencli-browser 技能；browser-qa、e2e-runner、MCP 连接器策略和 README 重新改指 agent-browser，内容与 v2.2.68 相同（2026年11月）
 
 ### v2.2.69 — 撤回 v2.2.68：浏览器自动化恢复为 `opencli browser`，重新加回 opencli-browser 技能，删除 agent-browser 技能；browser-qa、e2e-runner、MCP 连接器策略和 README 恢复原样（2026年11月）
 
