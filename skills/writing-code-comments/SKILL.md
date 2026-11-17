@@ -34,7 +34,7 @@ When the arguments start with `<path>:<start>-<end>`, the call comes from the co
 Explain code the Feynman way: say what it does and why in one sentence, in plain words a newcomer to the codebase understands.
 
 - One sentence. For a doc comment, that sentence is the summary line.
-- Everyday words. A term the reader may not know gets replaced, or explained in the same sentence.
+- Everyday words. A term the reader may not know gets replaced or explained in the same sentence; a product, library, or standard the code depends on keeps its name and links to its official page, as in Links to Outside Terms.
 - Say the why, not the mechanics. The code already shows the mechanics.
 - If one plain sentence will not come, the code is not understood yet, or it does too much. Read it again or split it before writing the comment.
 
@@ -109,6 +109,7 @@ Write every comment the way Kotlin KDoc does, whatever the language. Python, Typ
 - Backticks for parameter names, literals, and commands, e.g. `token`, `None`, `GET`.
 - Square brackets for classes, functions, members, and exceptions defined in this file or imported into it, as in KDoc: `[UserRole.ADMIN]`, `[get_user]`, `[LocalRuntimeDisabled]`.
 - Links for code anywhere else in the repo: other modules, files, directories, tables. See Links to Code in the Repo.
+- Links for products, libraries, services, and standards outside the repo, to their official pages. See Links to Outside Terms.
 - Block tags: `@param name description` (the bare parameter name), `@return description`, `@throws [ExceptionClass] when it is thrown` (a full link when the exception is neither defined nor imported here). No types; the signature carries them.
 - The first sentence of a doc comment is the summary. Leave one blank line, then the details; details may use lists, bold, and code blocks.
 - Line comments (`#` / `//`) use the same backticks, square brackets, and links.
@@ -166,6 +167,26 @@ Code a comment names that is neither defined in nor imported into this file is a
 
 # Good: each one opens the code it names
 # Syncs the [agent definitions](vendor/agents) into the [agent table](backend/src/app/agent/models.py#Agent).
+```
+
+### Links to Outside Terms
+
+A product, library, framework, service, protocol, or standard a comment names links to its official page, so a reader who wants to know more is one click from it: Sentry, Bugsink, `sentry-sdk`, FastAPI, Celery, OAuth 2.0, the Python `logging` module.
+
+- Format: `[term](https://official/page)`. The link text is the term as written; a package name keeps its backticks inside it: ``[`sentry-sdk`](https://docs.sentry.io/platforms/python/)``.
+- Link the first mention in each comment. Later mentions in the same comment stay plain.
+- Point at the page about what the comment says: the docs page of a feature it names, otherwise the docs home, otherwise the project's site.
+- Take the URL from the package itself when the repo installs it: the `Project-URL: Documentation` or `Home-page` line of `*.dist-info/METADATA` in the virtualenv for Python, the `homepage` field of `node_modules/<package>/package.json` for JavaScript. Open the file by its path; repo-wide searches skip ignored directories such as `.venv` and `node_modules`.
+- Otherwise use the official site or docs you know for certain. Unsure of a deeper path: link the site's home page. Unsure of the site: leave the term unlinked. A missing link costs a search; a wrong one sends the reader somewhere else.
+- Only the project's own pages: its site, its docs, or its source repository when it has nothing else. Never a search, blog post, tutorial, Q&A answer, or mirror. `https` only, no tracking parameters, and no version in the path unless the code pins that version.
+- Not outside terms: words the reader already knows (HTTP, JSON, cache) and names the repo defines, which follow the rules above. Labels inside a Mermaid diagram stay plain.
+
+```python
+# Bad: every name sends the reader to a search engine
+# Reports errors to Sentry or Bugsink through `sentry-sdk`; its default integrations hook FastAPI, Celery, and SQLAlchemy.
+
+# Good: each name opens its official page
+# Reports errors to [Sentry](https://sentry.io) or [Bugsink](https://www.bugsink.com) through [`sentry-sdk`](https://docs.sentry.io/platforms/python/); its [default integrations](https://docs.sentry.io/platforms/python/integrations/) hook [FastAPI](https://fastapi.tiangolo.com), [Celery](https://docs.celeryq.dev), and [SQLAlchemy](https://www.sqlalchemy.org).
 ```
 
 ## Front-End Components: Show What It Looks Like
@@ -263,9 +284,10 @@ Writing comments one by one drifts: the third one gets a link, the fourth one do
 
 1. **Every name of code is a reference.** Classes, functions, members, exceptions, files, directories, tables, including names after `@throws`: `[Name]` when defined in or imported into this file, otherwise `[plain name](path#Symbol)`. No bare names, no backtick names.
 2. **Every reference resolves.** Each `[Name]` is defined in or imported into its file. Each link's file exists and its `#Symbol` is defined there (`grep -n "class Symbol\|def Symbol\|function Symbol" path`). No line numbers.
-3. **Parameters, literals, and commands are in backticks.** The name after `@param` stays bare.
-4. **The summary is one plain, true sentence.** Nothing restates the code.
-5. **Front-end components carry their own picture** from the export script: `docs/prototype/<feature>/openpencil/exports/<board>--<Component>.png` with the component framed, or `exports/<board>.png` for a component that draws the whole page. A prototype that already names this file is reused, not redrawn.
+3. **Every outside term links to its official page** on its first mention in each comment, with a URL from the package's own metadata or an official site you are sure of. No search, blog, or mirror links.
+4. **Parameters, literals, and commands are in backticks.** The name after `@param` stays bare.
+5. **The summary is one plain, true sentence.** Nothing restates the code.
+6. **Front-end components carry their own picture** from the export script: `docs/prototype/<feature>/openpencil/exports/<board>--<Component>.png` with the component framed, or `exports/<board>.png` for a component that draws the whole page. A prototype that already names this file is reused, not redrawn.
 
 For every complex flow, also check that its explanation is a fenced `mermaid` diagram, not prose. Trace the branches and transitions against the code, check that node IDs and fences are complete, and remove prose that repeats the diagram. Mermaid node IDs and shape delimiters are diagram syntax, not KDoc references; exclude diagram blocks from the reference checks below. When called from the preview, keep the Mermaid fence inside the body with no outer fence around the answer.
 

@@ -135,6 +135,21 @@ test("code elsewhere in the repo is a repo-root link with a symbol anchor", () =
   assert.doesNotMatch(body, /\]\([^)\s]+#L?\d+\)/, "links must not point at line numbers");
 });
 
+test("outside products, libraries, and standards link to their official pages", () => {
+  assert.ok(body.includes("### Links to Outside Terms"));
+  assert.ok(body.includes("links to its official page, so a reader who wants to know more is one click from it"));
+  assert.ok(body.includes("Link the first mention in each comment."));
+  assert.ok(body.includes("`Project-URL: Documentation` or `Home-page` line of `*.dist-info/METADATA`"));
+  assert.ok(body.includes("the `homepage` field of `node_modules/<package>/package.json`"));
+  assert.ok(body.includes("Unsure of the site: leave the term unlinked."));
+  assert.ok(body.includes("Never a search, blog post, tutorial, Q&A answer, or mirror."));
+  assert.ok(body.includes("[`sentry-sdk`](https://docs.sentry.io/platforms/python/)"));
+  assert.ok(body.includes("**Every outside term links to its official page**"), "the final pass checks outside links too");
+  const outsideLinks = [...body.matchAll(/\]\((https?:[^)\s]+)\)/g)].map(match => match[1]);
+  assert.ok(outsideLinks.length > 0, "the section shows real links");
+  for (const url of outsideLinks) assert.match(url, /^https:\/\//, `outside links use https: ${url}`);
+});
+
 test("front-end components embed a prototype drawn from the code with op", () => {
   assert.ok(body.includes("Draw it from the code."));
   assert.ok(body.includes("It writes `docs/prototype/<feature>/openpencil/exports/<board>--<Component>.png`, or `exports/<board>.png` when the marker is on the board's title"));

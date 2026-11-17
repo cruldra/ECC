@@ -3,7 +3,7 @@ name: writing-code-comments
 description: '用于在任何语言中编写或编辑代码注释或 docstring。只做一件事：阅读给定的代码并写出其注释；从不决定注释是否应该存在，从不删除注释，从不更改代码。以费曼方式解释代码，用新人能理解的一句平实的话；重写时忽略旧注释，从代码出发写；完成前对写过的每条注释检查每条规则。注释遵循 Kotlin KDoc Markdown：反引号、`[Name]` 和 `[plain name](repo/path#Symbol)` 链接、`@param` / `@return` / `@throws`；绝不使用 reST、Google 风格 `Args`、Javadoc HTML 或 JSDoc `{Type}`。前端组件的 doc 注释嵌入 OpenPencil 原型里属于它自己的一张图：页面除了标记 `<path>#<Component>` 的节点以外都压暗，由技能自带的脚本导出到 exports/<board>--<Component>.png。还涵盖中文名字标记（`Comment("…")`、`# @Comment 名字`），供代码阅读预览使用；预览以 `<path>:<start>-<end>` 形式调用它，只取注释正文。'
 argument-hint: '<path>:<start>-<end>'
 locale: zh-CN
-source_hash: 0b4febc3c0bbeff763cc723fb48d252d1393489d4b8a2b16d31d81cce573d2b0
+source_hash: 7b355e102fd1f417f83280053533640b6640e2640c5dcf655ce75bc6b510d7dc
 translated_at: 2026-10-18T06:20:48Z
 translation_model: claude-opus-5-5
 ---
@@ -38,7 +38,7 @@ translation_model: claude-opus-5-5
 以费曼方式解释代码：用一句新人能理解代码库的平实话语，说出它做什么以及为什么。
 
 - 一句话。对于文档注释，这句话就是摘要行。
-- 日常用语。读者可能不认识的术语要替换，或在同一句话里解释。
+- 日常用语。读者可能不认识的术语要替换，或在同一句话里解释；代码依赖的产品、库或标准保留原名，并链接到它的官方页面，见“指向外部术语的链接”。
 - 说出为什么，而不是机制。代码已经展示了机制。
 - 如果一句平实的话说不出来，说明代码还没理解，或者它做太多了。在写注释之前再读一遍或拆分它。
 
@@ -113,6 +113,7 @@ users, leave them; platform rows (`owner_id` is `None`) refresh description and 
 - 参数名、字面量和命令使用反引号，例如 `token`、`None`、`GET`。
 - 对于本文件中定义或导入到本文件的类、函数、成员和异常，使用方括号，如同 KDoc 一样：`[UserRole.ADMIN]`、`[get_user]`、`[LocalRuntimeDisabled]`。
 - 对于仓库中其他地方的代码：其他模块、文件、目录、表，使用链接。见“指向仓库中代码的链接”。
+- 对于仓库之外的产品、库、服务和标准，链接到它们的官方页面。见“指向外部术语的链接”。
 - 块标签：`@param name 描述`（裸参数名）、`@return 描述`、`@throws [ExceptionClass] 何时抛出`（当异常既非本文件定义也非导入时使用完整链接）。不要类型；签名已经带了类型。
 - 文档注释的第一句是摘要。空一行，然后写细节；细节可以使用列表、粗体和代码块。
 - 行注释（`#` / `//`）使用相同的反引号、方括号和链接。
@@ -170,6 +171,26 @@ function release(sessionId: string, token: string): boolean
 
 # Good: each one opens the code it names
 # Syncs the [agent definitions](vendor/agents) into the [agent table](backend/src/app/agent/models.py#Agent).
+```
+
+### 指向外部术语的链接
+
+注释里提到的产品、库、框架、服务、协议或标准，都链接到它的官方页面，想深入了解的读者点一下就能到：Sentry、Bugsink、`sentry-sdk`、FastAPI、Celery、OAuth 2.0、Python 的 `logging` 模块。
+
+- 格式：`[term](https://official/page)`。链接文本就是原文里的术语；包名在链接文本里保留反引号：``[`sentry-sdk`](https://docs.sentry.io/platforms/python/)``。
+- 每条注释只链接第一次出现的位置。同一条注释里后面再出现时不加链接。
+- 指向和注释内容对应的页面：注释提到某个功能就链到该功能的文档页，否则链文档首页，再否则链项目官网。
+- 仓库装了这个包时，从包自己的信息里取 URL：Python 取虚拟环境里 `*.dist-info/METADATA` 的 `Project-URL: Documentation` 或 `Home-page` 行，JavaScript 取 `node_modules/<package>/package.json` 的 `homepage` 字段。按路径直接打开文件；全仓库搜索会跳过 `.venv`、`node_modules` 这类被忽略的目录。
+- 否则使用你确定无误的官网或文档。不确定更深的路径：链接网站首页。不确定官网：这个术语不加链接。少一个链接只是多搜一次；链错了会把读者带到别处。
+- 只用项目自己的页面：官网、官方文档，没有这些时用它的源码仓库。不要搜索结果、博客、教程、问答或镜像。只用 `https`，不带跟踪参数，路径里不写版本号，除非代码锁定了那个版本。
+- 不算外部术语的：读者已经熟悉的词（HTTP、JSON、缓存），以及仓库自己定义的名字（按上面的规则写）。Mermaid 图里的标签保持纯文本。
+
+```python
+# Bad: every name sends the reader to a search engine
+# Reports errors to Sentry or Bugsink through `sentry-sdk`; its default integrations hook FastAPI, Celery, and SQLAlchemy.
+
+# Good: each name opens its official page
+# Reports errors to [Sentry](https://sentry.io) or [Bugsink](https://www.bugsink.com) through [`sentry-sdk`](https://docs.sentry.io/platforms/python/); its [default integrations](https://docs.sentry.io/platforms/python/integrations/) hook [FastAPI](https://fastapi.tiangolo.com), [Celery](https://docs.celeryq.dev), and [SQLAlchemy](https://www.sqlalchemy.org).
 ```
 
 ## 前端组件：展示其外观
@@ -267,9 +288,10 @@ uv run ${CLAUDE_SKILL_DIR}/scripts/export-component.py docs/prototype/<feature>/
 
 1. **每个代码名字都是引用。** 类、函数、成员、异常、文件、目录、表，包括 `@throws` 后面的名字：本文件定义或导入的用 `[Name]`，否则用 `[plain name](path#Symbol)`。不要裸名字，不要反引号名字。
 2. **每个引用都能解析。** 每个 `[Name]` 都在其文件里定义或导入。每个链接的文件存在，且其 `#Symbol` 在该文件里有定义（`grep -n "class Symbol\|def Symbol\|function Symbol" path`）。不要行号。
-3. **参数、字面量和命令在反引号里。** `@param` 后面的名字保持裸写。
-4. **摘要是一句平实、真实的话。** 不复述代码。
-5. **前端组件携带自己的图**，由出图脚本生成：`docs/prototype/<feature>/openpencil/exports/<board>--<Component>.png`，组件描了框；画整页的组件用 `exports/<board>.png`。已经写了这个文件的原型只复用，不重画。
+3. **每个外部术语都链接到官方页面**，在每条注释里第一次出现时链接，URL 来自包自己的信息或你确定无误的官网。不要搜索、博客或镜像链接。
+4. **参数、字面量和命令在反引号里。** `@param` 后面的名字保持裸写。
+5. **摘要是一句平实、真实的话。** 不复述代码。
+6. **前端组件携带自己的图**，由出图脚本生成：`docs/prototype/<feature>/openpencil/exports/<board>--<Component>.png`，组件描了框；画整页的组件用 `exports/<board>.png`。已经写了这个文件的原型只复用，不重画。
 
 每个复杂流程还要检查：它的解释是 `mermaid` 围栏图，不是文字。对照代码追一遍分支和转换，检查节点 ID 和围栏完整，删掉重复图内容的文字。Mermaid 节点 ID 和形状定界符是图的语法，不是 KDoc 引用；下面的引用检查不包括图块。从预览调用时，Mermaid 围栏留在正文里，回答外面不加围栏。
 
