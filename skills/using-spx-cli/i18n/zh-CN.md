@@ -97,6 +97,7 @@ spx 会在工单或 PR 正文的 HTML 注释行中保存元数据：
 | 读取工单和讨论 | `spx issue view --issue N --comments` |
 | 创建工单 | `spx issue create --json --title "T" --body-file F [--spec PATH] [--plan PATH]` |
 | 创建工单并设置初始状态 | `spx issue create --json --title "T" --body-file F --state-json '{...}'` |
+| 创建工单并附上图片 | `spx issue create --json --title "T" --body-file F --attach /abs/1.png [--attach /abs/2.png]` |
 | 更新 spec / plan / prototype 标记 | `spx issue marker --issue N --type spec\|plan\|prototype --value PATH` |
 | 读取状态 JSON | `spx issue state get --issue N` |
 | 合并状态 JSON | `spx issue state merge --issue N --state-json '{...}'` |
@@ -107,6 +108,7 @@ spx 会在工单或 PR 正文的 HTML 注释行中保存元数据：
 成对的标志不能同时使用：`--body` / `--body-file`（`issue create`、`pr create`、`pr review-comment`）以及 `--state-json` / `--state-file`（`issue create`、`issue state merge`）。`pr create` 必须提供正文，`issue state merge` 必须提供状态。
 
 - `issue create`：**始终传入 `--json`**；否则标准输出只有 `#42`，你会丢失 `html_url`。传入后，标准输出会包含 `number`、`html_url` 和 `state`。切勿为了“查看格式”而重新运行 `create`；它是写操作，会创建重复工单。新工单会分配给当前代码托管平台登录用户（看板 webhook 根据指派人进行路由；如果无法解析登录用户，spx 会发出警告并创建未分配的工单）。工单创建后，`--body-file` 会被删除，因此每个工单都要创建一个新文件。此处只有 `--spec` 和 `--plan`；如需设置 prototype，请使用 `issue marker --type prototype`。
+- `issue create --attach PATH`（可重复，仅 Gitea）：把每个本地文件传成工单附件。正文里用同一路径引用图片，如 `![截图](/abs/1.png)`；spx 把正文里出现的该路径全部换成附件地址，正文没引用到的文件以 `![文件名](地址)` 加在 `<!-- spx:* -->` marker 行之前，正文只改一次。发请求前先读完所有文件，有一个读不到就报错、不建工单；GitHub 没有公开的上传接口，带 `--attach` 会在发请求前报错，去掉它并在正文里用文字描述图片。`--json` 多输出 `attachments`（`[{path, url}]`）。工单建好后才出的错形如 `工单已建 (#N)，但...`，工单已经在了，不要重跑 `create`。
 - `issue view`：`--json` 会输出 `number`、`title`、`body`、`state`、`author`、`assignees`、`html_url`；如果使用 `--comments`，还会包含 `comments`（`id`、`author`、`body`、`created_at`、`html_url`）。
 - `issue marker`：参见[正文标记](#4-正文标记)。`--json` 会输出 `number`、`type`、`value` 和合并后的 `state`。
 - `issue state get` / `issue state merge`：始终输出 JSON，默认输出一行；使用 `--json` 时会输出缩进格式。`merge` 是浅层合并：传入的字段会覆盖现有字段，未修改的字段保持不变。本机字段写入本机文件，而非评论（参见[本机字段](#3-本机字段写入本机工单状态文件)）；输出的是合并后的状态。

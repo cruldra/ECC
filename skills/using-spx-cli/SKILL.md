@@ -93,6 +93,7 @@ spx keeps metadata in HTML comment lines in the issue or PR body:
 | Read issue + discussion | `spx issue view --issue N --comments` |
 | Create issue | `spx issue create --json --title "T" --body-file F [--spec PATH] [--plan PATH]` |
 | Create issue + initial state | `spx issue create --json --title "T" --body-file F --state-json '{...}'` |
+| Create issue + attached images | `spx issue create --json --title "T" --body-file F --attach /abs/1.png [--attach /abs/2.png]` |
 | Update spec / plan / prototype marker | `spx issue marker --issue N --type spec\|plan\|prototype --value PATH` |
 | Read state JSON | `spx issue state get --issue N` |
 | Merge state JSON | `spx issue state merge --issue N --state-json '{...}'` |
@@ -103,6 +104,7 @@ spx keeps metadata in HTML comment lines in the issue or PR body:
 Paired flags are mutually exclusive: `--body` / `--body-file` (`issue create`, `pr create`, `pr review-comment`) and `--state-json` / `--state-file` (`issue create`, `issue state merge`). `pr create` requires a body and `issue state merge` requires a state.
 
 - `issue create`: **always pass `--json`**; without it stdout is just `#42` and you lose `html_url`. With it, stdout is `number`, `html_url` and `state`. Never re-run `create` to "see the format"; it is a write op and duplicates the issue. The new issue is assigned to the current forge login (the kanban webhook routes on the assignee; if the login cannot be resolved, spx warns and creates it unassigned). `--body-file` is deleted once the issue exists, so write a fresh file for every issue. Only `--spec` and `--plan` exist here; set a prototype with `issue marker --type prototype`.
+- `issue create --attach PATH` (repeatable, Gitea only): uploads each local file as an issue attachment. Reference an image in the body by the same path, e.g. `![screenshot](/abs/1.png)`; spx replaces every occurrence of that path with the attachment URL, and appends files the body never mentions as `![name](url)` before the `<!-- spx:* -->` marker lines, in a single body update. Every file is read before any request, so a missing file fails without creating the issue; on GitHub (no public upload API) `--attach` fails before any request, so drop it and describe the images in text. `--json` adds `attachments` (`[{path, url}]`). A failure after the issue exists reads `工单已建 (#N)，但...`; the issue stays, so do not re-run `create`.
 - `issue view`: `--json` prints `number`, `title`, `body`, `state`, `author`, `assignees`, `html_url`, plus `comments` (`id`, `author`, `body`, `created_at`, `html_url`) with `--comments`.
 - `issue marker`: see [Body Markers](#4-body-markers). `--json` prints `number`, `type`, `value` and the merged `state`.
 - `issue state get` / `issue state merge`: always print JSON, one line by default and indented with `--json`. `merge` is shallow: incoming fields override existing ones, untouched fields remain. Local fields go to the local file, not the comment (see [Local Fields](#3-local-fields-go-to-the-local-issue-state-file)); the output is the combined state.
