@@ -81,7 +81,7 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ### v2.2.71 — writing-code-comments adds Links to Outside Terms: products, libraries, services, and standards a comment names (Sentry, `sentry-sdk`, FastAPI) link to their official page on first mention in each comment, to the docs page of a feature the comment names when there is one; URLs come from the installed package's `METADATA` or `package.json` first, then an official site known for certain, else no link, never search, blog, or mirror links; the final check covers it (Nov 2026)
 
-### v2.2.70 — Reverts v2.2.69: browser automation moves back to the vercel-labs `agent-browser` CLI; the agent-browser skill returns, the opencli-browser skill is removed, and browser-qa, e2e-runner, the MCP connector policy, and the README point at agent-browser again, same as v2.2.68 (Nov 2026)
+### v2.2.71 — Reverts v2.2.69: browser automation moves back to the vercel-labs `agent-browser` CLI; the agent-browser skill returns, the opencli-browser skill is removed, and browser-qa, e2e-runner, the MCP connector policy, and the README point at agent-browser again, same as v2.2.68 (Nov 2026)
 
 ### v2.2.69 — Reverts v2.2.68: browser automation goes back to `opencli browser`; the opencli-browser skill returns, the agent-browser skill is removed, and browser-qa, e2e-runner, the MCP connector policy, and the README are restored (Nov 2026)
 
