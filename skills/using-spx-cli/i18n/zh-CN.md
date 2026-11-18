@@ -1,6 +1,6 @@
 ---
 name: using-spx-cli
-description: '当你需要在使用 spx CLI（superwork / superpowers-vscode 看板工作流）的 GitHub 或 Gitea 仓库中查看或创建工单、更新其 spec/plan/prototype 标记、读取或合并工单的状态 JSON、查看或创建 PR，或发布 PR 审查评论时使用。涵盖 spx 如何根据 git origin 选择代码托管平台和凭据、隐藏的状态评论、spx 写入 <git common dir>/superwork/local-issue-state.json 而非工单的本机字段（会话 ID、配置文件路径、worktreePath、prDiffFile），以及 references/state-json.schema.json 中严格的字段 schema。'
+description: '当你需要在使用 spx CLI（superwork / superpowers-vscode 看板工作流）的 GitHub 或 Gitea 仓库中查看或创建工单、给工单发普通评论（可带附件）、更新其 spec/plan/prototype 标记、读取或合并工单的状态 JSON、查看或创建 PR，或发布 PR 审查评论时使用。涵盖 spx 如何根据 git origin 选择代码托管平台和凭据、隐藏的状态评论、spx 写入 <git common dir>/superwork/local-issue-state.json 而非工单的本机字段（会话 ID、配置文件路径、worktreePath、prDiffFile），以及 references/state-json.schema.json 中严格的字段 schema。'
 locale: zh-CN
 source_hash: d9de18f47c081981e2d934ffa07e0ef1df4ebcf9a4a1a5f4d9969c4b8210b82a
 translated_at: 2026-11-05T09:49:29Z
@@ -17,6 +17,7 @@ translation_model: claude-opus-5-5
 
 - 读取工单（标题、正文、状态、作者、指派人、链接），可选择同时读取讨论。
 - 创建工单，可选添加 `spec`/`plan` 标记和/或初始状态 JSON。
+- 给已有工单发一条普通评论，可把本地文件作为附件挂在这条评论上。
 - 更新现有工单的 `<!-- spx:spec=... -->`、`<!-- spx:plan=... -->` 或 `<!-- spx:prototype=... -->` 标记。
 - 读取或合并工单的持久化状态 JSON（列、pr、分支、会话 ID 等）。
 - 读取 PR（标题、正文、状态、是否已合并、head/base 分支和 SHA）。
@@ -98,6 +99,7 @@ spx 会在工单或 PR 正文的 HTML 注释行中保存元数据：
 | 创建工单 | `spx issue create --json --title "T" --body-file F [--spec PATH] [--plan PATH]` |
 | 创建工单并设置初始状态 | `spx issue create --json --title "T" --body-file F --state-json '{...}'` |
 | 创建工单并附上图片 | `spx issue create --json --title "T" --body-file F --attach /abs/1.png [--attach /abs/2.png]` |
+| 给工单发评论 | `spx issue comment --issue N --body-file F [--attach /abs/1.png]` |
 | 更新 spec / plan / prototype 标记 | `spx issue marker --issue N --type spec\|plan\|prototype --value PATH` |
 | 读取状态 JSON | `spx issue state get --issue N` |
 | 合并状态 JSON | `spx issue state merge --issue N --state-json '{...}'` |
@@ -105,10 +107,11 @@ spx 会在工单或 PR 正文的 HTML 注释行中保存元数据：
 | 创建 PR | `spx pr create --title "T" --body-file F --head BRANCH [--base BRANCH]` |
 | 发布审查评论 | `spx pr review-comment --pr N --body-file /tmp/x.md` |
 
-成对的标志不能同时使用：`--body` / `--body-file`（`issue create`、`pr create`、`pr review-comment`）以及 `--state-json` / `--state-file`（`issue create`、`issue state merge`）。`pr create` 必须提供正文，`issue state merge` 必须提供状态。
+成对的标志不能同时使用：`--body` / `--body-file`（`issue create`、`issue comment`、`pr create`、`pr review-comment`）以及 `--state-json` / `--state-file`（`issue create`、`issue state merge`）。`issue comment` 和 `pr create` 必须提供正文，`issue state merge` 必须提供状态。
 
 - `issue create`：**始终传入 `--json`**；否则标准输出只有 `#42`，你会丢失 `html_url`。传入后，标准输出会包含 `number`、`html_url` 和 `state`。切勿为了“查看格式”而重新运行 `create`；它是写操作，会创建重复工单。新工单会分配给当前代码托管平台登录用户（看板 webhook 根据指派人进行路由；如果无法解析登录用户，spx 会发出警告并创建未分配的工单）。工单创建后，`--body-file` 会被删除，因此每个工单都要创建一个新文件。此处只有 `--spec` 和 `--plan`；如需设置 prototype，请使用 `issue marker --type prototype`。
 - `issue create --attach PATH`（可重复，仅 Gitea）：把每个本地文件传成工单附件。正文里用同一路径引用图片，如 `![截图](/abs/1.png)`；spx 把正文里出现的该路径全部换成附件地址，正文没引用到的文件以 `![文件名](地址)` 加在 `<!-- spx:* -->` marker 行之前，正文只改一次。发请求前先读完所有文件，有一个读不到就报错、不建工单；GitHub 没有公开的上传接口，带 `--attach` 会在发请求前报错，去掉它并在正文里用文字描述图片。`--json` 多输出 `attachments`（`[{path, url}]`）。工单建好后才出的错形如 `工单已建 (#N)，但...`，工单已经在了，不要重跑 `create`。
+- `issue comment`：给工单 N 发一条普通评论，GitHub 和 Gitea 都能用；默认输出评论链接，`--json` 输出 `id`、`html_url` 和 `attachments`（`[{path, url}]`）。`--body-file` 发完不删。正文带 state 评论的标记（`<!-- spx-state`、`<!--spx-state-->`）或本身就是 state JSON 时，发请求前就报错；改状态请用 `issue state merge`。`--attach PATH` 的规矩和 `issue create --attach` 一样（仅 Gitea、先读完所有文件、正文里引用到的路径换成附件地址），只是文件挂在这条评论上，没引用到的加在评论正文末尾，评论正文同样只改一次。评论发出后才出的错形如 `评论已发 (id=N)，但...`，评论已经在了，不要重跑 `comment`。
 - `issue view`：`--json` 会输出 `number`、`title`、`body`、`state`、`author`、`assignees`、`html_url`；如果使用 `--comments`，还会包含 `comments`（`id`、`author`、`body`、`created_at`、`html_url`）。
 - `issue marker`：参见[正文标记](#4-正文标记)。`--json` 会输出 `number`、`type`、`value` 和合并后的 `state`。
 - `issue state get` / `issue state merge`：始终输出 JSON，默认输出一行；使用 `--json` 时会输出缩进格式。`merge` 是浅层合并：传入的字段会覆盖现有字段，未修改的字段保持不变。本机字段写入本机文件，而非评论（参见[本机字段](#3-本机字段写入本机工单状态文件)）；输出的是合并后的状态。

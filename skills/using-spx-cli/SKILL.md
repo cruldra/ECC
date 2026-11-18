@@ -1,6 +1,6 @@
 ---
 name: using-spx-cli
-description: 'Use when you need to view or create an issue, update its spec/plan/prototype markers, read or merge the state JSON of an issue, view or open a PR, or post a PR review comment in a GitHub or Gitea repo that uses the spx CLI (the superwork / superpowers-vscode kanban workflow). Covers how spx picks the forge and credentials from the git origin, the hidden state comment, the local fields (session ids, profile paths, worktreePath, prDiffFile) that spx writes to <git common dir>/superwork/local-issue-state.json instead of the issue, and the strict field schema in references/state-json.schema.json.'
+description: 'Use when you need to view or create an issue, post a plain comment (optionally with attached files) on an issue, update its spec/plan/prototype markers, read or merge the state JSON of an issue, view or open a PR, or post a PR review comment in a GitHub or Gitea repo that uses the spx CLI (the superwork / superpowers-vscode kanban workflow). Covers how spx picks the forge and credentials from the git origin, the hidden state comment, the local fields (session ids, profile paths, worktreePath, prDiffFile) that spx writes to <git common dir>/superwork/local-issue-state.json instead of the issue, and the strict field schema in references/state-json.schema.json.'
 ---
 
 # Using spx CLI
@@ -13,6 +13,7 @@ You need to do one of these against the forge of the repo:
 
 - Read an issue (title, body, state, author, assignees, link), optionally with its discussion.
 - Create an issue with optional `spec`/`plan` markers and/or initial state JSON.
+- Post a plain comment on an existing issue, optionally with local files attached to it.
 - Update the `<!-- spx:spec=... -->`, `<!-- spx:plan=... -->` or `<!-- spx:prototype=... -->` marker of an existing issue.
 - Read or merge the persisted state JSON of an issue (column, pr, branch, session ids, ...).
 - Read a PR (title, body, state, merged or not, head/base branch and SHA).
@@ -94,6 +95,7 @@ spx keeps metadata in HTML comment lines in the issue or PR body:
 | Create issue | `spx issue create --json --title "T" --body-file F [--spec PATH] [--plan PATH]` |
 | Create issue + initial state | `spx issue create --json --title "T" --body-file F --state-json '{...}'` |
 | Create issue + attached images | `spx issue create --json --title "T" --body-file F --attach /abs/1.png [--attach /abs/2.png]` |
+| Comment on issue | `spx issue comment --issue N --body-file F [--attach /abs/1.png]` |
 | Update spec / plan / prototype marker | `spx issue marker --issue N --type spec\|plan\|prototype --value PATH` |
 | Read state JSON | `spx issue state get --issue N` |
 | Merge state JSON | `spx issue state merge --issue N --state-json '{...}'` |
@@ -101,10 +103,11 @@ spx keeps metadata in HTML comment lines in the issue or PR body:
 | Open PR | `spx pr create --title "T" --body-file F --head BRANCH [--base BRANCH]` |
 | Post review comment | `spx pr review-comment --pr N --body-file /tmp/x.md` |
 
-Paired flags are mutually exclusive: `--body` / `--body-file` (`issue create`, `pr create`, `pr review-comment`) and `--state-json` / `--state-file` (`issue create`, `issue state merge`). `pr create` requires a body and `issue state merge` requires a state.
+Paired flags are mutually exclusive: `--body` / `--body-file` (`issue create`, `issue comment`, `pr create`, `pr review-comment`) and `--state-json` / `--state-file` (`issue create`, `issue state merge`). `issue comment` and `pr create` require a body and `issue state merge` requires a state.
 
 - `issue create`: **always pass `--json`**; without it stdout is just `#42` and you lose `html_url`. With it, stdout is `number`, `html_url` and `state`. Never re-run `create` to "see the format"; it is a write op and duplicates the issue. The new issue is assigned to the current forge login (the kanban webhook routes on the assignee; if the login cannot be resolved, spx warns and creates it unassigned). `--body-file` is deleted once the issue exists, so write a fresh file for every issue. Only `--spec` and `--plan` exist here; set a prototype with `issue marker --type prototype`.
 - `issue create --attach PATH` (repeatable, Gitea only): uploads each local file as an issue attachment. Reference an image in the body by the same path, e.g. `![screenshot](/abs/1.png)`; spx replaces every occurrence of that path with the attachment URL, and appends files the body never mentions as `![name](url)` before the `<!-- spx:* -->` marker lines, in a single body update. Every file is read before any request, so a missing file fails without creating the issue; on GitHub (no public upload API) `--attach` fails before any request, so drop it and describe the images in text. `--json` adds `attachments` (`[{path, url}]`). A failure after the issue exists reads `工单已建 (#N)，但...`; the issue stays, so do not re-run `create`.
+- `issue comment`: posts a plain comment on issue N, on GitHub and Gitea alike; prints the comment link, or `id`, `html_url` and `attachments` (`[{path, url}]`) with `--json`. `--body-file` is kept. A body that carries the state comment marker (`<!-- spx-state`, `<!--spx-state-->`) or is itself state JSON is refused before any request; change state with `issue state merge` instead. `--attach PATH` follows the `issue create --attach` rules (Gitea only, every file read first, referenced paths replaced by URLs) except that the files are attached to this comment and unreferenced ones are appended at the end of the comment, again in a single comment update. A failure after the comment is posted reads `评论已发 (id=N)，但...`; the comment stays, so do not re-run `comment`.
 - `issue view`: `--json` prints `number`, `title`, `body`, `state`, `author`, `assignees`, `html_url`, plus `comments` (`id`, `author`, `body`, `created_at`, `html_url`) with `--comments`.
 - `issue marker`: see [Body Markers](#4-body-markers). `--json` prints `number`, `type`, `value` and the merged `state`.
 - `issue state get` / `issue state merge`: always print JSON, one line by default and indented with `--json`. `merge` is shallow: incoming fields override existing ones, untouched fields remain. Local fields go to the local file, not the comment (see [Local Fields](#3-local-fields-go-to-the-local-issue-state-file)); the output is the combined state.
