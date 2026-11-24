@@ -100,7 +100,8 @@ b a, a b { font-weight: 600; }
 .demo-controls button { padding: 4px 12px; border: 1px solid var(--line); border-radius: 6px; background: #232836; color: var(--text); font: inherit; font-size: 13px; cursor: pointer; }
 .demo-controls button:disabled { opacity: .35; cursor: default; }
 .demo-controls .play { border-color: var(--accent); color: var(--accent); }
-.demo-stage { position: relative; height: 460px; background: var(--bg); }
+/* 画面高度默认 460px；名牌多、要更高的演示在格子上写 `style="--stage-height: 560px"` */
+.demo-stage { position: relative; height: var(--stage-height, 460px); background: var(--bg); }
 .demo-stage canvas { display: block; }
 .demo-hint { position: absolute; right: 12px; bottom: 8px; color: var(--muted); font-size: 12px; pointer-events: none; }
 .demo-caption { padding: 10px 16px 14px; border-top: 1px solid var(--line); }
@@ -114,3 +115,13 @@ b a, a b { font-weight: 600; }
 .demo-text table { margin-top: 6px; border-collapse: collapse; font-size: 14px; }
 .demo-text th, .demo-text td { padding: 3px 12px; border: 1px solid var(--line); text-align: left; }
 .demo-text b, .demo-text code { white-space: nowrap; }
+
+/* 3D 组件图：悬停提示跟着鼠标走，点开的面板固定在画面左上角，都盖在画面上 */
+.graph-tip, .graph-panel { position: absolute; z-index: 2; max-width: 380px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: rgba(17, 20, 27, .94); color: var(--text); font-size: 13px; line-height: 1.6; box-shadow: 0 6px 24px rgba(0, 0, 0, .35); }
+.graph-tip { pointer-events: none; }
+.graph-panel { top: 12px; left: 12px; max-height: calc(100% - 24px); overflow: auto; }
+.graph-tip p, .graph-panel p { margin: 4px 0; color: var(--muted); }
+.graph-tip .mono, .graph-panel .mono, .graph-tip .code, .graph-panel .code { color: var(--muted); font-family: var(--mono); font-size: 12px; }
+.graph-tip pre, .graph-panel pre { margin: 6px 0 0; padding: 6px 8px; border-radius: 6px; background: #0b0d12; font-family: var(--mono); font-size: 11.5px; line-height: 1.5; white-space: pre-wrap; word-break: break-all; }
+.graph-tip .more { margin-top: 4px; color: var(--accent); font-size: 12px; }
+.graph-panel .close { float: right; margin: -4px -4px 0 8px; border: 0; background: none; color: var(--muted); font-size: 18px; cursor: pointer; }

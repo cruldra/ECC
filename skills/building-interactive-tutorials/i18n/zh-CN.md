@@ -1,9 +1,9 @@
 ---
 name: building-interactive-tutorials
-description: '在用户要求将代码仓库中的概念讲解为笔记本式交互教程页面（类似 MiniMind 中的 viz/tokenizer.html）时使用（3D 交互教程、笔记本式教程、可视化讲解、做一份像 tokenizer.html 这样的教程），或要求向此类页面添加章节、子主题、代码格子、结构图或 3D 演示时使用。页面是一个离线 HTML 文件，从上到下阅读：文字格子、输出为真实运行结果的代码格子、由真实结果计算而来的分步 three.js 演示、内嵌 SVG 结构图和卡片；esbuild 会内联脚本，Shiki 会在构建时为代码着色。涵盖如何根据 assets/viz 中的脚手架设置 viz/、页面大纲（是什么、为什么、工作原理、子主题）、将每个术语链接到官方页面并用 scripts/check_links.py 检查、3D 画面动画所用的步骤数据，以及完成前在 agent-browser 中逐步点击检查。'
+description: '在用户要求将代码仓库中的概念讲解为笔记本式交互教程页面（类似 MiniMind 中的 viz/tokenizer.html）时使用（3D 交互教程、笔记本式教程、可视化讲解、做一份像 tokenizer.html 这样的教程），或要求向此类页面添加章节、子主题、代码格子、结构图或 3D 演示时使用。页面是一个离线 HTML 文件，从上到下阅读：文字格子、输出为真实运行结果的代码格子、由真实结果计算而来的分步 three.js 演示（一排排方块，或逐步点亮的组件图）、内嵌 SVG 结构图和卡片；esbuild 会内联脚本，Shiki 会在构建时为代码着色。涵盖如何根据 assets/viz 中的脚手架设置 viz/、页面大纲（是什么、为什么、工作原理、子主题）、将每个术语链接到官方页面并用 scripts/check_links.py 检查、录制系统的一次真实运行供代码格子和演示使用、3D 画面动画所用的步骤数据，以及完成前在 agent-browser 中逐步点击检查。'
 locale: zh-CN
-source_hash: 104415cbd13f5c82a2a9a17199814a3cb2128c0e12b1f4d21fd049c04a7416e4
-translated_at: 2026-11-24T02:49:20Z
+source_hash: 24d6b90616de696805bedca3145c0955858ffc63859b724af4fc63d478717b8c
+translated_at: 2026-11-24T05:19:09Z
 translation_model: gpt-6-luna
 ---
 
@@ -15,7 +15,8 @@ translation_model: gpt-6-luna
 
 - 用户要求制作交互式、3D 或笔记本式教程，讲解仓库中的某个概念：3D 交互教程、可视化讲解、“做一份像 tokenizer.html 这样的教程”。
 - 为 `viz/` 下的现有页面添加子主题、章节、代码格子、结构图、卡片组或演示。
-- 为方块画面无法展示的概念构建新的 3D 画面。
+- 讲解一个系统的各个部分在运行时如何相互作用（同步进程、Git 服务器、数据库）：用一次录制的真实运行驱动组件图。
+- 为方块画面和组件图都无法展示的概念构建新的 3D 画面。
 
 不适用于幻灯片（`frontend-slides`）、视频（`manim-video`、`remotion-video-creation`）或独立图表（`diagram-design`）。
 
@@ -46,6 +47,7 @@ viz/
 ├── README.md                 页面列表、写作规则、添加主题的方法
 └── src/
     ├── notebook/             所有页面共用的外壳
+    │   ├── graph-3d.js       3D 画面：组件图，各部分逐步点亮
     │   ├── notebook.css      格子排版、结构图和卡片样式、阶段颜色
     │   ├── player.js         演示播放器：翻页、自动播放、离开视口时暂停
     │   ├── runtime.js        挂载演示、构建两级目录、在 VS Code 中打开仓库链接
@@ -64,6 +66,14 @@ viz/
 2. 从仓库根目录用项目的运行器（`uv run python ...`）运行准备展示的每段代码。将输出原样粘贴到 Out 区块中。不要凭记忆编写输出，也不要手动整理。
 3. 记录将要链接的库的已安装版本（`uv pip show <package>`），确保文档链接与版本匹配。
 4. 页面中陈述的每项事实（数量、id、大小、范围）都必须来自这些运行结果或仓库文件。
+
+如果概念是一个随操作改变状态的系统，在 `viz/runs/` 下写三个脚本录制一次运行，所有内容都从这次运行里取，这样 Out 区块、正文里的数字和演示就不会对不上：
+
+- `runs/demo.py` 包装被测代码执行命令所用的执行器（沙箱类、`subprocess.run`），把每条命令及其输出记进日志；`frame(label)` 保存那一刻的系统状态（文件、引用、行），连同上一帧以来记下的命令。
+- `runs/run_all.sh` 按顺序运行每个代码格子的脚本，把每份输出和全部帧拷进 `runs/out/`。
+- `runs/fill_cells.py` 填充模板 `runs/notebook.tpl.html`：`<!--CELL:name-->` 换成代码格子，In 是 `runs/name.py`，Out 是 `runs/out/name.txt`，只做 HTML 转义；`{{sha:name}}` 换成运行时以该名字保存的值；帧写成 `trace.js`，由 `steps.js` 导入。
+
+重跑之后，页面上的每个 id 和输出都会自动更新。改模板，不要改生成的 `notebook.html` 或 `trace.js`。
 
 ### 3. 规划页面大纲
 
@@ -149,7 +159,31 @@ uv run ${CLAUDE_SKILL_DIR}/scripts/check_links.py viz/<name>.html
 - 标签：`base` 普通，`focus` 当前步骤关注对象，`new` 刚生成，`done` 已完成，`muted` 未涉及，`unk` 未知，`removed` 即将移除。
 - 根据步骤 2 的输出，在数据模块（`steps.js`，或每个子主题一个模块）中计算步骤：要么用 JavaScript 重写小型算法并与库的输出核对，要么将真实 id 和片段复制到常量中，并用注释说明来源。
 - 在 `main.js` 中通过 `startNotebook({ [id]: { name, tagline, steps, createView } })` 注册每个场景；演示格子的 `data-scene` 就是对应的 `id`。
-- 当方块画面无法展示该概念时，另写一个画面，使其返回 `mount(stage)`、`render(step, { reset })` 和 `setActive(active)`，并保留播放器。
+
+方块画面适合讲一个序列变成另一个序列的概念（文本变成片段、片段变成 id）。如果概念是几个互相调用、写入或指向的组件，而且每一步在干活的组件不同，就用 `graph-3d.js` 里的组件图画面。一个 `GRAPH` 摆出整个系统，每个演示点亮其中的一部分：
+
+```js
+export const GRAPH = {
+  groups: [{ id: 'data', label: '数据', color: '#e2b93b', x: 0, z: 3.5, w: 25, d: 5.2 }],  // 带标题的地面平台
+  nodes: [{ id: 'counts', kind: 'table', label: '次数表', sub: 'counts', x: -2.75, z: 3.5,
+            desc: '一个字母一行，记它出现几次。', code: 'src/topics/example/steps.js' }],
+  edges: [{ id: 'point', from: 'top', to: 'counts', label: '指着', desc: '只是指着一行。', dashed: true }],
+};
+
+{                                                 // 一步：phase、title、text 之外的字段
+  nodes: { count: 'active', counts: 'new' },      // active、new、gap、base、off；没列出的组件变暗
+  edges: [{ id: 'write', label: '写次数', tone: 'new' }],  // 点亮，有点沿线流动
+  badges: { counts: '4 种字母' },                  // 名牌的第三行，或 { text, tone }
+  details: { counts: ['h  1 次', 'e  1 次'] },    // 提示框和面板显示的几行
+  focus: ['count', 'counts'],                     // 镜头取景要看全这些组件
+}
+```
+
+- `x` 向右，`z` 朝向读者。组件宽 3.4、深 1.7：组件之间相隔约 5.5，并在每个分组第一个组件的左边给分组标题留出位置。
+- 种类：`process` 是圆角方块，`store` 是圆柱，`table` 是带环的圆柱，`ref` 是紫色方块。在 `GRAPH.kinds` 里添加种类，在 `GRAPH.tones` 里添加状态色。
+- 悬停组件显示它的 `desc`、`code` 和 `details` 的前四行，悬停连线显示它的 `label` 和 `desc`；单击固定一个显示全部行的面板；双击把镜头拉回这一步的取景。
+- 注册为 `createView: () => createGraphView(GRAPH)`，并给它的演示格子加上 `style="--stage-height: 560px"`，让名牌放得下。
+- 两种画面都无法展示该概念时，另写一个画面，使其返回 `mount(stage)`、`render(step, { reset })` 和 `setActive(active)`，并保留播放器。
 
 ### 7. 构建并逐步点击检查
 
@@ -160,7 +194,7 @@ pnpm build
 在 `viz/` 中运行，然后用 `agent-browser`（参见对应技能）在单独的 `--session` 中检查构建页面：
 
 1. 打开 `file://<absolute path>/viz/<name>.html`。`agent-browser errors` 和 `agent-browser console` 不应打印任何内容。
-2. 对每个演示：滚动到可见区域，逐步检查，并确认计数器到达最后一步，且每个说明文字都与场景相符。演示只有滚动进入视口后才会创建 3D 画面。
+2. 对每个演示：滚动到可见区域，逐步检查，并确认计数器到达最后一步，且每个说明文字都与场景相符。演示只有滚动进入视口后才会创建 3D 画面。在组件图里，悬停一个组件再单击它（`agent-browser mouse move`、`mouse down`、`mouse up`）：先出现 `.graph-tip`，再出现 `.graph-panel`。
 3. 给每个新结构图、卡片组和表格截图；所有文字都应位于框内。
 4. 目录应列出每个新增的 `<h2>` 和 `<h3>`，滚动时高亮项应随之更新。
 
@@ -172,7 +206,7 @@ agent-browser --session tutorial eval "document.getElementById('how').scrollInto
 
 ### 8. 更新索引
 
-- `viz/README.md`：更新页面表格、新数据模块的目录树，以及任何新增的格子写法。
+- `viz/README.md`：更新页面表格、新数据模块和 `runs/` 的目录树，以及任何新增的格子写法。
 - 任何链接到这些教程的索引页（路线图、文档首页）：添加新页面或子主题。
 
 ## 示例
@@ -213,15 +247,20 @@ tokenizers        h3: 常用组件（SVG 结构图 + 卡片）、tokenizer.json�
 | 链接到没有 `id` 的标题 | 为标题添加 `id` |
 | 将库参考资料列为附录 | 将其设为拥有独立 `<h2>` 的子主题 |
 | 编辑构建后的 `<name>.html` | 编辑源文件并重新构建 |
+| Out 区块、正文和演示取自不同的运行，数字对不上 | 录制一次运行，三者都从它生成（第 2 步） |
+| 名字平铺在组件顶面，斜着看读不出来 | 把名牌画成始终朝向镜头的 sprite |
+| 步骤数据放在叠在名牌上方的第二个 sprite 里，俯视时两者重叠 | 把数据并进同一块名牌，作为第三行 |
+| 广角镜头让近处组件显得很大、远处很小 | 用 24° 的窄视角，从更远处看 |
+| `check_links.py` 对 GitHub 文件页（`/blob/`）一直得到 503 | 改链同一官方仓库、同一版本 tag 的目录页（`/tree/<tag>/<dir>`） |
 
 ## 完成前检查
 
 - [ ] 每个 Out 区块都来自真实运行，并原样粘贴；正文中的每个数字都与运行结果或仓库内容相符。
 - [ ] `check_links.py` 检查构建页面时输出 `OK`。
-- [ ] 每个演示都能从第一步运行到最后一步且没有错误；每个新阶段都设置了颜色。
+- [ ] 每个演示都能从第一步运行到最后一步且没有错误；每个新阶段都设置了颜色；每个组件图在组件上都能出提示框和面板。
 - [ ] 每个新增的结构图、卡片组和表格都已截图，且没有内容溢出。
 - [ ] `viz/README.md` 和任何索引页都列出新页面或子主题，构建后的 HTML 也已根据源文件重新生成。
 
 ## 来源
 
-内容提炼自为 [MiniMind](https://github.com/jingyaogong/minimind) 构建分词器教程（`viz/tokenizer.html`）的实践经验。`assets/viz` 中的脚手架是该页面的外壳，其中的分词器内容已替换为一个小型示例。
+内容提炼自为 [MiniMind](https://github.com/jingyaogong/minimind) 构建分词器教程（`viz/tokenizer.html`）的实践经验。`assets/viz` 中的脚手架是该页面的外壳，其中的分词器内容已替换为一个小型示例。组件图画面和录制运行的做法来自之后的另一份教程，讲一个 Web 平台的自动代码版本管理，其中同步进程、Git 服务器和数据库逐轮改变状态。

@@ -1,6 +1,6 @@
 ---
 name: building-interactive-tutorials
-description: 'Use when asked to explain a concept from a code repository as a notebook-style interactive tutorial page like viz/tokenizer.html in MiniMind (3D 交互教程, 笔记本式教程, 可视化讲解, 做一份像 tokenizer.html 这样的教程), or to add a section, subtopic, code cell, diagram, or 3D demo to such a page. The page is one offline HTML file read top to bottom: text cells, code cells whose Out is a real run, step-by-step three.js demos computed from real results, inline SVG diagrams and cards; esbuild inlines the scripts and Shiki colors the code at build time. Covers setting up viz/ from the scaffold in assets/viz, the page outline (what it is, why, how it works, subtopics), linking each term to an official page and checking it with scripts/check_links.py, the step data the 3D view animates, and clicking through every step in agent-browser before finishing.'
+description: 'Use when asked to explain a concept from a code repository as a notebook-style interactive tutorial page like viz/tokenizer.html in MiniMind (3D 交互教程, 笔记本式教程, 可视化讲解, 做一份像 tokenizer.html 这样的教程), or to add a section, subtopic, code cell, diagram, or 3D demo to such a page. The page is one offline HTML file read top to bottom: text cells, code cells whose Out is a real run, step-by-step three.js demos computed from real results (rows of tiles, or a component graph lit up step by step), inline SVG diagrams and cards; esbuild inlines the scripts and Shiki colors the code at build time. Covers setting up viz/ from the scaffold in assets/viz, the page outline (what it is, why, how it works, subtopics), linking each term to an official page and checking it with scripts/check_links.py, recording one real run of a system for the code cells and demos, the step data the 3D views animate, and clicking through every step in agent-browser before finishing.'
 ---
 
 # Building Interactive Tutorials
@@ -11,7 +11,8 @@ One concept, one page, read top to bottom like a Jupyter notebook: text cells, c
 
 - The user asks for an interactive, 3D, or notebook-style tutorial that explains a concept in the repository: 3D 交互教程, 可视化讲解, "做一份像 tokenizer.html 这样的教程".
 - Adding a subtopic, section, code cell, diagram, card group, or demo to an existing page under `viz/`.
-- Building a new 3D view for a concept the tile view cannot show.
+- Explaining how the parts of a system act on each other while it runs (a sync process, a Git server, a database): a component graph fed by one recorded run.
+- Building a new 3D view for a concept neither the tile view nor the component graph can show.
 
 Not for slide decks (`frontend-slides`), videos (`manim-video`, `remotion-video-creation`), or a standalone diagram (`diagram-design`).
 
@@ -42,6 +43,7 @@ viz/
 ├── README.md                 the page list, the writing rules, how to add a topic
 └── src/
     ├── notebook/             the shell every page shares
+    │   ├── graph-3d.js       3D view: a component graph whose parts light up step by step
     │   ├── notebook.css      cell layout, diagram and card styles, phase colors
     │   ├── player.js         demo player: paging, autoplay, pauses off-screen
     │   ├── runtime.js        mounts demos, builds the two-level TOC, opens repo links in VS Code
@@ -60,6 +62,14 @@ Browsers refuse to load local ES modules from a `file://` page, so `build.mjs` b
 2. Run every snippet you will show, from the repository root, with the project's runner (`uv run python ...`). Paste the output verbatim into the Out block. Never write an output from memory or tidy it by hand.
 3. Record the installed versions of the libraries you will link (`uv pip show <package>`), so the doc links match them.
 4. Take every fact the page states (counts, ids, sizes, ranges) from those runs or from the repository files.
+
+When the concept is a system whose state changes as you act on it, write three scripts under `viz/runs/` that record one run, and take everything from it, so the Out blocks, the numbers in the text, and the demo cannot disagree:
+
+- `runs/demo.py` wraps the executor the code runs its commands through (a sandbox class, `subprocess.run`), so each command and its output go into a log; `frame(label)` saves the system's state at that moment (files, refs, rows) with the commands logged since the last frame.
+- `runs/run_all.sh` runs every code cell's script in order and copies each output and the frames into `runs/out/`.
+- `runs/fill_cells.py` fills the template `runs/notebook.tpl.html`: `<!--CELL:name-->` becomes a code cell with `runs/name.py` as In and `runs/out/name.txt` as Out, only HTML-escaped; `{{sha:name}}` becomes the value the run saved under that name; the frames become `trace.js`, which `steps.js` imports.
+
+After a rerun, every id and output on the page updates by itself. Edit the template, never the generated `notebook.html` or `trace.js`.
 
 ### 3. Outline the Page
 
@@ -145,7 +155,31 @@ A demo is a list of steps, and one step shows one change. The tile view reads th
 - Tags: `base` plain, `focus` what this step is about, `new` just created, `done` finished, `muted` not involved, `unk` unknown, `removed` about to go.
 - Compute the steps in a data module (`steps.js`, or one module per subtopic) from the outputs of step 2: either reimplement a small algorithm in JavaScript and check its result against the library's output, or copy the real ids and pieces into constants with a comment naming where they came from.
 - Register each scene in `main.js` as `startNotebook({ [id]: { name, tagline, steps, createView } })`; the demo cell's `data-scene` is that `id`.
-- When the tile view cannot show the concept, write another view that returns `mount(stage)`, `render(step, { reset })`, and `setActive(active)`, and keep the player.
+
+The tile view fits a concept that turns one sequence into another (text into pieces, pieces into ids). When the concept is several components that call, write, or point at each other, and the ones at work change from step to step, use the component graph view in `graph-3d.js`. One `GRAPH` lays out the whole system, and each demo lights up parts of it:
+
+```js
+export const GRAPH = {
+  groups: [{ id: 'data', label: '数据', color: '#e2b93b', x: 0, z: 3.5, w: 25, d: 5.2 }],  // a ground plate with a title
+  nodes: [{ id: 'counts', kind: 'table', label: '次数表', sub: 'counts', x: -2.75, z: 3.5,
+            desc: '一个字母一行，记它出现几次。', code: 'src/topics/example/steps.js' }],
+  edges: [{ id: 'point', from: 'top', to: 'counts', label: '指着', desc: '只是指着一行。', dashed: true }],
+};
+
+{                                                 // one step, besides phase, title, text
+  nodes: { count: 'active', counts: 'new' },      // active, new, gap, base, off; unlisted nodes dim
+  edges: [{ id: 'write', label: '写次数', tone: 'new' }],  // lit, with dots flowing along
+  badges: { counts: '4 种字母' },                  // third line of the name tag, or { text, tone }
+  details: { counts: ['h  1 次', 'e  1 次'] },    // the lines the tip and the panel show
+  focus: ['count', 'counts'],                     // the camera frames these
+}
+```
+
+- `x` runs right and `z` toward the reader. A node is 3.4 wide and 1.7 deep: space nodes about 5.5 apart, and leave room left of a group's first node for its title.
+- Kinds: `process` a rounded box, `store` a cylinder, `table` a ringed cylinder, `ref` a purple box. Add a kind in `GRAPH.kinds` and a tone in `GRAPH.tones`.
+- Hovering a node shows its `desc`, `code`, and the first four lines of `details`, and hovering an edge its `label` and `desc`; a click pins a panel with every line; a double click reframes the step.
+- Register it as `createView: () => createGraphView(GRAPH)`, and give its demo cell `style="--stage-height: 560px"` so the name tags fit.
+- When neither view can show the concept, write another view that returns `mount(stage)`, `render(step, { reset })`, and `setActive(active)`, and keep the player.
 
 ### 7. Build and Click Through Every Step
 
@@ -156,7 +190,7 @@ pnpm build
 Run it in `viz/`, then check the built page with `agent-browser` (see that skill), in its own `--session`:
 
 1. Open `file://<absolute path>/viz/<name>.html`. `agent-browser errors` and `agent-browser console` print nothing.
-2. For each demo: scroll it into view, step through every step, and confirm the counter reaches the last one and each caption matches its scene. A demo builds its 3D view only after it scrolls into view.
+2. For each demo: scroll it into view, step through every step, and confirm the counter reaches the last one and each caption matches its scene. A demo builds its 3D view only after it scrolls into view. In a component graph, hover a node and click it (`agent-browser mouse move`, `mouse down`, `mouse up`): `.graph-tip` and then `.graph-panel` show.
 3. Screenshot each new diagram, card group, and table; every text stays inside its box.
 4. The TOC lists every new `<h2>` and `<h3>`, and its highlight follows the scroll.
 
@@ -168,7 +202,7 @@ agent-browser --session tutorial eval "document.getElementById('how').scrollInto
 
 ### 8. Update the Index
 
-- `viz/README.md`: the page table, the directory tree for new data modules, any new cell markup.
+- `viz/README.md`: the page table, the directory tree for new data modules and `runs/`, any new cell markup.
 - Any index page that links the tutorials (a roadmap, a docs home): add the new page or subtopic.
 
 ## Examples
@@ -209,15 +243,20 @@ tokenizers        h3: common components (SVG diagram + cards), tokenizer.json (f
 | A link to a heading without an `id` | Give the heading an `id` |
 | Library reference material filed as an appendix | Make it a subtopic with its own `<h2>` |
 | Editing the built `<name>.html` | Edit the sources and rebuild |
+| Out blocks, text, and demo taken from different runs, so their numbers disagree | Record one run and generate all three from it (step 2) |
+| A name laid flat on a node's top face, unreadable from the oblique camera | Draw the name tag as a sprite that always faces the camera |
+| Step data in a second sprite stacked over the name tag; seen from above, the two overlap | Put the data on the same name tag, as its third line |
+| A wide-angle camera, so near nodes look huge and far ones tiny | A narrow field of view (24°) from farther away |
+| `check_links.py` keeps getting 503 from a GitHub file (`/blob/`) page | Link the directory page (`/tree/<tag>/<dir>`) of the same official repository at the same version tag |
 
 ## Before You Finish
 
 - [ ] Every Out block is a real run, pasted verbatim, and every number in the text matches the runs or the repository.
 - [ ] `check_links.py` prints `OK` for the built page.
-- [ ] Every demo steps from first to last without errors, and each new phase has a color.
+- [ ] Every demo steps from first to last without errors, each new phase has a color, and each component graph shows its tip and panel on a node.
 - [ ] Every new diagram, card group, and table was screenshot, and nothing overflows.
 - [ ] `viz/README.md` and any index page list the new page or subtopic, and the built HTML is rebuilt from the sources.
 
 ## Source
 
-Distilled from building the tokenizer tutorial (`viz/tokenizer.html`) for [MiniMind](https://github.com/jingyaogong/minimind). The scaffold in `assets/viz` is that page's shell, with the tokenizer content replaced by a small example.
+Distilled from building the tokenizer tutorial (`viz/tokenizer.html`) for [MiniMind](https://github.com/jingyaogong/minimind). The scaffold in `assets/viz` is that page's shell, with the tokenizer content replaced by a small example. The component graph view and the recorded run come from a later tutorial on a web platform's automatic code versioning, where a sync process, a Git server, and a database change state turn by turn.

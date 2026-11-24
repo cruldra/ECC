@@ -48,11 +48,19 @@ function treeFiles(text) {
   return [...tree[1].matchAll(/[─ ]([\w-]+\.(?:mjs|md|css|js|html))\s/g)].map((m) => m[1]).sort();
 }
 
-async function loadScenes() {
+async function loadSteps() {
   const copy = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "tutorial-steps-")), "steps.mjs");
   fs.copyFileSync(path.join(exampleDir, "steps.js"), copy);
-  const { buildExampleScenes } = await import(pathToFileURL(copy).href);
-  return buildExampleScenes();
+  return import(pathToFileURL(copy).href);
+}
+
+/** 从 graph-3d.js 的源码里读出 `export const <name> = { ... }` 这张表的键，测试不用加载 three.js。 */
+function tableKeys(name) {
+  const source = fs.readFileSync(path.join(vizDir, "src", "notebook", "graph-3d.js"), "utf8");
+  const table = source.match(new RegExp(`export const ${name} = (\\{[\\s\\S]*?\\});`));
+  assert.ok(table, `graph-3d.js must export ${name}`);
+  // 表里只有字符串字面量，按对象字面量求值即可。
+  return new Set(Object.keys(new Function(`return ${table[1]};`)()));
 }
 
 async function main() {
@@ -119,10 +127,11 @@ async function main() {
     assert.ok(notebookCss.includes(".cards") && notebookCss.includes(".card li.pick"));
   });
 
-  await test("the example demo is registered under its data-scene and its steps follow the tile contract", async () => {
-    const scenes = await loadScenes();
+  await test("the example demos are registered under their data-scene and the tile steps follow the tile contract", async () => {
+    const { buildExampleScenes, buildGraphScenes } = await loadSteps();
+    const scenes = buildExampleScenes();
     const sceneIds = [...notebookHtml.matchAll(/data-scene="([^"]+)"/g)].map((m) => m[1]);
-    assert.deepStrictEqual(scenes.map((s) => s.id), sceneIds);
+    assert.deepStrictEqual([...scenes, ...buildGraphScenes()].map((s) => s.id), sceneIds);
     const tags = new Set(["base", "focus", "new", "done", "muted", "unk", "removed"]);
     for (const scene of scenes) {
       let before = new Set();
@@ -138,6 +147,39 @@ async function main() {
         before = new Set(ids);
       }
     }
+  });
+
+  await test("the component graph example names only nodes, edges, kinds, and tones the graph view knows", async () => {
+    const { GRAPH, buildGraphScenes } = await loadSteps();
+    const kinds = tableKeys("KINDS");
+    const tones = tableKeys("TONES");
+    assert.deepStrictEqual([...kinds].sort(), ["process", "ref", "store", "table"]);
+    assert.deepStrictEqual([...tones].sort(), ["active", "base", "gap", "new", "off"]);
+    const nodes = new Set(GRAPH.nodes.map((n) => n.id));
+    const edges = new Set(GRAPH.edges.map((e) => e.id));
+    assert.strictEqual(nodes.size, GRAPH.nodes.length, "duplicate node id");
+    assert.strictEqual(edges.size, GRAPH.edges.length, "duplicate edge id");
+    for (const n of GRAPH.nodes) assert.ok(kinds.has(n.kind), `node ${n.id} has unknown kind ${n.kind}`);
+    for (const e of GRAPH.edges) assert.ok(nodes.has(e.from) && nodes.has(e.to), `edge ${e.id} joins a missing node`);
+    for (const scene of buildGraphScenes()) {
+      for (const step of scene.steps) {
+        for (const field of ["phase", "title", "text"]) assert.ok(step[field], `a step has no ${field}`);
+        for (const [id, tone] of Object.entries(step.nodes)) {
+          assert.ok(nodes.has(id), `${step.title} lights missing node ${id}`);
+          assert.ok(tones.has(tone), `${step.title} gives ${id} unknown tone ${tone}`);
+        }
+        for (const edge of step.edges ?? []) {
+          assert.ok(edges.has(edge.id), `${step.title} lights missing edge ${edge.id}`);
+          if (edge.tone) assert.ok(tones.has(edge.tone), `${step.title} gives ${edge.id} unknown tone ${edge.tone}`);
+        }
+        for (const field of ["badges", "details"]) {
+          for (const id of Object.keys(step[field] ?? {})) assert.ok(nodes.has(id), `${step.title} ${field} name missing node ${id}`);
+        }
+        for (const id of step.focus ?? []) assert.ok(nodes.has(id), `${step.title} focuses missing node ${id}`);
+      }
+    }
+    for (const cls of [".graph-tip", ".graph-panel"]) assert.ok(notebookCss.includes(cls), `${cls} is not styled`);
+    assert.ok(notebookCss.includes("var(--stage-height, 460px)"), "the demo stage height must be adjustable per cell");
   });
 
   await test("check_links.py --offline flags a missing #id and a missing file, and ignores script text", () => {
