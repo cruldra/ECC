@@ -1,0 +1,116 @@
+:root {
+  --bg: #14161c;
+  --panel: #1b1f29;
+  --code: #171a22;
+  --line: #2a3142;
+  --text: #e3e8f0;
+  --muted: #8a93a6;
+  --accent: #f08a59;
+  --new: #3ecf8e;
+  --done: #2f6f55;
+  --gutter: 64px;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+}
+
+html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.8; }
+a { color: #8fb4ff; text-decoration: underline dotted; text-underline-offset: 3px; }
+a:hover { text-decoration-style: solid; }
+a code { color: inherit; }
+b a, a b { font-weight: 600; }
+
+/* 目录：宽屏时浮在正文左边的空白里，大小只够放下菜单；空白放不下时排成一行放在标题下面，只列二级标题 */
+.nb-toc { display: flex; flex-wrap: wrap; gap: 4px; margin: -8px 0 8px; padding-left: calc(var(--gutter) + 6px); }
+.nb-toc a { padding: 4px 10px; border-radius: 6px; color: var(--muted); font-size: 14px; line-height: 1.5; text-decoration: none; }
+.nb-toc a:hover, .nb-toc a.active { background: var(--panel); color: var(--text); }
+.nb-toc a.parent { color: var(--text); }
+.nb-toc .toc-h3 { display: none; }
+@media (min-width: 1400px) {
+  /* 右边缘贴着正文左边的序号栏；最宽到屏幕左边留 24px，标题再长就折行 */
+  .nb-toc { position: fixed; top: 36px; right: calc(50% + 560px); flex-direction: column; flex-wrap: nowrap; gap: 2px; max-width: calc(50% - 584px); max-height: calc(100vh - 72px); overflow-y: auto; margin: 0; padding: 0; }
+  .nb-toc .toc-h3 { display: block; padding: 3px 10px 3px 24px; font-size: 13px; }
+  .nb-toc .toc-h3 + .toc-h2 { margin-top: 6px; }
+}
+
+/* 笔记本主体：格子从上到下排列，左边留出序号栏 */
+.notebook { max-width: 1120px; margin: 0 auto; padding: 36px 24px 120px; }
+.nb-title { padding-left: calc(var(--gutter) + 12px); margin-bottom: 28px; }
+.nb-title h1 { margin: 0 0 6px; font-size: 34px; line-height: 1.3; }
+.nb-title p { margin: 0; color: var(--muted); }
+
+.cell { margin: 14px 0; }
+.cell.text { padding-left: calc(var(--gutter) + 12px); }
+.cell.text h2 { margin: 52px 0 10px; padding-bottom: 8px; border-bottom: 1px solid var(--line); font-size: 26px; line-height: 1.4; }
+.cell.text h3 { margin: 30px 0 6px; font-size: 20px; }
+.cell.text p, .cell.text li { max-width: 860px; font-size: 16px; }
+.cell.text table { margin: 10px 0; border-collapse: collapse; font-size: 15px; }
+.cell.text th, .cell.text td { padding: 6px 14px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+.cell.text th { background: var(--panel); }
+:not(pre) > code { padding: 1px 6px; border-radius: 4px; background: #262c3a; font-family: var(--mono); font-size: .9em; }
+.cell.text td:first-child { white-space: nowrap; }
+.note { padding: 10px 14px; border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; background: var(--panel); color: #c9d0dc; }
+
+/* 结构图：文字格子里的内联 SVG，宽度跟着正文缩放；橙色边框标出本项目用到的部分，虚线框是可选的 */
+.diagram { display: block; width: 100%; max-width: 1000px; height: auto; margin: 16px 0; }
+.diagram text { fill: var(--text); font-size: 13px; text-anchor: middle; dominant-baseline: middle; }
+.diagram .name { font-family: var(--mono); font-size: 14px; font-weight: 600; }
+.diagram .mono { font-family: var(--mono); font-size: 11px; fill: #c9d0dc; }
+.diagram .role, .diagram .off { fill: var(--muted); }
+.diagram .pick { fill: var(--accent); font-weight: 600; }
+.diagram .lane { fill: var(--muted); font-size: 12px; text-anchor: start; }
+.diagram .box { fill: var(--panel); stroke: #3a4460; stroke-width: 1.5; }
+.diagram .box.used { stroke: var(--accent); }
+.diagram .box.optional { stroke-dasharray: 5 4; }
+.diagram .end { fill: #232836; }
+.diagram .edge { fill: none; stroke: #5a6275; stroke-width: 1.5; stroke-linejoin: round; }
+.diagram marker path { fill: #5a6275; }
+.diagram a:hover .box { fill: #232836; }
+
+/* 卡片：一组并列的说明，每张卡片里一列名字一列解释，名字列按最长的对齐；`pick` 行是本项目用的 */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 14px; max-width: 1000px; margin: 12px 0; }
+.card { padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); scroll-margin-top: 24px; }
+.card:target { border-color: var(--accent); }
+.card h4 { margin: 0 0 4px; font-size: 16px; }
+.card h4 small { margin-left: 10px; color: var(--muted); font-family: var(--mono); font-size: 12px; font-weight: 400; }
+.cell.text .card p { margin: 0 0 8px; color: #c9d0dc; font-size: 14px; line-height: 1.7; }
+.card ul { display: grid; grid-template-columns: max-content 1fr; margin: 0; padding: 0; list-style: none; }
+.card li { display: contents; }
+.cell.text .card li > * { padding: 4px 8px; border-top: 1px dashed var(--line); font-size: 14px; line-height: 1.6; }
+.card li.pick > * { background: rgba(240, 138, 89, .08); }
+.card li.pick > :first-child code { color: var(--accent); }
+
+.cell-gutter { padding-top: 12px; color: var(--muted); font-family: var(--mono); font-size: 12px; text-align: right; }
+.cell.code, .cell.demo { display: grid; grid-template-columns: var(--gutter) minmax(0, 1fr); gap: 0 12px; }
+
+/* 代码格子：上面是输入，下面是输出，和 Jupyter 一样 */
+.cell.code pre { margin: 0; padding: 12px 16px; overflow-x: auto; font-family: var(--mono); font-size: 13px; line-height: 1.6; }
+.code-in { border: 1px solid var(--line); border-radius: 10px 10px 0 0; background: var(--code); }
+.code-out { border: 1px solid var(--line); border-top: 0; border-radius: 0 0 10px 10px; color: #c9d0dc; }
+.cell.code .cell-gutter:nth-of-type(2) { padding-top: 12px; }
+
+/* 演示格子：标题栏、3D 画面、当前步说明 */
+.cell.demo { outline: none; }
+.cell.demo .cell-body { overflow: hidden; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+.cell.demo:focus-within .cell-body, .cell.demo:focus .cell-body { border-color: #4a5470; }
+.demo-head { display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 16px; border-bottom: 1px solid var(--line); }
+.demo-name { font-size: 15px; }
+.demo-tagline { color: var(--muted); font-size: 13px; }
+.demo-controls { display: flex; gap: 6px; margin-left: auto; }
+.demo-controls button { padding: 4px 12px; border: 1px solid var(--line); border-radius: 6px; background: #232836; color: var(--text); font: inherit; font-size: 13px; cursor: pointer; }
+.demo-controls button:disabled { opacity: .35; cursor: default; }
+.demo-controls .play { border-color: var(--accent); color: var(--accent); }
+.demo-stage { position: relative; height: 460px; background: var(--bg); }
+.demo-stage canvas { display: block; }
+.demo-hint { position: absolute; right: 12px; bottom: 8px; color: var(--muted); font-size: 12px; pointer-events: none; }
+.demo-caption { padding: 10px 16px 14px; border-top: 1px solid var(--line); }
+.demo-meta { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+/* 每一步的阶段标签：没配颜色的阶段用默认的蓝色，新阶段名在这里加一行 */
+.demo-meta .phase { padding: 1px 8px; border-radius: 4px; background: #2e4a7a; }
+.demo-meta .phase[data-phase="合并"] { background: var(--done); }
+.demo-meta .phase[data-phase="对比"] { background: #7a4a2e; }
+.demo-meta .count { color: var(--muted); }
+.demo-text { min-height: 54px; margin-top: 4px; font-size: 15px; line-height: 1.75; }
+.demo-text table { margin-top: 6px; border-collapse: collapse; font-size: 14px; }
+.demo-text th, .demo-text td { padding: 3px 12px; border: 1px solid var(--line); text-align: left; }
+.demo-text b, .demo-text code { white-space: nowrap; }

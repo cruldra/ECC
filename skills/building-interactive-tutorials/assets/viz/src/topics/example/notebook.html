@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>示例 · 3D 交互教程</title>
+<style>{{STYLE}}</style>
+</head>
+<body>
+<main class="notebook">
+  <header class="nb-title">
+    <h1>示例</h1>
+    <!-- 面包屑：回到索引页（如路线图），再写「以某项目为例」 -->
+    <p><a href="README.md">教程说明</a> › 示例章节　·　一页讲完一个知识点</p>
+  </header>
+  <nav class="nb-toc"></nav>
+
+  <section class="cell text">
+    <h2 id="what">示例是什么</h2>
+    <p>一句话讲清楚它是什么，再配一个项目里的真实例子。代码格子的 Out 必须是真实运行结果：</p>
+  </section>
+
+  <section class="cell code">
+    <div class="cell-gutter">In</div>
+    <pre class="code-in" data-lang="python">print(list("hello"))</pre>
+    <div class="cell-gutter">Out</div>
+    <pre class="code-out">['h', 'e', 'l', 'l', 'o']</pre>
+  </section>
+
+  <section class="cell text">
+    <h2 id="why">目的和动机</h2>
+    <p>为什么需要它，不用它会怎样，取舍是什么。</p>
+  </section>
+
+  <section class="cell text">
+    <h2 id="how">工作原理</h2>
+    <p>讲主流做法，配一个 3D 演示。点中演示后可以用方向键翻页、空格播放：</p>
+  </section>
+
+  <section class="cell demo" data-scene="example"></section>
+
+  <section class="cell text">
+    <h2 id="parts">子主题</h2>
+    <p>同一主题下的其它知识点，每个单独一节，节内用三级标题分点。</p>
+    <h3 id="diagram">结构图</h3>
+    <p>方框用 <code>box</code>，本项目用到的加 <code>used</code>，可选的加 <code>optional</code>，连线用 <code>edge</code>：</p>
+    <svg class="diagram" viewBox="0 0 1000 120" role="img" aria-label="示例结构图：输入经过拆分得到结果，合并是可选的一步">
+      <defs>
+        <marker id="example-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+      <line class="edge" x1="160" y1="60" x2="236" y2="60" marker-end="url(#example-arrow)"/>
+      <line class="edge" x1="440" y1="60" x2="516" y2="60" marker-end="url(#example-arrow)"/>
+      <line class="edge" x1="720" y1="60" x2="796" y2="60" marker-end="url(#example-arrow)"/>
+      <g><rect class="end" x="0" y="30" width="160" height="60" rx="14"/><text x="80" y="60">输入</text></g>
+      <a href="#how"><g><rect class="box used" x="240" y="25" width="200" height="70" rx="8"/><text class="name" x="340" y="50">split</text><text class="role" x="340" y="74">拆成字母</text></g></a>
+      <g><rect class="box optional" x="520" y="25" width="200" height="70" rx="8"/><text class="name" x="620" y="50">merge</text><text class="role" x="620" y="74">可选：合并</text></g>
+      <g><rect class="end" x="800" y="30" width="200" height="60" rx="14"/><text x="900" y="60">结果</text></g>
+    </svg>
+    <h3 id="cards">卡片</h3>
+    <div class="cards">
+      <div class="card" id="part-split">
+        <h4>拆分<small>split</small></h4>
+        <p>每张卡片一个组件，下面一行一个做法；本项目用的那行加 <code>pick</code>。</p>
+        <ul>
+          <li class="pick"><span><code>chars</code></span><span>按字母拆，示例用的就是它</span></li>
+          <li><span><code>words</code></span><span>按空格拆成词</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>{{SCRIPT}}</script>
+</body>
+</html>
