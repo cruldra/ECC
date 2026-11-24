@@ -15,6 +15,7 @@ const schema = JSON.parse(fs.readFileSync(path.join(skillDir, "references", "sta
 const SPX_COMMANDS = [
   "issue view",
   "issue create",
+  "issue comment",
   "issue marker",
   "issue state get",
   "issue state merge",

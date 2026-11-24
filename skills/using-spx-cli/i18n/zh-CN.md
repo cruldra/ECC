@@ -2,8 +2,8 @@
 name: using-spx-cli
 description: '当你需要在使用 spx CLI（superwork / superpowers-vscode 看板工作流）的 GitHub 或 Gitea 仓库中查看或创建工单、给工单发普通评论（可带附件）、更新其 spec/plan/prototype 标记、读取或合并工单的状态 JSON、查看或创建 PR，或发布 PR 审查评论时使用。涵盖 spx 如何根据 git origin 选择代码托管平台和凭据、隐藏的状态评论、spx 写入 <git common dir>/superwork/local-issue-state.json 而非工单的本机字段（会话 ID、配置文件路径、worktreePath、prDiffFile），以及 references/state-json.schema.json 中严格的字段 schema。'
 locale: zh-CN
-source_hash: d9de18f47c081981e2d934ffa07e0ef1df4ebcf9a4a1a5f4d9969c4b8210b82a
-translated_at: 2026-11-05T09:49:29Z
+source_hash: e2722c0dc981eb59979010f51b4aba3d28c17d5e002e6ed95a85f2c0c603184e
+translated_at: 2026-11-24T05:52:55Z
 translation_model: claude-opus-5-5
 ---
 
