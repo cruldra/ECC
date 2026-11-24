@@ -348,7 +348,6 @@
       "deepseek-harness-setup": "configures an external DeepSeek provider and Claude-Code-specific credentials and hook integration",
       "story-lifecycle": "Requires ECC agent workflow handoffs and a local Node ledger; native Pi delivery has not been validated.",
       "agent-browser": "fork-local browser automation; requires the agent-browser CLI at runtime",
-      "anything2explainer": "fork-local explainer video pipeline; runtime media tooling",
       "bugsink": "fork-local Bugsink error triage",
       "clash-best-practices": "fork-local proxy client configuration",
       "closing-custom-dev-deals": "fork-local custom-development sales workflow",

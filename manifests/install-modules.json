@@ -882,7 +882,6 @@
         "skills/tasteforge-video",
         "skills/taste-distillation",
         "skills/taste-application",
-        "skills/anything2explainer",
         "skills/building-interactive-tutorials"
       ],
       "targets": [

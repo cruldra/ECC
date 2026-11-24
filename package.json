@@ -175,7 +175,6 @@
     "scripts/codex-git-hooks/",
     "scripts/work-items.js",
     "scripts/uninstall.js",
-    "skills/anything2explainer/",
     "skills/agent-architecture-audit/",
     "skills/agent-harness-construction/",
     "skills/agent-introspection-debugging/",
