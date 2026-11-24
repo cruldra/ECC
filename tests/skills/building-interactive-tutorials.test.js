@@ -157,6 +157,13 @@ async function main() {
     assert.ok(notebookCss.includes(".cards") && notebookCss.includes(".card li.pick"));
   });
 
+  await test("a table Out is a styled HTML table, shown in the example page and taught in SKILL.md", () => {
+    assert.ok(notebookCss.includes(".code-out.out-table") && notebookCss.includes(".out-table td"), ".out-table is not styled");
+    assert.match(notebookCss, /\.out-table td \{[^}]*white-space: pre-wrap/, "line breaks inside a value must stay");
+    assert.ok(notebookHtml.includes('<div class="code-out out-table"><table>'), "the example page needs a table Out");
+    assert.ok(body.includes('<div class="code-out out-table"><table>') && body.includes("--json"), "SKILL.md must teach the table Out");
+  });
+
   await test("the example demos are registered under their data-scene and the tile steps follow the tile contract", async () => {
     const { buildExampleScenes, buildGraphScenes } = await loadSteps();
     const scenes = buildExampleScenes();

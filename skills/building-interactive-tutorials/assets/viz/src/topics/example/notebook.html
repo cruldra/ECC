@@ -70,6 +70,28 @@
   </section>
 
   <section class="cell text">
+    <h3 id="table-out">表格输出</h3>
+    <p>输出是一张表时，让命令打印 JSON，把每个值原样放进 <code>out-table</code> 的一格。命令行对齐列时一个汉字只算一格，浏览器里却占两格，直接贴文本列就歪了：</p>
+  </section>
+
+  <section class="cell code">
+    <div class="cell-gutter">In</div>
+    <pre class="code-in" data-lang="python">import json
+from collections import Counter
+print(json.dumps([{"字母": c, "次数": n} for c, n in Counter("hello").items()], ensure_ascii=False))</pre>
+    <div class="cell-gutter">Out</div>
+    <div class="code-out out-table"><table>
+      <thead><tr><th>字母</th><th>次数</th></tr></thead>
+      <tbody>
+        <tr><td>h</td><td>1</td></tr>
+        <tr><td>e</td><td>1</td></tr>
+        <tr><td>l</td><td>2</td></tr>
+        <tr><td>o</td><td>1</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="cell text">
     <h3 id="graph">组件图</h3>
     <p>讲一个系统里几个组件怎么互相调用、读写、引用，而且每一步动的组件不同时，用组件图：上面一排是计算，下面一排是数据，虚线是引用。下面还是同一次拆分与合并。悬停看说明，点一下固定面板看这一步的全部数据，双击把镜头拉回来：</p>
   </section>

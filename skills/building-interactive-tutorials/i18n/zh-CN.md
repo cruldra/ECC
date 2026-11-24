@@ -2,8 +2,8 @@
 name: building-interactive-tutorials
 description: '在用户要求制作讲解仓库代码的交互式 3D 页面时使用（3D 交互教程、笔记本式教程、可视化讲解、梳理现有机制、现状和方案、做一份像 tokenizer.html 这样的教程），或要求向此类页面添加章节或演示时使用。先问要做两种页面里的哪一种：学习页，讲清开源项目某一块的内部逻辑，像 MiniMind 的 viz/tokenizer.html 一样从上到下阅读（文字格子、输出为真实运行结果的代码格子、结构图、卡片、分步 three.js 演示）；或改造页，用于修复或优化现有代码：现状和解决方案各一段简短说明加一段组件图演示，现状录自一次真实运行，方案取自设计文档。产出一个离线 HTML 文件；esbuild 内联脚本，Shiki 在构建时为代码着色。涵盖 assets/viz 中的脚手架、两种大纲、用 scripts/check_links.py 检查的官方链接、录制真实运行、3D 画面动画所用的步骤数据，以及在 agent-browser 中逐步点击检查。'
 locale: zh-CN
-source_hash: 97186930474094a58c32f7d74309094d38da1601a76541bf5f90cf1d43f19e51
-translated_at: 2026-11-24T07:04:32Z
+source_hash: 63db421908436f6332643db965fb414cabf503cebfb30df0019572861ee71665
+translated_at: 2026-11-24T08:27:33Z
 translation_model: claude-opus-5-5
 ---
 
@@ -85,7 +85,7 @@ viz/
 ### 3. 研究代码并运行
 
 1. 阅读实现该概念的代码路径：训练或构建它的脚本、配置、数据加载器和调用方。记录将要提及的每个文件和符号；之后要链接到它们。
-2. 从仓库根目录用项目的运行器（`uv run python ...`）运行准备展示的每段代码。将输出原样粘贴到 Out 区块中。不要凭记忆编写输出，也不要手动整理。
+2. 从仓库根目录用项目的运行器（`uv run python ...`）运行准备展示的每段代码。将输出原样粘贴到 Out 区块中。不要凭记忆编写输出，也不要手动整理。输出是一张表时，改为把各行录成 JSON，排成表格 Out（第 5 步）。
 3. 记录将要链接的库的已安装版本（`uv pip show <package>`），确保文档链接与版本匹配。
 4. 页面中陈述的每项事实（数量、id、大小、范围）都必须来自这些运行结果或仓库文件。
 
@@ -93,7 +93,7 @@ viz/
 
 - `runs/demo.py` 包装被测代码执行命令所用的执行器（沙箱类、`subprocess.run`），把每条命令及其输出记进日志；`frame(label)` 保存那一刻的系统状态（文件、引用、行），连同上一帧以来记下的命令。
 - `runs/run_all.sh` 按顺序运行每个代码格子的脚本，把每份输出和全部帧拷进 `runs/out/`。
-- `runs/fill_cells.py` 填充模板 `runs/notebook.tpl.html`：`<!--CELL:name-->` 换成代码格子，In 是 `runs/name.py`，Out 是 `runs/out/name.txt`，只做 HTML 转义；`{{sha:name}}` 换成运行时以该名字保存的值；帧写成 `trace.js`，由 `steps.js` 导入。
+- `runs/fill_cells.py` 填充模板 `runs/notebook.tpl.html`：`<!--CELL:name-->` 换成代码格子，In 是 `runs/name.py`，Out 是 `runs/out/name.txt`，只做 HTML 转义，该文件是 JSON 行时则排成表格 Out；`{{sha:name}}` 换成运行时以该名字保存的值；帧写成 `trace.js`，由 `steps.js` 导入。
 
 重跑之后，页面上的每个 id 和输出都会自动更新。改模板，不要改生成的 `notebook.html` 或 `trace.js`。
 
@@ -139,6 +139,14 @@ viz/
 ```
 
 - 对两个 `<pre>` 块中的 `<`、`>` 和 `&` 进行转义。构建时会在 Shiki 着色前还原 `code-in`；`code-out` 则按原样显示。
+- 输出是一张表时（命令行的列表命令、查询结果行），不要把对齐好的文本贴进 `<pre class="code-out">`。命令行按字符数补空格对齐列，浏览器里一个汉字却占两格，列就歪了；值里有换行会把一行拆散；长值会冲出右边。改为录下各行：用命令的 JSON 选项运行（`--json`、`-o json`、`--format json`）；没有这个选项时，让格子的脚本通过命令背后的接口或库取同样的行，打印成 JSON。In 显示实际运行的内容。Out 把每个值原样转义后放进各自的 `<td>`，值里的换行保留：
+
+  ```html
+  <div class="code-out out-table"><table>
+    <thead><tr><th>key</th><th>value</th></tr></thead>
+    <tbody><tr><td>intent_routing.enabled</td><td>true</td></tr></tbody>
+  </table></div>
+  ```
 - 文字格子也可以包含 `<table>`、`<p class="note">`，以及 `notebook.css` 中定义的两种布局：
   - `<svg class="diagram">`：手写，`viewBox` 宽度为 1000。方框使用 `box`；为项目实际使用的部分添加 `used`，可选部分添加 `optional`；输入和输出使用 `end`；连接线使用 `edge`，并带有一个页面内 id 唯一的箭头 `<marker>`；文本类为 `name`、`role`、`mono`、`lane`。将方框包在 `<a href="#card-id">` 中可跳转到对应卡片。
   - `<div class="cards">`：每个项目一个 `.card`，并设置各自的 `id`：包含带 `<small>` 代码名称的 `<h4>`、一个 `<p>`，以及一个 `<ul>`；其中的 `<li>` 包含两个子项，分别是名称和含义。`li.pick` 用于标记项目实际使用的内容。
@@ -236,7 +244,7 @@ pnpm build
 
 1. 打开 `file://<absolute path>/viz/<name>.html`。`agent-browser errors` 和 `agent-browser console` 不应打印任何内容。
 2. 对每个演示：滚动到可见区域，逐步检查，并确认计数器到达最后一步，且每个说明文字都与场景相符。演示只有滚动进入视口后才会创建 3D 画面。在组件图里，悬停一个组件再单击它（`agent-browser mouse move`、`mouse down`、`mouse up`）：先出现 `.graph-tip`，再出现 `.graph-panel`。
-3. 给每个新结构图、卡片组和表格截图；所有文字都应位于框内。
+3. 给每个新结构图、卡片组、表格和表格 Out 截图；所有文字都应位于框内，表格 Out 的每一列都对齐。
 4. 目录应列出每个新增的 `<h2>` 和 `<h3>`，滚动时高亮项应随之更新。
 
 页面设置了 `scroll-behavior: smooth`，因此跳转后立即截图会捕捉到页面滚动过程中的画面。先立即跳转：
@@ -296,6 +304,7 @@ tokenizers        h3: 常用组件（SVG 结构图 + 卡片）、tokenizer.json�
 | 链接到没有 `id` 的标题 | 为标题添加 `id` |
 | 将库参考资料列为附录 | 将其设为拥有独立 `<h2>` 的子主题 |
 | 编辑构建后的 `<name>.html` | 编辑源文件并重新构建 |
+| 把命令行的表格贴进 `<pre class="code-out">`：中文把列挤歪，多行的值把一行拆散 | 把各行录成 JSON，写成表格 Out（第 5 步） |
 | Out 区块、正文和演示取自不同的运行，数字对不上 | 录制一次运行，三者都从它生成（第 3 步） |
 | 名字平铺在组件顶面，斜着看读不出来 | 把名牌画成始终朝向镜头的 sprite |
 | 步骤数据放在叠在名牌上方的第二个 sprite 里，俯视时两者重叠 | 把数据并进同一块名牌，作为第三行 |
@@ -314,7 +323,7 @@ tokenizers        h3: 常用组件（SVG 结构图 + 卡片）、tokenizer.json�
 - [ ] 改造页：只有两段话和两段演示，共有组件在两张图里位置相同，每个「待确认」的选择都在回复里点出来。
 - [ ] `check_links.py` 检查构建页面时输出 `OK`。
 - [ ] 每个演示都能从第一步运行到最后一步且没有错误；每个新阶段都设置了颜色；每个组件图在组件上都能出提示框和面板。
-- [ ] 每个新增的结构图、卡片组和表格都已截图，且没有内容溢出。
+- [ ] 每个新增的结构图、卡片组、表格和表格 Out 都已截图，且没有内容溢出。
 - [ ] `viz/README.md` 和任何索引页都列出新页面或子主题，构建后的 HTML 也已根据源文件重新生成。
 
 ## 来源

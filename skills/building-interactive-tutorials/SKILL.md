@@ -81,7 +81,7 @@ Browsers refuse to load local ES modules from a `file://` page, so `build.mjs` b
 ### 3. Study the Code and Run It
 
 1. Read the code path that implements the concept: the script that trains or builds it, its config, the data loader, the callers. Note each file and symbol you will mention; you will link them.
-2. Run every snippet you will show, from the repository root, with the project's runner (`uv run python ...`). Paste the output verbatim into the Out block. Never write an output from memory or tidy it by hand.
+2. Run every snippet you will show, from the repository root, with the project's runner (`uv run python ...`). Paste the output verbatim into the Out block. Never write an output from memory or tidy it by hand. When the output is a table, record its rows as JSON instead and lay them out as a table Out (step 5).
 3. Record the installed versions of the libraries you will link (`uv pip show <package>`), so the doc links match them.
 4. Take every fact the page states (counts, ids, sizes, ranges) from those runs or from the repository files.
 
@@ -89,7 +89,7 @@ When the concept is a system whose state changes as you act on it, write three s
 
 - `runs/demo.py` wraps the executor the code runs its commands through (a sandbox class, `subprocess.run`), so each command and its output go into a log; `frame(label)` saves the system's state at that moment (files, refs, rows) with the commands logged since the last frame.
 - `runs/run_all.sh` runs every code cell's script in order and copies each output and the frames into `runs/out/`.
-- `runs/fill_cells.py` fills the template `runs/notebook.tpl.html`: `<!--CELL:name-->` becomes a code cell with `runs/name.py` as In and `runs/out/name.txt` as Out, only HTML-escaped; `{{sha:name}}` becomes the value the run saved under that name; the frames become `trace.js`, which `steps.js` imports.
+- `runs/fill_cells.py` fills the template `runs/notebook.tpl.html`: `<!--CELL:name-->` becomes a code cell with `runs/name.py` as In and `runs/out/name.txt` as Out, only HTML-escaped, or a table Out when that file holds JSON rows; `{{sha:name}}` becomes the value the run saved under that name; the frames become `trace.js`, which `steps.js` imports.
 
 After a rerun, every id and output on the page updates by itself. Edit the template, never the generated `notebook.html` or `trace.js`.
 
@@ -135,6 +135,14 @@ A **change page** has two parts and nothing else: no code cells, tables, cards, 
 ```
 
 - Escape `<`, `>`, and `&` inside both `<pre>` blocks. The build unescapes `code-in` before Shiki colors it; `code-out` shows as written.
+- When the output is a table (a CLI's list command, query rows), never paste its aligned text into `<pre class="code-out">`. The CLI pads columns by character count while the browser draws a Chinese character two columns wide, so the columns drift; a value with a line break splits its row; a long value runs off the edge. Record the rows instead: run the command with its JSON option (`--json`, `-o json`, `--format json`), or, when it has none, have the cell's script fetch the same rows through the API or library the command calls and print them as JSON. In shows what ran. Out puts each value verbatim, HTML-escaped, in its own `<td>`; line breaks inside a value stay:
+
+  ```html
+  <div class="code-out out-table"><table>
+    <thead><tr><th>key</th><th>value</th></tr></thead>
+    <tbody><tr><td>intent_routing.enabled</td><td>true</td></tr></tbody>
+  </table></div>
+  ```
 - A text cell may also hold a `<table>`, a `<p class="note">`, and two layouts styled in `notebook.css`:
   - `<svg class="diagram">`, drawn by hand, `viewBox` 1000 wide. Boxes are `box`; add `used` for what this project uses and `optional` for optional parts; `end` for inputs and outputs; connectors are `edge` with an arrow `<marker>` whose id is unique on the page; text classes `name`, `role`, `mono`, `lane`. Wrap a box in `<a href="#card-id">` to jump to its card.
   - `<div class="cards">`, one `.card` per item with its own `id`: an `<h4>` with a `<small>` code name, a `<p>`, and a `<ul>` whose `<li>` holds two children, the name and what it means. `li.pick` marks what this project uses.
@@ -232,7 +240,7 @@ Run it in `viz/`, then check the built page with `agent-browser` (see that skill
 
 1. Open `file://<absolute path>/viz/<name>.html`. `agent-browser errors` and `agent-browser console` print nothing.
 2. For each demo: scroll it into view, step through every step, and confirm the counter reaches the last one and each caption matches its scene. A demo builds its 3D view only after it scrolls into view. In a component graph, hover a node and click it (`agent-browser mouse move`, `mouse down`, `mouse up`): `.graph-tip` and then `.graph-panel` show.
-3. Screenshot each new diagram, card group, and table; every text stays inside its box.
+3. Screenshot each new diagram, card group, table, and table Out; every text stays inside its box, and every column of a table Out lines up.
 4. The TOC lists every new `<h2>` and `<h3>`, and its highlight follows the scroll.
 
 The page sets `scroll-behavior: smooth`, so a screenshot taken right after a jump catches the page mid-scroll. Jump instantly first:
@@ -292,6 +300,7 @@ tokenizers        h3: common components (SVG diagram + cards), tokenizer.json (f
 | A link to a heading without an `id` | Give the heading an `id` |
 | Library reference material filed as an appendix | Make it a subtopic with its own `<h2>` |
 | Editing the built `<name>.html` | Edit the sources and rebuild |
+| A CLI's table pasted into `<pre class="code-out">`: Chinese text pushes columns out of line, a multi-line value splits its row | Record the rows as JSON and write a table Out (step 5) |
 | Out blocks, text, and demo taken from different runs, so their numbers disagree | Record one run and generate all three from it (step 3) |
 | A name laid flat on a node's top face, unreadable from the oblique camera | Draw the name tag as a sprite that always faces the camera |
 | Step data in a second sprite stacked over the name tag; seen from above, the two overlap | Put the data on the same name tag, as its third line |
@@ -310,7 +319,7 @@ tokenizers        h3: common components (SVG diagram + cards), tokenizer.json (f
 - [ ] On a change page: two paragraphs and two demos only, shared components sit in the same place in both graphs, and every 待确认 choice is named in the reply.
 - [ ] `check_links.py` prints `OK` for the built page.
 - [ ] Every demo steps from first to last without errors, each new phase has a color, and each component graph shows its tip and panel on a node.
-- [ ] Every new diagram, card group, and table was screenshot, and nothing overflows.
+- [ ] Every new diagram, card group, table, and table Out was screenshot, and nothing overflows.
 - [ ] `viz/README.md` and any index page list the new page or subtopic, and the built HTML is rebuilt from the sources.
 
 ## Source

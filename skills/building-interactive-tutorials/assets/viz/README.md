@@ -37,6 +37,7 @@
   - 不链博客、教程、问答和镜像。写进页面前先确认链接能打开、锚点存在。
   - 仓库里的文件用相对路径链接，例如 `../src/train.py`；本地打开页面时，点击会在 VS Code 里打开这个文件。
 - **代码格子标上语言**：`<pre class="code-in" data-lang="python">`，打包时用 [Shiki](https://shiki.style) 上色。Out 写真实运行结果。
+- **输出是一张表时不贴对齐好的文本**：命令行按字符数补空格对齐列，浏览器里一个汉字占两格，列就歪了；值里有换行会把一行拆散，长值会冲出右边。让命令打印 JSON（`--json`、`-o json`、`--format json`），没有这个选项就让格子的脚本通过命令背后的接口或库取同样的行打印成 JSON；Out 写成 `<div class="code-out out-table"><table>`，一个值一格，原样转义，值里的换行保留。
 
 ## 目录
 
@@ -65,7 +66,7 @@ viz/
 
 1. 新建 `src/topics/<名字>/`，学习页照 `example/notebook.html`、改造页照 `example-change/notebook.html` 写正文。格子有三种：
    - `<section class="cell text">`：文字，`<h2>` 是一节标题，`<h3>` 是节内小标题，都会进左侧目录。
-   - `<section class="cell code">`：代码，In 和 Out 各一个 `<pre>`。
+   - `<section class="cell code">`：代码，In 和 Out 各一个 `<pre>`；输出是一张表时 Out 换成 `<div class="code-out out-table"><table>`。
    - `<section class="cell demo" data-scene="名字">`：3D 演示，`名字` 对应 `main.js` 里注册的演示。
 
    文字格子里还能放两种排版，样式在 `notebook.css`：
@@ -101,7 +102,7 @@ runs/
 ├── run_all.sh          按顺序重跑全部格子，把输出和帧拷进 out/
 ├── out/                每格的真实输出、全部帧、运行时存下的值
 ├── notebook.tpl.html   正文模板：代码格子写成 <!--CELL:名字-->，运行得出的值写成 {{sha:名字}}
-└── fill_cells.py       In、Out 原文只做 HTML 转义填进模板，生成 notebook.html；帧写成 trace.js 给 steps.js 用
+└── fill_cells.py       In、Out 原文只做 HTML 转义填进模板，Out 是 JSON 行时排成表格，生成 notebook.html；帧写成 trace.js 给 steps.js 用
 ```
 
 改正文改模板，不要手改生成的 `notebook.html` 和 `trace.js`。重跑依次是 `sh runs/run_all.sh`、`python3 runs/fill_cells.py`、`pnpm build`，提交号之类的值全部跟着换新。

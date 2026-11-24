@@ -89,6 +89,15 @@ b a, a b { font-weight: 600; }
 .code-out { border: 1px solid var(--line); border-top: 0; border-radius: 0 0 10px 10px; color: #c9d0dc; }
 .cell.code .cell-gutter:nth-of-type(2) { padding-top: 12px; }
 
+/* 输出是一张表时一格一个值：中文宽度、换行和长值都留在自己的格子里，列不会歪；键名这类不带空格的值不会从中间断开 */
+.code-out.out-table { overflow-x: auto; }
+.out-table table { border-collapse: collapse; font-family: var(--mono); font-size: 13px; line-height: 1.6; }
+.out-table th { padding: 8px 14px; border-bottom: 1px solid var(--line); background: var(--code); color: var(--muted); font-weight: 600; text-align: left; white-space: nowrap; }
+.out-table td { padding: 8px 14px; vertical-align: top; white-space: pre-wrap; overflow-wrap: break-word; }
+.out-table tr + tr td { border-top: 1px solid rgba(42, 49, 66, .6); }
+.out-table td:first-child { color: var(--text); }
+.out-table tbody tr:hover td { background: rgba(255, 255, 255, .025); }
+
 /* 演示格子：标题栏、3D 画面、当前步说明 */
 .cell.demo { outline: none; }
 .cell.demo .cell-body { overflow: hidden; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
