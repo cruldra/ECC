@@ -83,7 +83,7 @@
 
 ### v2.2.72 — 新增 building-interactive-tutorials：把仓库里的一个知识点做成笔记本式 3D 交互教程（像 MiniMind 的 `viz/tokenizer.html`），一个 HTML 文件，双击离线打开；按“是什么、目的和动机、工作原理、子主题”排版，代码格子的 Out 必须是真实运行结果，3D 演示的每一步从真实结果算出；术语第一次出现时链接官方页面，用自带的 `check_links.py` 检查状态码、锚点和仓库路径；打包后用 agent-browser 把每个演示从第一步点到最后一步；附 `assets/viz` 脚手架（esbuild 打包、Shiki 上色、three.js 方块画面和一个示例页）（2026年11月）
 
-### v2.2.71 — writing-code-comments 新增“指向外部术语的链接”：注释里提到的产品、库、服务和标准（如 Sentry、`sentry-sdk`、FastAPI）在每条注释第一次出现时链接到官方页面，提到具体功能就链到该功能的文档页；URL 优先从已安装包的 `METADATA` 或 `package.json` 读取，其次用确定无误的官网，不确定就不加链接，不用搜索、博客或镜像链接；收尾检查加入这一项（2026年11月）
+### v2.2.72 — writing-code-comments 新增“指向外部术语的链接”：注释里提到的产品、库、服务和标准（如 Sentry、`sentry-sdk`、FastAPI）在每条注释第一次出现时链接到官方页面，提到具体功能就链到该功能的文档页；URL 优先从已安装包的 `METADATA` 或 `package.json` 读取，其次用确定无误的官网，不确定就不加链接，不用搜索、博客或镜像链接；收尾检查加入这一项（2026年11月）
 
 ### v2.2.71 — 撤回 v2.2.69：浏览器自动化重新换成 vercel-labs 的 `agent-browser` CLI，加回 agent-browser 技能，删除 opencli-browser 技能；browser-qa、e2e-runner、MCP 连接器策略和 README 重新改指 agent-browser，内容与 v2.2.68 相同（2026年11月）
 
@@ -1419,7 +1419,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 | **上下文文件** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
 | **秘密检测** | 基于钩子                  | beforeSubmitPrompt 钩子 | 基于沙箱 | 基于钩子 |
 | **自动格式化** | PostToolUse 钩子        | afterFileEdit 钩子 | N/A | file.edited 钩子 |
-| **版本** | 插件 | 插件 | 参考配置 | 2.2.71 |
+| **版本** | 插件 | 插件 | 参考配置 | 2.2.72 |
 
 **关键架构决策：**
 
