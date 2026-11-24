@@ -15,7 +15,9 @@ const body = fs.readFileSync(skillFile, "utf8");
 const translation = fs.readFileSync(path.join(skillDir, "i18n", "zh-CN.md"), "utf8");
 const vizDir = path.join(skillDir, "assets", "viz");
 const exampleDir = path.join(vizDir, "src", "topics", "example");
+const changeDir = path.join(vizDir, "src", "topics", "example-change");
 const notebookHtml = fs.readFileSync(path.join(exampleDir, "notebook.html"), "utf8");
+const changeHtml = fs.readFileSync(path.join(changeDir, "notebook.html"), "utf8");
 const notebookCss = fs.readFileSync(path.join(vizDir, "src", "notebook", "notebook.css"), "utf8");
 const checkLinks = path.join(skillDir, "scripts", "check_links.py");
 
@@ -48,9 +50,9 @@ function treeFiles(text) {
   return [...tree[1].matchAll(/[─ ]([\w-]+\.(?:mjs|md|css|js|html))\s/g)].map((m) => m[1]).sort();
 }
 
-async function loadSteps() {
+async function loadSteps(dir = exampleDir) {
   const copy = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "tutorial-steps-")), "steps.mjs");
-  fs.copyFileSync(path.join(exampleDir, "steps.js"), copy);
+  fs.copyFileSync(path.join(dir, "steps.js"), copy);
   return import(pathToFileURL(copy).href);
 }
 
@@ -61,6 +63,33 @@ function tableKeys(name) {
   assert.ok(table, `graph-3d.js must export ${name}`);
   // 表里只有字符串字面量，按对象字面量求值即可。
   return new Set(Object.keys(new Function(`return ${table[1]};`)()));
+}
+
+/** 一张组件图和用它的演示：组件、连线、种类、状态色都得是画面认识的。 */
+function checkGraph(graph, scenes, kinds, tones) {
+  const nodes = new Set(graph.nodes.map((n) => n.id));
+  const edges = new Set(graph.edges.map((e) => e.id));
+  assert.strictEqual(nodes.size, graph.nodes.length, "duplicate node id");
+  assert.strictEqual(edges.size, graph.edges.length, "duplicate edge id");
+  for (const n of graph.nodes) assert.ok(kinds.has(n.kind), `node ${n.id} has unknown kind ${n.kind}`);
+  for (const e of graph.edges) assert.ok(nodes.has(e.from) && nodes.has(e.to), `edge ${e.id} joins a missing node`);
+  for (const scene of scenes) {
+    for (const step of scene.steps) {
+      for (const field of ["phase", "title", "text"]) assert.ok(step[field], `a step has no ${field}`);
+      for (const [id, tone] of Object.entries(step.nodes)) {
+        assert.ok(nodes.has(id), `${step.title} lights missing node ${id}`);
+        assert.ok(tones.has(tone), `${step.title} gives ${id} unknown tone ${tone}`);
+      }
+      for (const edge of step.edges ?? []) {
+        assert.ok(edges.has(edge.id), `${step.title} lights missing edge ${edge.id}`);
+        if (edge.tone) assert.ok(tones.has(edge.tone), `${step.title} gives ${edge.id} unknown tone ${edge.tone}`);
+      }
+      for (const field of ["badges", "details"]) {
+        for (const id of Object.keys(step[field] ?? {})) assert.ok(nodes.has(id), `${step.title} ${field} name missing node ${id}`);
+      }
+      for (const id of step.focus ?? []) assert.ok(nodes.has(id), `${step.title} focuses missing node ${id}`);
+    }
+  }
 }
 
 async function main() {
@@ -85,14 +114,15 @@ async function main() {
     ]);
     const steps = body.split("\n").filter((line) => /^### \d\./.test(line));
     assert.deepStrictEqual(steps, [
-      "### 1. Set Up viz/ Once",
-      "### 2. Study the Code and Run It",
-      "### 3. Outline the Page",
-      "### 4. Write the Cells",
-      "### 5. Link Every Term to an Official Page",
-      "### 6. Compute the Demo From Real Results",
-      "### 7. Build and Click Through Every Step",
-      "### 8. Update the Index",
+      "### 1. Ask Which Page",
+      "### 2. Set Up viz/ Once",
+      "### 3. Study the Code and Run It",
+      "### 4. Outline the Page",
+      "### 5. Write the Cells",
+      "### 6. Link Every Term to an Official Page",
+      "### 7. Compute the Demo From Real Results",
+      "### 8. Build and Click Through Every Step",
+      "### 9. Update the Index",
     ]);
   });
 
@@ -155,31 +185,37 @@ async function main() {
     const tones = tableKeys("TONES");
     assert.deepStrictEqual([...kinds].sort(), ["process", "ref", "store", "table"]);
     assert.deepStrictEqual([...tones].sort(), ["active", "base", "gap", "new", "off"]);
-    const nodes = new Set(GRAPH.nodes.map((n) => n.id));
-    const edges = new Set(GRAPH.edges.map((e) => e.id));
-    assert.strictEqual(nodes.size, GRAPH.nodes.length, "duplicate node id");
-    assert.strictEqual(edges.size, GRAPH.edges.length, "duplicate edge id");
-    for (const n of GRAPH.nodes) assert.ok(kinds.has(n.kind), `node ${n.id} has unknown kind ${n.kind}`);
-    for (const e of GRAPH.edges) assert.ok(nodes.has(e.from) && nodes.has(e.to), `edge ${e.id} joins a missing node`);
-    for (const scene of buildGraphScenes()) {
-      for (const step of scene.steps) {
-        for (const field of ["phase", "title", "text"]) assert.ok(step[field], `a step has no ${field}`);
-        for (const [id, tone] of Object.entries(step.nodes)) {
-          assert.ok(nodes.has(id), `${step.title} lights missing node ${id}`);
-          assert.ok(tones.has(tone), `${step.title} gives ${id} unknown tone ${tone}`);
-        }
-        for (const edge of step.edges ?? []) {
-          assert.ok(edges.has(edge.id), `${step.title} lights missing edge ${edge.id}`);
-          if (edge.tone) assert.ok(tones.has(edge.tone), `${step.title} gives ${edge.id} unknown tone ${edge.tone}`);
-        }
-        for (const field of ["badges", "details"]) {
-          for (const id of Object.keys(step[field] ?? {})) assert.ok(nodes.has(id), `${step.title} ${field} name missing node ${id}`);
-        }
-        for (const id of step.focus ?? []) assert.ok(nodes.has(id), `${step.title} focuses missing node ${id}`);
-      }
-    }
+    checkGraph(GRAPH, buildGraphScenes(), kinds, tones);
     for (const cls of [".graph-tip", ".graph-panel"]) assert.ok(notebookCss.includes(cls), `${cls} is not styled`);
     assert.ok(notebookCss.includes("var(--stage-height, 460px)"), "the demo stage height must be adjustable per cell");
+  });
+
+  await test("SKILL.md asks which page to build before anything else and names both kinds", () => {
+    const ask = body.split("### 1. Ask Which Page")[1].split("### 2.")[0];
+    assert.ok(ask.includes("AskUserQuestion"), "step 1 must ask with AskUserQuestion");
+    for (const kind of ["学习页", "改造页"]) assert.ok(ask.includes(`| ${kind} |`), `step 1 must offer ${kind}`);
+    assert.ok(body.includes('<h2 id="now">现状</h2>') && body.includes('<h2 id="next">解决方案</h2>'));
+  });
+
+  await test("the change-page example has two sections and two demos, each on its own graph with shared components in place", async () => {
+    const { GRAPH_NOW, GRAPH_NEXT, buildChangeScenes } = await loadSteps(changeDir);
+    assert.ok(changeHtml.includes("<style>{{STYLE}}</style>") && changeHtml.includes("<script>{{SCRIPT}}</script>"));
+    const headings = [...changeHtml.matchAll(/<h2 id="([^"]+)">/g)].map((m) => m[1]);
+    assert.deepStrictEqual(headings, ["now", "next"]);
+    assert.ok(!changeHtml.includes('class="cell code"'), "a change page has no code cells");
+    const [now, next] = buildChangeScenes();
+    const sceneIds = [...changeHtml.matchAll(/data-scene="([^"]+)"/g)].map((m) => m[1]);
+    assert.deepStrictEqual([now.id, next.id], sceneIds);
+    const kinds = tableKeys("KINDS");
+    const tones = tableKeys("TONES");
+    checkGraph(GRAPH_NOW, [now], kinds, tones);
+    checkGraph(GRAPH_NEXT, [next], kinds, tones);
+    const place = new Map(GRAPH_NOW.nodes.map((n) => [n.id, `${n.x},${n.z}`]));
+    for (const n of GRAPH_NEXT.nodes) {
+      if (place.has(n.id)) assert.strictEqual(`${n.x},${n.z}`, place.get(n.id), `${n.id} moved between the two graphs`);
+    }
+    assert.ok(now.steps.some((s) => Object.values(s.nodes).includes("gap")), "the current demo marks a gap");
+    assert.ok(next.steps.some((s) => Object.values(s.nodes).includes("new")), "the solution demo marks what is new");
   });
 
   await test("check_links.py --offline flags a missing #id and a missing file, and ignores script text", () => {

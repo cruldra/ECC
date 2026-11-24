@@ -110,6 +110,9 @@ b a, a b { font-weight: 600; }
 .demo-meta .phase { padding: 1px 8px; border-radius: 4px; background: #2e4a7a; }
 .demo-meta .phase[data-phase="合并"] { background: var(--done); }
 .demo-meta .phase[data-phase="对比"] { background: #7a4a2e; }
+/* 改造页：现状演示里的问题标「缺口」，方案演示里改过的地方标「方案」 */
+.demo-meta .phase[data-phase="缺口"] { background: #b23a3e; }
+.demo-meta .phase[data-phase="方案"] { background: #2e6a5a; }
 .demo-meta .count { color: var(--muted); }
 .demo-text { min-height: 54px; margin-top: 4px; font-size: 15px; line-height: 1.75; }
 .demo-text table { margin-top: 6px; border-collapse: collapse; font-size: 14px; }

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>改造页示例 · 3D 交互教程</title>
+<style>{{STYLE}}</style>
+</head>
+<body>
+<main class="notebook">
+  <header class="nb-title">
+    <h1>次数表更新</h1>
+    <!-- 改造页：面包屑写工单号和一句话问题 -->
+    <p><a href="README.md">教程说明</a> › 改造页示例　·　每并一次就整串重数</p>
+  </header>
+  <nav class="nb-toc"></nav>
+
+  <section class="cell text">
+    <h2 id="now">现状</h2>
+    <p>一段话：现在怎么运作，哪里出问题。这里是：拆分、计数、合并之后，合并把整串块交回计数从头再数一遍，其实只有几行变了。演示里标红的是问题。</p>
+  </section>
+
+  <section class="cell demo" data-scene="change-now" style="--stage-height: 560px"></section>
+
+  <section class="cell text">
+    <h2 id="next">解决方案</h2>
+    <p>一段话：改了什么，为什么能解决。这里是：合并直接改次数表里变了的那几行，不再整串重数。组件位置和现状一样，绿色是新的或改过的。</p>
+  </section>
+
+  <section class="cell demo" data-scene="change-next" style="--stage-height: 560px"></section>
+</main>
+
+<script>{{SCRIPT}}</script>
+</body>
+</html>
