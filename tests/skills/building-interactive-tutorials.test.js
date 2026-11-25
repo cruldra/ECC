@@ -558,6 +558,20 @@ async function main() {
     assert.match(translation, /5\. 在一个演示上点「全屏」/);
   });
 
+  await test("a new or changed page is committed right after its checks, staging only the tutorial's own paths", () => {
+    const commit = body.slice(body.indexOf("### 10. Commit"), body.indexOf("## Examples"));
+    assert.ok(body.indexOf("### 9. Update the Index") < body.indexOf("### 10. Commit"), "committing is the last step");
+    assert.match(commit, /as soon as a new or changed page passes step 8, on both page kinds/);
+    assert.match(commit, /Do not ask the user to review the source first/);
+    for (const path of ["`viz/<name>.html`", "`viz/src/topics/<name>/`", "`viz/runs/`", "`viz/README.md`", "`viz/src/notebook/`"]) {
+      assert.ok(commit.includes(path), `step 10 stages ${path}`);
+    }
+    assert.match(commit, /Never stage `node_modules\/`/);
+    assert.match(commit, /commit without pushing/);
+    assert.match(body.slice(body.indexOf("## Before You Finish")), /- \[ \] The page's sources, runs, built HTML, and index changes are committed/);
+    assert.match(translation, /### 10\. 提交/);
+  });
+
   await test("the zh-CN translation tracks the current SKILL.md", () => {
     const digest = crypto.createHash("sha256").update(fs.readFileSync(skillFile)).digest("hex");
     assert.match(translation, /^---\nname: building-interactive-tutorials\ndescription: '[^'\n]+'\nlocale: zh-CN\n/);

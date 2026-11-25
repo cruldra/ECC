@@ -313,6 +313,17 @@ Once a brand-new page passes these checks, open it in the system's default brows
 - `viz/README.md`: the page table, the directory tree for new data modules and `runs/`, any new cell markup.
 - Any index page that links the tutorials (a roadmap, a docs home): add the new page or subtopic.
 
+### 10. Commit
+
+Commit as soon as a new or changed page passes step 8, on both page kinds. Do not ask the user to review the source first: they read the built page, not the code behind it. Stage only the tutorial's own paths, so other work in the tree stays out:
+
+- `viz/<name>.html` and `viz/src/topics/<name>/`
+- The page's files under `viz/runs/`: the scripts, the template, and `out/`
+- `viz/README.md` and any index page from step 9
+- The shared scaffold (`viz/src/notebook/`, `build.mjs`, `package.json`, the lockfile) when this page added or changed it
+
+Never stage `node_modules/`. Write the message in the repository's commit style, commit without pushing, and name the commit in the reply instead of walking through the diff.
+
 ## Examples
 
 **A whole page.** The MiniMind tokenizer page, outlined:
@@ -390,6 +401,7 @@ tokenizer.json    one pipeline demo: train → save → load → encode
 | A 使用场景 link to a page that never names the method | Open the page, search it for the method's name, and link one that says so |
 | A concept on the concept map with no chapter of its own | Add the chapter, then its step on the map |
 | Plates left empty by the last step, so the chain is gone | Keep every station's blocks; grow the next station's blocks out of them |
+| A finished page left uncommitted for the user to review its source | Commit it right after step 8 passes; the user reads the built page (step 10) |
 | A lead-in or a preview around a code cell ("reproduce it like this", "later sections explain"), or a code cell that neither backs a demo nor is its section's content | Delete them; a cell that backs a demo sits right under it, one commented part per part of the demo (step 5) |
 
 ## Before You Finish
@@ -405,6 +417,7 @@ tokenizer.json    one pipeline demo: train → save → load → encode
 - [ ] Every new diagram, card group, table, and table Out was screenshot, and nothing overflows.
 - [ ] `viz/README.md` and any index page list the new page or subtopic, and the built HTML is rebuilt from the sources.
 - [ ] A brand-new page is open in the system's default browser.
+- [ ] The page's sources, runs, built HTML, and index changes are committed, without `node_modules/`.
 
 ## Source
 
