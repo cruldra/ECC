@@ -2,8 +2,8 @@
 name: building-interactive-tutorials
 description: '在用户要求制作讲解仓库代码的交互式 3D 页面时使用（3D 交互教程、笔记本式教程、可视化讲解、梳理现有机制、现状和方案、做一份像 tokenizer.html 这样的教程），或要求向此类页面添加章节或演示时使用。先问要做两种页面里的哪一种：学习页，讲清开源项目某一块的内部逻辑，像 MiniMind 的 viz/tokenizer.html 一样从上到下阅读（文字格子、输出为真实运行结果的代码格子、结构图、卡片、每个机制一段分步 three.js 演示）；或改造页，用于修复或优化现有代码：现状和解决方案各一段简短说明加一段组件图演示，现状录自一次真实运行，方案取自设计文档。产出一个用 esbuild 和 Shiki 构建的离线 HTML 文件。涵盖 assets/viz 中的脚手架、两种大纲、用 scripts/check_links.py 检查的官方链接、录制真实运行、两种 3D 画面（数据流转、组件图）动画所用的步骤数据，以及在 agent-browser 中逐步点击检查。'
 locale: zh-CN
-source_hash: 2d51291ea1438c5b26bfde0f43a81a5da58ec4b76d831451a80bb395dc16dd9f
-translated_at: 2026-11-24T18:03:32Z
+source_hash: 0686002abf2e0dfc2eb67b0c82f761cdd9f2ce83b645f222ae2ccb3fea5845be
+translated_at: 2026-11-25T03:17:22Z
 translation_model: claude-opus-5-5
 ---
 
@@ -309,6 +309,8 @@ pnpm build
 agent-browser --session tutorial eval "document.getElementById('how').scrollIntoView({ behavior: 'instant' })"
 ```
 
+全新页面通过以上检查后，用系统默认浏览器打开它，让用户马上看到：macOS 用 `open viz/<name>.html`，Linux 用 `xdg-open viz/<name>.html`，Windows 用 `start "" viz\<name>.html`。这是用户自己的浏览器，不是 agent-browser 驱动的无头浏览器；学习页和改造页都要打开。
+
 ### 9. 更新索引
 
 - `viz/README.md`：更新页面表格、新数据模块和 `runs/` 的目录树，以及任何新增的格子写法。
@@ -404,6 +406,7 @@ tokenizer.json    一个直线流转演示：训练 → 存成文件 → 读回�
 - [ ] 每个演示都能从第一步运行到最后一步且没有错误；每个新阶段都设置了颜色；每个组件图在组件上都能出提示框和面板。
 - [ ] 每个新增的结构图、卡片组、表格和表格 Out 都已截图，且没有内容溢出。
 - [ ] `viz/README.md` 和任何索引页都列出新页面或子主题，构建后的 HTML 也已根据源文件重新生成。
+- [ ] 全新页面已经用系统默认浏览器打开。
 
 ## 来源
 

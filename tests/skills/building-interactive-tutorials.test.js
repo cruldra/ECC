@@ -530,6 +530,13 @@ async function main() {
     assert.ok(body.split("### 6.")[1].split("### 7.")[0].includes("LIMITED"), "step 6 must explain LIMITED");
   });
 
+  await test("a brand-new page of either kind opens in the system's default browser", () => {
+    const verify = body.slice(body.indexOf("### 8. Build and Click Through Every Step"), body.indexOf("### 9. Update the Index"));
+    assert.match(verify, /brand-new page[\s\S]*system's default browser[\s\S]*`open viz\/<name>\.html`[\s\S]*`xdg-open[\s\S]*`start ""[\s\S]*both page kinds/);
+    assert.match(body.slice(body.indexOf("## Before You Finish")), /- \[ \] A brand-new page is open in the system's default browser\./);
+    assert.match(translation, /全新页面通过以上检查后，用系统默认浏览器打开它/);
+  });
+
   await test("the zh-CN translation tracks the current SKILL.md", () => {
     const digest = crypto.createHash("sha256").update(fs.readFileSync(skillFile)).digest("hex");
     assert.match(translation, /^---\nname: building-interactive-tutorials\ndescription: '[^'\n]+'\nlocale: zh-CN\n/);

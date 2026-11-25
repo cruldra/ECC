@@ -305,6 +305,8 @@ The page sets `scroll-behavior: smooth`, so a screenshot taken right after a jum
 agent-browser --session tutorial eval "document.getElementById('how').scrollIntoView({ behavior: 'instant' })"
 ```
 
+Once a brand-new page passes these checks, open it in the system's default browser so the user sees it right away: `open viz/<name>.html` on macOS, `xdg-open viz/<name>.html` on Linux, `start "" viz\<name>.html` on Windows. This is the user's own browser, not the headless one agent-browser drives, and it applies to both page kinds.
+
 ### 9. Update the Index
 
 - `viz/README.md`: the page table, the directory tree for new data modules and `runs/`, any new cell markup.
@@ -400,6 +402,7 @@ tokenizer.json    one pipeline demo: train → save → load → encode
 - [ ] Every demo steps from first to last without errors, each new phase has a color, and each component graph shows its tip and panel on a node.
 - [ ] Every new diagram, card group, table, and table Out was screenshot, and nothing overflows.
 - [ ] `viz/README.md` and any index page list the new page or subtopic, and the built HTML is rebuilt from the sources.
+- [ ] A brand-new page is open in the system's default browser.
 
 ## Source
 
