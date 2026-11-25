@@ -65,7 +65,7 @@ viz/
     │   ├── graph-3d.js       3D view: a component graph whose parts light up step by step
     │   ├── notebook.css      cell layout, diagram and card styles, phase colors
     │   ├── pipeline-flow.js  layout for data passing station by station in a straight line
-    │   ├── player.js         demo player: paging, autoplay, pauses off-screen
+    │   ├── player.js         demo player: paging, autoplay, fullscreen, pauses off-screen
     │   └── runtime.js        mounts demos, builds the two-level TOC, opens repo links in VS Code
     └── topics/
         ├── example/          a learning page
@@ -101,6 +101,8 @@ For a change page, record the current mechanism the same way, even though the pa
 
 ### 4. Outline the Page
 
+On both pages the title bar holds the `<h1>` and nothing else: no breadcrumb, no subtitle, no issue line. The TOC follows it. On a change page the `<h1>` and the 现状 paragraph say what the problem is.
+
 A **learning page** has three parts, in this order:
 
 1. **Introduction** (`<h2 id="intro">简介</h2>`): what it is and why it is needed, in plain sentences; a model reads only numbers, never text, so text has to become ids first. When this describes a mechanism (a tokenizer encodes text into ids and decodes them back), a demo of it follows, and right under the demo a code cell that runs the same example through the repository's code.
@@ -113,7 +115,6 @@ A **learning page** has three parts, in this order:
 - Why it is needed belongs in the introduction, not in a chapter of its own. A comparison of the ways to do it (byte, word, subword) is not a motivation either; each way's own chapter item shows how it differs.
 
 - Every section or item that explains a mechanism (data going in and coming out changed, parts acting on each other) has a demo cell. Text alone does not count, nor two bullet points that say "encoding turns text into ids, decoding turns them back".
-- The title bar holds the `<h1>` and nothing else: no breadcrumb, no subtitle. The TOC follows it.
 - `<h2>` and `<h3>` feed the left TOC, `<h3>` indented under its `<h2>`. Give an `id` to every heading that another cell links to; generated ids change when headings move.
 - A library's files and components (tokenizer.json) are core concepts too: each gets a chapter whose demo shows how they are made and used (train → save → load → encode), not an appendix of key tables or diagrams.
 
@@ -122,7 +123,6 @@ A **change page** has two parts and nothing else: no code cells, tables, cards, 
 1. **Current mechanism** (`<h2 id="now">现状</h2>`): one short paragraph on what the code does now and where it breaks, then one component-graph demo.
 2. **Solution** (`<h2 id="next">解决方案</h2>`): one short paragraph on what changes and why that closes the break, then one component-graph demo.
 
-- The title bar names the issue and the problem in one line.
 - The demos carry the detail. Each caption is one or two short sentences; commands, rows, and ids go into `details`, which the reader opens with a click.
 
 ### 5. Write the Cells
@@ -298,6 +298,7 @@ Run it in `viz/`, then check the built page with `agent-browser` (see that skill
 2. For each demo: scroll it into view, step through every step, and confirm the counter reaches the last one and each caption matches its scene. A demo builds its 3D view only after it scrolls into view. In a component graph, hover a node and click it (`agent-browser mouse move`, `mouse down`, `mouse up`): `.graph-tip` and then `.graph-panel` show; on a concept map, the panel's `.goto` link jumps to its section. In a data flow view, screenshot each lookup step: every block sits over its table row.
 3. Screenshot each new diagram, card group, table, and table Out; every text stays inside its box, and every column of a table Out lines up.
 4. The TOC lists every new `<h2>` and `<h3>`, and its highlight follows the scroll.
+5. Click 全屏 on one demo: its header, stage, and caption fill the screen, the view refits to the new shape, and `Esc` brings the page back. On a concept map in fullscreen, the panel's `.goto` link leaves fullscreen and then jumps.
 
 The page sets `scroll-behavior: smooth`, so a screenshot taken right after a jump catches the page mid-scroll. Jump instantly first:
 
@@ -372,7 +373,7 @@ tokenizer.json    one pipeline demo: train → save → load → encode
 | Solution numbers made up for the demo | Take them from the design doc, reuse the ids of the current run |
 | Stopping to ask about an open design choice before anything is drawn | Pick the best option, mark it 待确认, and name it in the reply |
 | A mechanism told in text or two bullet points, with no demo | Add a demo cell; on a learning page every mechanism has one |
-| A breadcrumb or subtitle under a learning page's title | Keep the `<h1>` and the TOC only |
+| A breadcrumb, subtitle, or issue line under the page title | Keep the `<h1>` and the TOC only |
 | Data passing through stages drawn as a component graph: the reader sees who talks to whom, not what becomes what | Use the data flow view |
 | A lookup whose result sits apart from its table row | Show only the rows used, in block order, and set `alignWith` |
 | A stage the run could not record, filled in without a word | Feed it the nearest real data and say so in the text (step 3) |
@@ -395,7 +396,8 @@ tokenizer.json    one pipeline demo: train → save → load → encode
 
 - [ ] The user chose the page kind, or named it in the request.
 - [ ] Every Out block is a real run, pasted verbatim, and every number in the text matches the runs or the repository.
-- [ ] On a learning page: only the `<h1>` under the title, an introduction that says what it is and why it is needed, no separate motivation chapter, a 核心概念 concept map whose nodes link to their chapters and a chapter for every concept on it, method subtopics in the order general introduction, 使用场景, how it works, no operating instructions, a demo for every mechanism, an official link on every technical term, evidence in an Out for every conclusion, and every stage the run could not record named in the text.
+- [ ] On both pages: only the `<h1>` under the title.
+- [ ] On a learning page: an introduction that says what it is and why it is needed, no separate motivation chapter, a 核心概念 concept map whose nodes link to their chapters and a chapter for every concept on it, method subtopics in the order general introduction, 使用场景, how it works, no operating instructions, a demo for every mechanism, an official link on every technical term, evidence in an Out for every conclusion, and every stage the run could not record named in the text.
 - [ ] Every code cell backs the demo above it or is its section's content, has no lead-in or preview around it, and its Out shows every number its demo uses.
 - [ ] On a change page: two paragraphs and two demos only, shared components sit in the same place in both graphs, and every 待确认 choice is named in the reply.
 - [ ] `check_links.py` prints `OK` for the built page, and every `LIMITED` link loads in a browser.

@@ -1,7 +1,6 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { canvasTexture, measureText } from './blocks-3d.js';
+import { canvasTexture, makeControls, measureText } from './blocks-3d.js';
 
 const SANS = '"PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif';
 const MONO = '"SF Mono", Menlo, Consolas, "PingFang SC", monospace';
@@ -288,7 +287,9 @@ export function createGraphView(graph) {
   const tweens = new Set();
   const ease = (k) => (k < 0.5 ? 4 * k * k * k : 1 - (-2 * k + 2) ** 3 / 2);
   function animate(duration, run) {
-    tweens.add({ t0: performance.now(), duration, run });
+    const tw = { t0: performance.now(), duration, run };
+    tweens.add(tw);
+    return tw;
   }
 
   let step = null;
@@ -383,8 +384,12 @@ export function createGraphView(graph) {
     if (p) panel.innerHTML = `<button class="close" title="关闭">×</button>${infoHtml(p, { full: true })}`;
   }
 
-  /** 把镜头移到斜上方、刚好看全 `ids` 这些组件和它们的名牌；没给就看全整张图。 */
+  let cameraTween = null;
+
+  /** 把镜头移到斜上方、刚好看全 `ids` 这些组件和它们的名牌；没给就看全整张图。还没走完的上一次镜头移动直接作废。 */
   function frameCamera(ids, instant) {
+    tweens.delete(cameraTween);
+    cameraTween = null;
     const list = (ids?.length ? ids : [...nodes.keys()]).map((id) => nodes.get(id)).filter(Boolean);
     const minX = Math.min(...list.map((e) => e.x - NODE.w / 2)) - 1.2;
     const maxX = Math.max(...list.map((e) => e.x + NODE.w / 2)) + 1.2;
@@ -404,7 +409,7 @@ export function createGraphView(graph) {
     }
     const p0 = camera.position.clone();
     const t0 = controls.target.clone();
-    animate(900, (k) => {
+    cameraTween = animate(900, (k) => {
       camera.position.lerpVectors(p0, pos, k);
       controls.target.lerpVectors(t0, target, k);
     });
@@ -437,13 +442,9 @@ export function createGraphView(graph) {
       panel.hidden = true;
       stage.append(tip, panel);
       panel.addEventListener('click', (ev) => ev.target.closest('.close') && showPanel(null));
-      controls = new OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
-      // 关掉滚轮缩放，滚轮留给页面上下滚动。
-      controls.enableZoom = false;
-      controls.maxPolarAngle = Math.PI / 2.1;
+      controls = makeControls(camera, renderer.domElement);
       const el = renderer.domElement;
-      // 按下和松开离得近才算点击，拖动转视角不会误开面板。
+      // 按下和松开离得近才算点击，拖动平移或旋转视角不会误开面板。
       let down = null;
       el.addEventListener('pointerdown', (ev) => (down = [ev.clientX, ev.clientY]));
       el.addEventListener('pointerup', (ev) => {
@@ -473,6 +474,8 @@ export function createGraphView(graph) {
         renderer.setSize(w, h);
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
+        // 画面变了形（全屏、窗口缩放），按当前这一步重新取景
+        if (step) frameCamera(step.focus, true);
       };
       new ResizeObserver(resize).observe(stage);
       resize();

@@ -3,7 +3,8 @@ const AUTOPLAY_MS = 2800;
 /**
  * 把一个演示格子变成可交互的播放器：标题栏放翻页按钮，中间是动画画面，下面是当前这一步的说明。
  *
- * 格子第一次滚进视野才创建画面，滚出视野就暂停渲染、停止自动播放，一页放多个 3D 演示也不卡。点中格子后可以用 `←` `→` 翻页、空格播放。
+ * 格子第一次滚进视野才创建画面，滚出视野就暂停渲染、停止自动播放，一页放多个 3D 演示也不卡。点中格子后可以用 `←` `→` 翻页、空格播放、`F` 全屏。
+ * 全屏时标题栏、画面和说明一起铺满屏幕，画面占满中间的空间，镜头按新的宽高比重新取景；`Esc` 退出。
  *
  * @param cell 带 `data-scene` 的格子元素
  * @param demo 演示内容：`name`、`tagline`、逐步画面 `steps`，以及创建画面的 `createView`
@@ -21,15 +22,17 @@ export function mountDemo(cell, demo, number) {
           <button data-act="play" class="play" title="自动播放（空格）">▶ 播放</button>
           <button data-act="next" title="下一步（→）">→</button>
           <button data-act="restart" title="从头开始">↺</button>
+          <button data-act="fullscreen" title="全屏（F）">全屏</button>
         </div>
       </div>
-      <div class="demo-stage"><div class="demo-hint">拖动旋转 · 右键平移 · 双击复位</div></div>
+      <div class="demo-stage"><div class="demo-hint">拖动平移 · 右键旋转 · 双击复位</div></div>
       <div class="demo-caption">
         <div class="demo-meta"><span class="phase"></span><b class="step-title"></b><span class="count"></span></div>
         <div class="demo-text"></div>
       </div>
     </div>`;
   const $ = (selector) => cell.querySelector(selector);
+  const body = $('.cell-body');
   $('.demo-name').textContent = demo.name;
   $('.demo-tagline').textContent = demo.tagline;
 
@@ -68,24 +71,45 @@ export function mountDemo(cell, demo, number) {
     $('[data-act=play]').textContent = '⏸ 暂停';
   }
 
+  function toggleFullscreen() {
+    if (document.fullscreenElement === body) document.exitFullscreen();
+    else body.requestFullscreen();
+  }
+
+  document.addEventListener('fullscreenchange', () => {
+    $('[data-act=fullscreen]').textContent = document.fullscreenElement === body ? '退出全屏' : '全屏';
+  });
+
   const actions = {
     prev: () => index > 0 && show(index - 1),
     next,
     play: toggle,
     restart: () => show(0, true),
+    fullscreen: toggleFullscreen,
   };
-  cell.addEventListener('click', (e) => {
-    const act = e.target.closest('[data-act]')?.dataset.act;
-    if (!act) return;
-    if (act !== 'play') stop();
+
+  /** 执行一个按钮或快捷键的动作；翻页和从头开始会先停下自动播放。 */
+  function run(act) {
+    if (act !== 'play' && act !== 'fullscreen') stop();
     actions[act]();
+  }
+
+  cell.addEventListener('click', (e) => {
+    // 全屏里点页内链接（概念图面板的「去讲它的那一节」），先退出全屏再跳，不然跳转发生在全屏背后
+    const link = e.target.closest('a[href^="#"]');
+    if (link && document.fullscreenElement === body) {
+      e.preventDefault();
+      document.exitFullscreen().then(() => link.click());
+      return;
+    }
+    const act = e.target.closest('[data-act]')?.dataset.act;
+    if (act) run(act);
   });
   cell.addEventListener('keydown', (e) => {
-    const act = { ArrowLeft: 'prev', ArrowRight: 'next', ' ': 'play' }[e.key];
-    if (!act) return;
+    const act = { ArrowLeft: 'prev', ArrowRight: 'next', ' ': 'play', f: 'fullscreen', F: 'fullscreen' }[e.key];
+    if (!act || e.metaKey || e.ctrlKey || e.altKey) return;
     e.preventDefault();
-    if (act !== 'play') stop();
-    actions[act]();
+    run(act);
   });
 
   new IntersectionObserver(([entry]) => {
@@ -96,7 +120,7 @@ export function mountDemo(cell, demo, number) {
         show(index, true);
       }
       view.setActive(true);
-    } else if (view) {
+    } else if (view && document.fullscreenElement !== body) {
       view.setActive(false);
       stop();
     }

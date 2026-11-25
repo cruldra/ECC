@@ -119,6 +119,23 @@ export function disposeMaterials(material) {
 }
 
 /**
+ * 两种 3D 画面共用的镜头控制：左键拖动平移，右键拖动旋转。
+ *
+ * 滚轮不缩放，留给页面上下滚动；镜头最低降到略高于地面，不会转到地面下面。
+ *
+ * @param camera 要控制的镜头
+ * @param dom 接收鼠标事件的画布
+ */
+export function makeControls(camera, dom) {
+  const controls = new OrbitControls(camera, dom);
+  controls.enableDamping = true;
+  controls.enableZoom = false;
+  controls.maxPolarAngle = Math.PI / 2.1;
+  controls.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
+  return controls;
+}
+
+/**
  * 方块画面共用的舞台：深色地面和网格、灯光、可拖动的镜头，以及让方块在步与步之间滑动、长出、飞走的过渡动画。
  *
  * 各个方块视图在它上面摆自己的东西，再把舞台的 `mount`、`setActive` 交给播放器，见 [mountDemo](viz/src/notebook/player.js#mountDemo)。
@@ -293,11 +310,7 @@ export function createBlockScene({ camera: cameraAt, target, fit }) {
     onFrame: (run) => everyFrame.push(run),
     mount(stage) {
       stage.append(renderer.domElement);
-      controls = new OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
-      // 关掉滚轮缩放，滚轮留给页面上下滚动。
-      controls.enableZoom = false;
-      controls.maxPolarAngle = Math.PI / 2.1;
+      controls = makeControls(camera, renderer.domElement);
       if (!fit) {
         camera.position.set(...cameraAt);
         controls.target.set(...target);

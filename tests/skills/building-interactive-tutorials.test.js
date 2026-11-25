@@ -250,17 +250,21 @@ async function main() {
       }
     }
     const graph = viewSource("graph-3d.js");
-    assert.match(graph, /import \{ canvasTexture, measureText \} from '\.\/blocks-3d\.js'/, "graph-3d.js must take text measuring from blocks-3d.js");
-    for (const copy of ["function canvasTexture", "function textWidth", "const measure ="]) {
+    assert.match(graph, /import \{ canvasTexture, makeControls, measureText \} from '\.\/blocks-3d\.js'/, "graph-3d.js must take text measuring and camera controls from blocks-3d.js");
+    assert.match(shared, /mouseButtons = \{ LEFT: THREE\.MOUSE\.PAN, MIDDLE: THREE\.MOUSE\.DOLLY, RIGHT: THREE\.MOUSE\.ROTATE \}/, "left drag pans, right drag rotates");
+    assert.match(viewSource("player.js"), /拖动平移 · 右键旋转 · 双击复位/, "the corner hint names the swapped buttons");
+    for (const copy of ["OrbitControls", "function canvasTexture", "function textWidth", "const measure ="]) {
       assert.ok(!graph.includes(copy), `graph-3d.js copies ${copy} from blocks-3d.js`);
     }
   });
 
-  await test("the learning example keeps only the h1 under its title, while the change page keeps its issue line", () => {
+  await test("both examples keep only the h1 under their title, and nothing styles a line beneath it", () => {
     const title = (html) => html.match(/<header class="nb-title">([\s\S]*?)<\/header>/)[1].trim();
     assert.strictEqual(title(notebookHtml), "<h1>示例</h1>", "no breadcrumb or subtitle on a learning page");
-    assert.match(title(changeHtml), /<h1>[^<]+<\/h1>[\s\S]*<p>/, "the change page keeps its issue line");
-    assert.ok(notebookCss.includes(".nb-title p"), "the change page's issue line still needs its style");
+    assert.strictEqual(title(changeHtml), "<h1>次数表更新</h1>", "no breadcrumb or issue line on a change page");
+    assert.ok(!notebookCss.includes(".nb-title p"), "no page puts a line under the h1, so its style is gone");
+    assert.ok(body.includes("On both pages the title bar holds the `<h1>` and nothing else"), "the h1-only rule covers both pages");
+    assert.ok(!body.includes("names the issue and the problem in one line"), "the change page's issue line rule is gone");
   });
 
   await test("the data flow example follows the flow contract, lines a lookup up with its rows, and matches the real Out", async () => {
@@ -535,6 +539,23 @@ async function main() {
     assert.match(verify, /brand-new page[\s\S]*system's default browser[\s\S]*`open viz\/<name>\.html`[\s\S]*`xdg-open[\s\S]*`start ""[\s\S]*both page kinds/);
     assert.match(body.slice(body.indexOf("## Before You Finish")), /- \[ \] A brand-new page is open in the system's default browser\./);
     assert.match(translation, /全新页面通过以上检查后，用系统默认浏览器打开它/);
+  });
+
+  await test("every demo can go fullscreen: header, stage, and caption fill the screen and in-page links leave it first", () => {
+    const player = viewSource("player.js");
+    assert.match(player, /<button data-act="fullscreen" title="全屏（F）">全屏<\/button>/);
+    assert.match(player, /fullscreen: toggleFullscreen/);
+    assert.match(player, /body\.requestFullscreen\(\)/, "the whole cell body goes fullscreen, not only the canvas");
+    assert.match(player, /f: 'fullscreen', F: 'fullscreen'/);
+    assert.match(player, /e\.metaKey \|\| e\.ctrlKey \|\| e\.altKey/, "Cmd+F and Ctrl+F stay with the browser");
+    assert.match(player, /document\.exitFullscreen\(\)\.then\(\(\) => link\.click\(\)\)/, "a .goto link leaves fullscreen before it jumps");
+    assert.match(player, /else if \(view && document\.fullscreenElement !== body\)/, "fullscreen never pauses the view");
+    assert.match(viewSource("graph-3d.js"), /camera\.updateProjectionMatrix\(\);\s*\/\/[^\n]*\n\s*if \(step\) frameCamera\(step\.focus, true\);/, "the component graph refits when the stage changes shape");
+    assert.match(viewSource("blocks-3d.js"), /if \(fit\) frameFit\(\);/, "the data flow view refits when the stage changes shape");
+    assert.match(notebookCss, /\.cell-body:fullscreen \{[^}]*flex-direction: column/);
+    assert.match(notebookCss, /\.cell-body:fullscreen \.demo-stage \{[^}]*flex: 1/);
+    assert.match(body, /5\. Click 全屏 on one demo/);
+    assert.match(translation, /5\. 在一个演示上点「全屏」/);
   });
 
   await test("the zh-CN translation tracks the current SKILL.md", () => {
