@@ -119,6 +119,11 @@ b a, a b { font-weight: 600; }
 .demo-meta .phase { padding: 1px 8px; border-radius: 4px; background: #2e4a7a; }
 .demo-meta .phase[data-phase="合并"] { background: var(--done); }
 .demo-meta .phase[data-phase="对比"] { background: #7a4a2e; }
+.demo-meta .phase[data-phase="总览"] { background: #3a4460; }
+.demo-meta .phase[data-phase="训练"] { background: #6b5a1f; }
+.demo-meta .phase[data-phase="编码"] { background: #2e5f8a; }
+.demo-meta .phase[data-phase="预分词"] { background: #5a3e7a; }
+.demo-meta .phase[data-phase="查表"] { background: #5b3f8f; }
 /* 改造页：现状演示里的问题标「缺口」，方案演示里改过的地方标「方案」 */
 .demo-meta .phase[data-phase="缺口"] { background: #b23a3e; }
 .demo-meta .phase[data-phase="方案"] { background: #2e6a5a; }
@@ -137,3 +142,4 @@ b a, a b { font-weight: 600; }
 .graph-tip pre, .graph-panel pre { margin: 6px 0 0; padding: 6px 8px; border-radius: 6px; background: #0b0d12; font-family: var(--mono); font-size: 11.5px; line-height: 1.5; white-space: pre-wrap; word-break: break-all; }
 .graph-tip .more { margin-top: 4px; color: var(--accent); font-size: 12px; }
 .graph-panel .close { float: right; margin: -4px -4px 0 8px; border: 0; background: none; color: var(--muted); font-size: 18px; cursor: pointer; }
+.graph-panel .goto { display: inline-block; margin-top: 8px; color: var(--accent); }

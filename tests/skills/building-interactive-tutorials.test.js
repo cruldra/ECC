@@ -2,7 +2,8 @@
 "use strict";
 
 const assert = require("assert");
-const { spawnSync } = require("child_process");
+const { spawn, spawnSync } = require("child_process");
+const http = require("http");
 const crypto = require("crypto");
 const fs = require("fs");
 const os = require("os");
@@ -19,6 +20,8 @@ const changeDir = path.join(vizDir, "src", "topics", "example-change");
 const notebookHtml = fs.readFileSync(path.join(exampleDir, "notebook.html"), "utf8");
 const changeHtml = fs.readFileSync(path.join(changeDir, "notebook.html"), "utf8");
 const notebookCss = fs.readFileSync(path.join(vizDir, "src", "notebook", "notebook.css"), "utf8");
+const viewSource = (name) => fs.readFileSync(path.join(vizDir, "src", "notebook", name), "utf8");
+const TAGS = new Set(["base", "focus", "new", "done", "muted", "unk", "removed"]);
 const checkLinks = path.join(skillDir, "scripts", "check_links.py");
 
 let passed = 0;
@@ -50,10 +53,12 @@ function treeFiles(text) {
   return [...tree[1].matchAll(/[─ ]([\w-]+\.(?:mjs|md|css|js|html))\s/g)].map((m) => m[1]).sort();
 }
 
+/** 把 `src/` 整棵拷到临时目录并标成 ES 模块再导入 `steps.js`，它引用的布局函数（如 pipeline-flow.js）跟着能找到；不加载 three.js。 */
 async function loadSteps(dir = exampleDir) {
-  const copy = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "tutorial-steps-")), "steps.mjs");
-  fs.copyFileSync(path.join(dir, "steps.js"), copy);
-  return import(pathToFileURL(copy).href);
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "tutorial-steps-"));
+  fs.cpSync(path.join(vizDir, "src"), path.join(root, "src"), { recursive: true });
+  fs.writeFileSync(path.join(root, "package.json"), '{"type":"module"}');
+  return import(pathToFileURL(path.join(root, path.relative(vizDir, dir), "steps.js")).href);
 }
 
 /** 从 graph-3d.js 的源码里读出 `export const <name> = { ... }` 这张表的键，测试不用加载 three.js。 */
@@ -63,6 +68,51 @@ function tableKeys(name) {
   assert.ok(table, `graph-3d.js must export ${name}`);
   // 表里只有字符串字面量，按对象字面量求值即可。
   return new Set(Object.keys(new Function(`return ${table[1]};`)()));
+}
+
+/** `<h2 id="...">` 这一节的 HTML：从这个标题到下一个 `<h2>` 之前。 */
+function sectionOf(html, id) {
+  const start = html.indexOf(`<h2 id="${id}">`);
+  assert.ok(start >= 0, `no <h2 id="${id}">`);
+  const next = html.indexOf("<h2", start + 1);
+  return html.slice(start, next < 0 ? undefined : next);
+}
+
+/** 一张数据流转图和用它的演示：平台、slot、箭头都得存在，方块的 id、标签、来源都守方块的规矩。 */
+function checkFlow(flow, scenes) {
+  const plates = new Set(flow.plates.map((p) => p.id));
+  const arrows = new Set(flow.arrows.map((a) => a.id));
+  assert.strictEqual(plates.size, flow.plates.length, "duplicate plate id");
+  assert.strictEqual(arrows.size, flow.arrows.length, "duplicate arrow id");
+  for (const a of flow.arrows) assert.ok(plates.has(a.from) && plates.has(a.to), `arrow ${a.id} joins a missing plate`);
+  for (const [name, slot] of Object.entries(flow.slots)) {
+    if (slot.alignWith) assert.ok(flow.slots[slot.alignWith], `slot ${name} aligns with missing slot ${slot.alignWith}`);
+  }
+  let aligned = 0;
+  for (const scene of scenes) {
+    let before = new Set();
+    for (const step of scene.steps) {
+      for (const field of ["phase", "title", "text"]) assert.ok(step[field], `a step has no ${field}`);
+      for (const id of step.plates ?? []) assert.ok(plates.has(id), `${step.title} lights missing plate ${id}`);
+      for (const id of step.arrows ?? []) assert.ok(arrows.has(id), `${step.title} lights missing arrow ${id}`);
+      const ids = step.blocks.map((b) => b.id);
+      assert.strictEqual(new Set(ids).size, ids.length, `duplicate block id in ${step.title}`);
+      const count = (slot) => step.blocks.filter((b) => b.at === slot).length;
+      // 来源可以是上一步的方块，也可以是这一步排在前面、先建出来的方块（规则长出词表的一项）。
+      const earlier = new Set();
+      for (const b of step.blocks) {
+        assert.ok(flow.slots[b.at], `${b.id} sits in missing slot ${b.at}`);
+        assert.ok(TAGS.has(b.tag), `unknown tag ${b.tag}`);
+        for (const source of b.from ?? []) assert.ok(before.has(source) || earlier.has(source), `${b.id} grows from missing ${source}`);
+        earlier.add(b.id);
+      }
+      for (const [name, slot] of Object.entries(flow.slots)) {
+        if (slot.alignWith && count(name) > 0 && count(name) === count(slot.alignWith)) aligned++;
+      }
+      before = new Set(ids);
+    }
+  }
+  return aligned;
 }
 
 /** 一张组件图和用它的演示：组件、连线、种类、状态色都得是画面认识的。 */
@@ -164,26 +214,14 @@ async function main() {
     assert.ok(body.includes('<div class="code-out out-table"><table>') && body.includes("--json"), "SKILL.md must teach the table Out");
   });
 
-  await test("the example demos are registered under their data-scene and the tile steps follow the tile contract", async () => {
-    const { buildExampleScenes, buildGraphScenes } = await loadSteps();
-    const scenes = buildExampleScenes();
+  await test("the example demos are registered under their data-scene in page order, every mechanism on a data flow view", async () => {
+    const steps = await loadSteps();
     const sceneIds = [...notebookHtml.matchAll(/data-scene="([^"]+)"/g)].map((m) => m[1]);
-    assert.deepStrictEqual([...scenes, ...buildGraphScenes()].map((s) => s.id), sceneIds);
-    const tags = new Set(["base", "focus", "new", "done", "muted", "unk", "removed"]);
-    for (const scene of scenes) {
-      let before = new Set();
-      for (const step of scene.steps) {
-        for (const field of ["phase", "title", "text"]) assert.ok(step[field], `a step has no ${field}`);
-        const tiles = step.rows.flatMap((row) => row.tiles);
-        const ids = tiles.map((t) => t.id);
-        assert.strictEqual(new Set(ids).size, ids.length, `duplicate tile id in ${step.title}`);
-        for (const tile of tiles) {
-          assert.ok(tags.has(tile.tag), `unknown tag ${tile.tag}`);
-          for (const source of tile.from ?? []) assert.ok(before.has(source), `${tile.id} grows from missing ${source}`);
-        }
-        before = new Set(ids);
-      }
-    }
+    const order = [steps.buildFlowScenes, steps.buildConceptScenes, steps.buildPreSplitScenes, steps.buildMergeScenes, steps.buildGraphScenes];
+    assert.deepStrictEqual(order.flatMap((build) => build()).map((scene) => scene.id), sceneIds);
+    checkFlow(steps.FLOW, steps.buildFlowScenes());
+    checkFlow(steps.PRE_SPLIT_FLOW, steps.buildPreSplitScenes());
+    assert.ok(!fs.existsSync(path.join(vizDir, "src", "notebook", "tiles-3d.js")), "the tile view is gone; a mechanism is drawn on the data flow view");
   });
 
   await test("the component graph example names only nodes, edges, kinds, and tones the graph view knows", async () => {
@@ -195,6 +233,214 @@ async function main() {
     checkGraph(GRAPH, buildGraphScenes(), kinds, tones);
     for (const cls of [".graph-tip", ".graph-panel"]) assert.ok(notebookCss.includes(cls), `${cls} is not styled`);
     assert.ok(notebookCss.includes("var(--stage-height, 460px)"), "the demo stage height must be adjustable per cell");
+  });
+
+  await test("the block views share blocks-3d.js instead of copying the stage, blocks, and transitions", () => {
+    const shared = viewSource("blocks-3d.js");
+    for (const name of ["createBlockScene", "makeBlock", "makeLabel", "setLabel"]) {
+      assert.match(shared, new RegExp(`export function ${name}\\b`), `blocks-3d.js must export ${name}`);
+    }
+    assert.ok(shared.includes("syncBlocks,"), "createBlockScene must hand out syncBlocks");
+    for (const view of ["flow-3d.js"]) {
+      const source = viewSource(view);
+      assert.match(source, /from '\.\/blocks-3d\.js'/, `${view} must import blocks-3d.js`);
+      assert.ok(source.includes("createBlockScene("), `${view} must build on createBlockScene`);
+      for (const copy of ["OrbitControls", "function tween", "function makeBlock", "const PALETTE", "new THREE.WebGLRenderer"]) {
+        assert.ok(!source.includes(copy), `${view} copies ${copy} from blocks-3d.js`);
+      }
+    }
+    const graph = viewSource("graph-3d.js");
+    assert.match(graph, /import \{ canvasTexture, measureText \} from '\.\/blocks-3d\.js'/, "graph-3d.js must take text measuring from blocks-3d.js");
+    for (const copy of ["function canvasTexture", "function textWidth", "const measure ="]) {
+      assert.ok(!graph.includes(copy), `graph-3d.js copies ${copy} from blocks-3d.js`);
+    }
+  });
+
+  await test("the learning example keeps only the h1 under its title, while the change page keeps its issue line", () => {
+    const title = (html) => html.match(/<header class="nb-title">([\s\S]*?)<\/header>/)[1].trim();
+    assert.strictEqual(title(notebookHtml), "<h1>示例</h1>", "no breadcrumb or subtitle on a learning page");
+    assert.match(title(changeHtml), /<h1>[^<]+<\/h1>[\s\S]*<p>/, "the change page keeps its issue line");
+    assert.ok(notebookCss.includes(".nb-title p"), "the change page's issue line still needs its style");
+  });
+
+  await test("the data flow example follows the flow contract, lines a lookup up with its rows, and matches the real Out", async () => {
+    const { FLOW, buildFlowScenes } = await loadSteps();
+    const scenes = buildFlowScenes();
+    assert.ok(checkFlow(FLOW, scenes) > 0, "some step must line a lookup up with its table rows");
+    const what = sectionOf(notebookHtml, "intro");
+    const demoAt = what.indexOf('data-scene="example-flow"');
+    assert.ok(demoAt >= 0 && demoAt < what.indexOf('class="cell code"'), "the what-it-is section shows its mechanism in a demo before the code cell");
+    const out = what.match(/<pre class="code-out">([^<]+)<\/pre>/)[1];
+    const last = scenes[0].steps.at(-1);
+    const ids = last.blocks.filter((b) => b.at === "out").map((b) => b.text);
+    assert.ok(out.includes(`[${ids.join(", ")}]`), `the demo hands out ${ids} but the Out says ${out}`);
+    assert.ok(out.trim().endsWith("hello"), "the Out must show the round trip the caption claims");
+  });
+
+  await test("a code cell that backs a demo follows it with no text between, comments each part on its own line, and shows every number the demo uses", async () => {
+    const { buildFlowScenes } = await loadSteps();
+    const what = sectionOf(notebookHtml, "intro");
+    assert.match(what, /data-scene="example-flow"><\/section>\s*<section class="cell code">/, "no lead-in between the demo and the code cell that backs it");
+    assert.ok(!what.includes("复现"), "no reproduce-it lead-in around the code cell");
+    const code = what.match(/<pre class="code-in" data-lang="python">([\s\S]*?)<\/pre>/)[1];
+    const comments = code.split("\n").filter((line) => line.includes("#"));
+    assert.ok(comments.length >= 3, "one comment per part of the demo");
+    for (const line of comments) assert.ok(line.trim().startsWith("#"), `comment at the end of a line: ${line}`);
+    const out = what.match(/<pre class="code-out">([^<]+)<\/pre>/)[1];
+    const strip = (html) => html.replace(/<[^>]+>/g, "");
+    const shown = buildFlowScenes()[0].steps.flatMap((step) => [strip(step.text), ...step.blocks.map((b) => b.text)]);
+    for (const n of new Set(shown.join(" ").match(/\d+/g))) {
+      assert.match(out, new RegExp(`\\b${n}\\b`), `the demo uses ${n} but the Out never shows it`);
+    }
+    const write = body.split("### 5. Write the Cells")[1].split("### 6.")[0];
+    assert.ok(write.includes("one of two kinds") && write.includes("No lead-in or preview"), "step 5 must limit code cells and ban lead-ins");
+    assert.ok(body.split("## Common Mistakes")[1].includes("A lead-in or a preview around a code cell"));
+    assert.ok(body.split("## Before You Finish")[1].includes("Every code cell backs the demo above it"));
+  });
+
+  await test("a learning page opens with 简介, which says what it is and why it is needed, and has no motivation chapter", () => {
+    const headings = [...notebookHtml.matchAll(/<h2 id="([^"]+)">([^<]+)<\/h2>/g)].map((m) => `${m[1]}:${m[2]}`);
+    assert.deepStrictEqual(headings.slice(0, 2), ["intro:简介", "concepts:核心概念"], "简介 comes first, then 核心概念");
+    for (const text of [notebookHtml, body, translation]) assert.ok(!text.includes("目的和动机"), "no separate motivation chapter");
+    const outline = body.split("### 4. Outline the Page")[1].split("### 5.")[0];
+    assert.ok(outline.includes('<h2 id="intro">简介</h2>') && outline.includes("why it is needed"), "the introduction says why it is needed");
+    assert.ok(body.split("### 6.")[1].split("### 7.")[0].includes("When you delete a section"), "step 6 must move a deleted section's first links");
+    assert.ok(body.split("## Common Mistakes")[1].includes("A motivation chapter that actually compares the ways"));
+  });
+
+  await test("the 核心概念 concept map links every concept to its section, starts on the whole map, and lights one block per later step", async () => {
+    const { CONCEPTS, buildConceptScenes } = await loadSteps();
+    const [scene] = buildConceptScenes();
+    checkGraph(CONCEPTS, [scene], tableKeys("KINDS"), tableKeys("TONES"));
+    const ids = new Set([...notebookHtml.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+    for (const n of CONCEPTS.nodes) assert.ok(n.href && ids.has(n.href.slice(1)), `concept ${n.id} must link a section on the page, got ${n.href}`);
+    const [first, ...rest] = scene.steps;
+    const all = CONCEPTS.nodes.map((n) => n.id).sort();
+    assert.deepStrictEqual(Object.keys(first.nodes).sort(), all, "step 1 shows every concept");
+    assert.deepStrictEqual([...first.focus].sort(), all, "step 1 frames the whole map");
+    for (const step of rest) {
+      const link = step.text.match(/→ <a href="#([^"]+)">[^<]+<\/a>$/);
+      assert.ok(link && ids.has(link[1]), `${step.title} must end with a link to its section`);
+    }
+    assert.match(sectionOf(notebookHtml, "concepts"), /data-scene="example-concepts" style="--stage-height: 600px"/);
+    assert.ok(!/<h2[^>]*>工作原理<\/h2>/.test(notebookHtml), "no 工作原理 chapter on a learning page");
+    assert.match(sectionOf(notebookHtml, "split-merge"), /<h3 id="bpe">/, "the method's internals sit in its chapter as an h3");
+    assert.ok(viewSource("graph-3d.js").includes('class="goto"') && notebookCss.includes(".graph-panel .goto"), "a pinned panel links to the concept's section");
+    const outline = body.split("### 4. Outline the Page")[1].split("### 5.")[0];
+    assert.ok(outline.includes('<h2 id="concepts">核心概念</h2>') && !outline.includes("工作原理"), "the second chapter is 核心概念");
+    assert.ok(body.split("### 7.")[1].split("### 8.")[0].includes("concept map"), "step 7 must teach the concept map");
+    assert.ok(body.split("## Common Mistakes")[1].includes("A 工作原理 chapter that explains one algorithm"));
+  });
+
+  await test("the learning example has no operating instructions, and its method subtopic opens with a general intro and a 使用场景 list", async () => {
+    const steps = await loadSteps();
+    const captions = [steps.buildFlowScenes, steps.buildConceptScenes, steps.buildPreSplitScenes, steps.buildMergeScenes, steps.buildGraphScenes]
+      .flatMap((build) => build().flatMap((scene) => scene.steps.map((step) => step.text)));
+    const prose = notebookHtml.replace(/<svg[\s\S]*?<\/svg>/g, "").replace(/<pre[\s\S]*?<\/pre>/g, "");
+    for (const text of [prose, ...captions]) {
+      const hint = text.match(/悬停|点一下|点一个|点开|点击|双击|拖动|翻页|方向键/);
+      assert.ok(!hint, `operating instruction "${hint}" in: ${text.slice(0, 60)}`);
+    }
+    const item = sectionOf(notebookHtml, "split-merge").split('<h3 id="bpe">')[1];
+    const [intro, rest] = item.split("<p><b>使用场景</b></p>");
+    assert.ok(rest, "the subtopic needs a 使用场景 list");
+    assert.match(intro, /arxiv\.org\/abs\//, "the general intro links the method's paper");
+    assert.ok(!intro.includes("本示例"), "the general intro does not center on this project");
+    const links = [...rest.split("</ul>")[0].matchAll(/<li><a href="([^"]+)">[^<]+<\/a><\/li>/g)].map((m) => m[1]);
+    assert.ok(links.length >= 2, "使用场景 lists several projects, one per item, name and link only");
+    assert.ok(!/^https?:/.test(links[0]) && links.slice(1).every((href) => href.startsWith("https://")), "this project links its source, outside projects an official page");
+    assert.match(rest, /<\/ul>\s*<\/section>\s*<section class="cell demo" data-scene="example-merge">/, "one demo right after the list carries how it works, no list or note box of its own");
+    const write = body.split("### 5. Write the Cells")[1].split("### 6.")[0];
+    assert.ok(write.includes("no operating instructions") && write.includes("go in a list") && write.includes("使用场景"), "step 5 must carry the three writing rules");
+    assert.ok(body.split("### 4.")[1].split("### 5.")[0].includes("<p><b>使用场景</b></p>"), "step 4 must give the subtopic template");
+    const mistakes = body.split("## Common Mistakes")[1];
+    assert.ok(mistakes.includes("Operating instructions in the text") && mistakes.includes("A method subtopic that opens on this project"));
+  });
+
+  await test("a staged process is drawn in two titled rows sharing one plate, computed once and drawn by each view", async () => {
+    const { FLOW, MERGE_FLOW, buildMergeScenes } = await loadSteps();
+    const [scene] = buildMergeScenes();
+    checkFlow(MERGE_FLOW, [scene]);
+    const plateOf = (flow, slot) => flow.plates.find((p) => Math.abs(slot.x - p.x) <= p.w / 2 && Math.abs(slot.z - p.z) <= p.d / 2);
+    for (const flow of [FLOW, MERGE_FLOW]) {
+      for (const p of flow.plates) assert.ok(p.label, `plate ${p.id} needs a title`);
+      for (const [name, slot] of Object.entries(flow.slots)) {
+        const plate = plateOf(flow, slot);
+        assert.ok(plate, `slot ${name} sits on no plate`);
+        assert.ok(slot.z >= plate.z - plate.d / 2 + 1.5, `slot ${name} covers the title of plate ${plate.id}`);
+      }
+    }
+    const zs = Object.values(MERGE_FLOW.slots).map((slot) => slot.z);
+    const [back, front] = [Math.min(...zs), Math.max(...zs)];
+    const shared = MERGE_FLOW.plates.find((p) => p.z - p.d / 2 < back && p.z + p.d / 2 > front);
+    assert.ok(shared, "the stages share one plate that spans both rows");
+    const phases = scene.steps.map((step) => step.phase);
+    assert.deepStrictEqual([...new Set(phases)], ["训练", "编码"], "training first, then encoding");
+    const written = scene.steps.find((step) => step.blocks.some((b) => b.from && plateOf(MERGE_FLOW, MERGE_FLOW.slots[b.at]) === shared));
+    assert.ok(written && written.phase === "训练", "training writes its product onto the shared plate as blocks");
+    const source = fs.readFileSync(path.join(exampleDir, "steps.js"), "utf8");
+    assert.ok(source.match(/= splitAndMerge\(WORD\)/g).length >= 4, "every demo of the split and merge reads the one record splitAndMerge computes");
+    assert.ok(/function encodeByRules\(/.test(source) && source.includes("encodeByRules(rules, SAMPLE)"), "encoding is computed by a pure function and drawn from its records");
+    const demo = body.split("### 7. Compute the Demo From Real Results")[1].split("### 8.")[0];
+    for (const rule of ["two rows", "Keep computing and drawing apart", "Leave room for each plate's title"]) assert.ok(demo.includes(rule), `step 7 must teach: ${rule}`);
+    const mistakes = body.split("## Common Mistakes")[1];
+    assert.ok(mistakes.includes("How it works written as a list of points") && mistakes.includes("A demo without zones"));
+  });
+
+  await test("sibling subtopics share one template and one layout with no comparison section", () => {
+    assert.ok(!/<h[23][^>]*>[^<]*对比[^<]*<\/h[23]>/.test(notebookHtml), "no comparison section on a learning page");
+    const outline = body.split("### 4. Outline the Page")[1].split("### 5.")[0];
+    assert.ok(outline.includes("Sibling items of one chapter") && !body.includes("A comparison demo may close"), "siblings share a template; no closing comparison");
+    const demo = body.split("### 7. Compute the Demo From Real Results")[1].split("### 8.")[0];
+    assert.ok(demo.includes("trainEncodeFlow"), "sibling demos share one layout function");
+    assert.ok(body.split("### 5. Write the Cells")[1].split("### 6.")[0].includes("search it for the method's name"), "使用场景 links must be checked for the method's name");
+    const mistakes = body.split("## Common Mistakes")[1];
+    assert.ok(mistakes.includes("Sibling subtopics drawn differently") && mistakes.includes("never names the method"));
+  });
+
+  await test("every concept on the map has its own chapter and its own step, stations keep their blocks, and straight lines use pipelineFlow", async () => {
+    const steps = await loadSteps();
+    const chapters = [...notebookHtml.matchAll(/<h2 id="([^"]+)">/g)].map((m) => m[1]).filter((id) => !["intro", "concepts", "markup"].includes(id));
+    const linked = new Set(steps.buildConceptScenes()[0].steps.slice(1).map((step) => step.text.match(/href="#([^"]+)"/)[1]));
+    for (const id of chapters) assert.ok(linked.has(id), `chapter ${id} has no step on the concept map`);
+    for (const n of steps.CONCEPTS.nodes) {
+      assert.ok(["intro", ...chapters].includes(n.href.slice(1)), `concept ${n.id} links ${n.href}, which is no chapter`);
+    }
+    for (const [flow, build] of [[steps.FLOW, steps.buildFlowScenes], [steps.PRE_SPLIT_FLOW, steps.buildPreSplitScenes], [steps.MERGE_FLOW, steps.buildMergeScenes]]) {
+      const last = build()[0].steps.at(-1);
+      const plateOf = (slot) => flow.plates.find((p) => Math.abs(slot.x - p.x) <= p.w / 2 && Math.abs(slot.z - p.z) <= p.d / 2).id;
+      const filled = new Set(last.blocks.map((b) => plateOf(flow.slots[b.at])));
+      for (const p of flow.plates) assert.ok(filled.has(p.id), `the last step of ${build.name} leaves plate ${p.id} empty`);
+    }
+    const pipeline = viewSource("pipeline-flow.js");
+    assert.ok(/export function pipelineFlow\(/.test(pipeline) && !pipeline.includes("from 'three'"), "pipelineFlow only lays out, it draws nothing");
+    const { slots, arrows } = steps.PRE_SPLIT_FLOW;
+    assert.ok("letters0" in slots && "letters1" in slots && arrows.some((a) => a.id === "chunks>letters"), "slots are plate id plus row, arrows from>to");
+    const outline = body.split("### 4. Outline the Page")[1].split("### 5.")[0];
+    assert.ok(outline.includes("One chapter per core concept") && outline.includes("has no 使用场景 list"), "step 4 must give every concept a chapter");
+    const demo = body.split("### 7. Compute the Demo From Real Results")[1].split("### 8.")[0];
+    for (const rule of ["pipelineFlow({ stages, rows, arrows, labels })", "Later steps keep the blocks of earlier stations", "Every chapter has its step"]) {
+      assert.ok(demo.includes(rule), `step 7 must teach: ${rule}`);
+    }
+    assert.ok(!body.includes("createTilesView") && !body.includes("tiles-3d.js"), "the tile view is gone from SKILL.md");
+    assert.ok(body.split("### 5. Write the Cells")[1].split("### 6.")[0].includes("convert_slow_tokenizer.py"), "step 5 must show one source file proving several 使用场景 items");
+    const mistakes = body.split("## Common Mistakes")[1];
+    assert.ok(mistakes.includes("A concept on the concept map with no chapter of its own") && mistakes.includes("Plates left empty by the last step"));
+  });
+
+  await test("SKILL.md teaches the learning-page rules and when to pick each view and layout", () => {
+    const outline = body.split("### 4. Outline the Page")[1].split("### 5.")[0];
+    assert.ok(outline.includes("no breadcrumb, no subtitle") && !body.includes("carries a breadcrumb"), "the title bar holds only the h1");
+    assert.ok(outline.includes("has a demo cell"), "every mechanism on a learning page needs a demo");
+    const run = body.split("### 3. Study the Code and Run It")[1].split("### 4.")[0];
+    assert.ok(run.includes("cannot be recorded") && run.includes("tok.decode(ids)"), "step 3 must cover unrecorded stages and evidence");
+    assert.ok(body.split("### 6.")[1].split("### 7.")[0].includes("this is required"), "official links are required on a learning page");
+    const demo = body.split("### 7. Compute the Demo From Real Results")[1].split("### 8.")[0];
+    for (const view of ["pipelineFlow(", "createFlowView(FLOW)", "createGraphView(GRAPH)", "alignWith", "createBlockScene"]) {
+      assert.ok(demo.includes(view), `step 7 must cover ${view}`);
+    }
+    const mistakes = body.split("## Common Mistakes")[1].split("## Before You Finish")[0];
+    for (const row of ["breadcrumb", "no demo", "data flow view", "tok.decode(ids)"]) assert.ok(mistakes.includes(row), `Common Mistakes must cover ${row}`);
   });
 
   await test("SKILL.md asks which page to build before anything else and names both kinds", () => {
@@ -239,6 +485,49 @@ async function main() {
     const run = spawnSync("python3", [checkLinks, "--offline", path.join(dir, "page.html")], { encoding: "utf8" });
     assert.strictEqual(run.status, 1, run.stderr);
     assert.deepStrictEqual(run.stdout.trim().split("\n"), ["FAIL 页内没有 id #nowhere", "FAIL 文件不存在 gone.py"]);
+  });
+
+  await test("check_links.py sends a browser User-Agent, retries 429 and 503 twice, and lists a still-refused link as LIMITED without failing", async () => {
+    const hits = { limited: 0 };
+    const agents = new Set();
+    const server = http.createServer((req, res) => {
+      agents.add(req.headers["user-agent"]);
+      if (req.url === "/ok") return res.end('<h2 id="here">x</h2>');
+      if (req.url === "/limited") {
+        hits.limited++;
+        res.statusCode = 503;
+        return res.end();
+      }
+      res.statusCode = 404;
+      res.end();
+    });
+    await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const base = `http://127.0.0.1:${server.address().port}`;
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "tutorial-remote-"));
+    const run = (name, links) => {
+      const page = path.join(dir, `${name}.html`);
+      fs.writeFileSync(page, links.map((href) => `<a href="${base}${href}">x</a>`).join("\n"));
+      const env = { ...process.env, NO_PROXY: "127.0.0.1", no_proxy: "127.0.0.1" };
+      return new Promise((resolve) => {
+        const child = spawn("python3", [checkLinks, "--retry-delay", "0", page], { env });
+        let stdout = "";
+        child.stdout.on("data", (chunk) => (stdout += chunk));
+        child.on("close", (status) => resolve({ status, lines: stdout.trim().split("\n") }));
+      });
+    };
+    try {
+      const broken = await run("broken", ["/ok#here", "/limited", "/gone"]);
+      assert.strictEqual(broken.status, 1, "a 404 still fails the run");
+      assert.deepStrictEqual(broken.lines, [`FAIL 404 ${base}/gone`, `LIMITED 503 ${base}/limited 可能被限流，用浏览器打开确认`]);
+      assert.strictEqual(hits.limited, 3, "one request and two retries");
+      const throttled = await run("throttled", ["/ok#here", "/limited"]);
+      assert.strictEqual(throttled.status, 0, "a rate-limited link alone does not fail the run");
+      assert.strictEqual(throttled.lines.at(-1), `OK ${path.join(dir, "throttled.html")}`);
+      assert.ok([...agents].every((agent) => /Chrome\/\d+/.test(agent)), `requests must look like a browser, got ${[...agents]}`);
+    } finally {
+      server.close();
+    }
+    assert.ok(body.split("### 6.")[1].split("### 7.")[0].includes("LIMITED"), "step 6 must explain LIMITED");
   });
 
   await test("the zh-CN translation tracks the current SKILL.md", () => {

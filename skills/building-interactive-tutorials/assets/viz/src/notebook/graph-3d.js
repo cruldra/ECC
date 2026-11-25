@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { canvasTexture, measureText } from './blocks-3d.js';
 
 const SANS = '"PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif';
 const MONO = '"SF Mono", Menlo, Consolas, "PingFang SC", monospace';
@@ -27,26 +28,13 @@ export const KINDS = {
  */
 export const TONES = { active: '#f08a59', new: '#3ecf8e', gap: '#e5484d', base: '#8a93a6', off: '#5a6275' };
 
-const measure = document.createElement('canvas').getContext('2d');
-function textWidth(text, font) {
-  measure.font = font;
-  return measure.measureText(text).width;
-}
-
-function canvasTexture(canvas) {
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.anisotropy = 8;
-  return texture;
-}
-
 /** 画组件的名牌：名字、代码名，有数据时第三行挂这一步的数据；三行画在同一块上，俯视时才不会互相压住。 */
 function labelCanvas(name, sub, color, badge, badgeColor) {
   const nameFont = `600 52px ${SANS}`;
   const subFont = `500 32px ${MONO}`;
   const badgeFont = `600 34px ${MONO}`;
   const canvas = document.createElement('canvas');
-  canvas.width = Math.ceil(Math.max(textWidth(name, nameFont), sub ? textWidth(sub, subFont) : 0, badge ? textWidth(badge, badgeFont) + 36 : 0)) + 56;
+  canvas.width = Math.ceil(Math.max(measureText(name, nameFont), sub ? measureText(sub, subFont) : 0, badge ? measureText(badge, badgeFont) + 36 : 0)) + 56;
   canvas.height = 128 + (badge ? 62 : 0);
   const ctx = canvas.getContext('2d');
   ctx.beginPath();
@@ -65,7 +53,7 @@ function labelCanvas(name, sub, color, badge, badgeColor) {
   ctx.fillStyle = '#9aa3b6';
   ctx.fillText(sub ?? '', canvas.width / 2, 94);
   if (badge) {
-    const bw = textWidth(badge, badgeFont) + 32;
+    const bw = measureText(badge, badgeFont) + 32;
     ctx.beginPath();
     ctx.roundRect((canvas.width - bw) / 2, 126, bw, 50, 25);
     ctx.fillStyle = 'rgba(255,255,255,0.06)';
@@ -93,7 +81,7 @@ function setPill(sprite, text, color, size = 0.42) {
   if (sprite.userData.key === key) return;
   const font = `600 40px ${MONO}`;
   const canvas = document.createElement('canvas');
-  canvas.width = Math.ceil(textWidth(text, font)) + 44;
+  canvas.width = Math.ceil(measureText(text, font)) + 44;
   canvas.height = 64;
   const ctx = canvas.getContext('2d');
   ctx.beginPath();
@@ -118,7 +106,7 @@ function setPill(sprite, text, color, size = 0.42) {
 function groupTitle(text, color) {
   const font = `600 56px ${SANS}`;
   const canvas = document.createElement('canvas');
-  canvas.width = Math.ceil(textWidth(text, font)) + 20;
+  canvas.width = Math.ceil(measureText(text, font)) + 20;
   canvas.height = 80;
   const ctx = canvas.getContext('2d');
   ctx.font = font;
@@ -156,7 +144,7 @@ function escapeHtml(s) {
  * 返回的对象提供播放器要的 `mount(stage)`、`render(step, { reset })`、`setActive(active)`，见 [mountDemo](viz/src/notebook/player.js#mountDemo)。
  *
  * @param graph 整页共用的组件图：`groups`（平台）、`nodes`（组件）、`edges`（连线），可选的 `kinds`、`tones` 补充 [KINDS]、[TONES]；
- *   格式见示例的 [GRAPH](viz/src/topics/example/steps.js#GRAPH)
+ *   组件写了 `href`（如 `#parts`）时，点开的面板里多一个跳到页面那一节的链接；格式见示例的 [GRAPH](viz/src/topics/example/steps.js#GRAPH)
  */
 export function createGraphView(graph) {
   const kinds = { ...KINDS, ...graph.kinds };
@@ -351,7 +339,9 @@ export function createGraphView(graph) {
     const more = !full && lines.length > shown.length ? `<div class="more">点击查看全部 ${lines.length} 行</div>` : '';
     const data = shown.length ? `<pre>${shown.map(escapeHtml).join('\n')}</pre>${more}` : '';
     const code = n.code ? `<div class="code">${escapeHtml(n.code)}</div>` : '';
-    return `<b>${escapeHtml(n.label)}</b> <span class="mono">${escapeHtml(n.sub ?? '')}</span><p>${escapeHtml(n.desc ?? '')}</p>${code}${data}`;
+    // 悬停提示点不到，跳转链接只放在点开的面板里。
+    const goto = full && n.href ? `<a class="goto" href="${escapeHtml(n.href)}">去讲它的那一节 →</a>` : '';
+    return `<b>${escapeHtml(n.label)}</b> <span class="mono">${escapeHtml(n.sub ?? '')}</span><p>${escapeHtml(n.desc ?? '')}</p>${code}${data}${goto}`;
   }
 
   const raycaster = new THREE.Raycaster();

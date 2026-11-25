@@ -5,20 +5,29 @@
 
 用法：`uv run check_links.py viz/<名字>.html`；加 `--offline` 只查页内锚点和仓库文件，不联网。
 有坏链接时逐条打印 `FAIL` 并以状态码 1 退出。只用标准库，不用装依赖。
+
+GitHub 这类网站会限流脚本：请求带浏览器的 User-Agent，遇到 429、503 退避重试两次；还是被拒的链接打印成 `LIMITED`，
+意思是可能被限流、要用浏览器打开确认，不算坏链接，不影响退出状态。
 """
 
 from __future__ import annotations
 
 import argparse
 import sys
+import time
 from concurrent.futures import ThreadPoolExecutor
+from functools import partial
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import unquote, urldefrag, urlsplit
 from urllib.request import Request, urlopen
 
-USER_AGENT = "Mozilla/5.0 (compatible; tutorial-link-check)"
+USER_AGENT = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+)
+RATE_LIMITED = {429, 503}
+RETRIES = 2
 SKIPPED_SCHEMES = {"mailto", "vscode", "javascript", "data"}
 
 
@@ -46,7 +55,7 @@ def collect(html: str) -> LinkCollector:
     return parser
 
 
-def fetch(url: str) -> tuple[int | None, str]:
+def fetch_once(url: str) -> tuple[int | None, str]:
     """取一个网页，返回状态码和正文；连不上时状态码是 `None`，正文是出错原因。"""
     try:
         with urlopen(Request(url, headers={"User-Agent": USER_AGENT}), timeout=30) as response:
@@ -57,10 +66,25 @@ def fetch(url: str) -> tuple[int | None, str]:
         return None, str(error)
 
 
-def check(page: Path, offline: bool) -> list[str]:
-    """检查 `page` 里的全部链接，返回每个坏链接的一行说明；同一个网页只取一次。"""
+def fetch(url: str, retry_delay: float) -> tuple[int | None, str]:
+    """取一个网页；遇到 429、503 先等 `retry_delay` 秒、再等两倍重试，最多重试 [RETRIES] 次，返回最后一次的结果。"""
+    status, body = fetch_once(url)
+    for attempt in range(RETRIES):
+        if status not in RATE_LIMITED:
+            break
+        time.sleep(retry_delay * 2**attempt)
+        status, body = fetch_once(url)
+    return status, body
+
+
+def check(page: Path, offline: bool, retry_delay: float = 2.0) -> tuple[list[str], list[str]]:
+    """检查 `page` 里的全部链接，同一个网页只取一次。
+
+    @return 坏链接各一行的 `FAIL` 说明，以及重试后仍被 429、503 拒绝、可能被限流的链接各一行的 `LIMITED` 说明
+    """
     found = collect(page.read_text(encoding="utf-8"))
     problems: list[str] = []
+    limited: list[str] = []
     remote: dict[str, set[str]] = {}
     for href in dict.fromkeys(found.links):
         scheme = urlsplit(href).scheme
@@ -76,27 +100,31 @@ def check(page: Path, offline: bool) -> list[str]:
         elif not (page.parent / unquote(url)).exists():
             problems.append(f"FAIL 文件不存在 {href}")
     if offline:
-        return problems
+        return problems, limited
 
     with ThreadPoolExecutor(max_workers=8) as pool:
-        results = dict(zip(remote, pool.map(fetch, remote)))
+        results = dict(zip(remote, pool.map(partial(fetch, retry_delay=retry_delay), remote)))
     for url, fragments in remote.items():
         status, body = results[url]
+        if status in RATE_LIMITED:
+            limited.append(f"LIMITED {status} {url} 可能被限流，用浏览器打开确认")
+            continue
         if status != 200:
             problems.append(f"FAIL {status or body} {url}")
             continue
         anchors = collect(body).anchors
         problems += [f"FAIL 锚点不存在 {url}#{f}" for f in sorted(fragments) if f not in anchors]
-    return problems
+    return problems, limited
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("page", type=Path, help="打包好的页面，如 viz/tokenizer.html")
     parser.add_argument("--offline", action="store_true", help="只查页内锚点和仓库文件")
+    parser.add_argument("--retry-delay", type=float, default=2.0, help="遇到 429、503 时第一次重试前等几秒，之后每次翻倍")
     args = parser.parse_args()
-    problems = check(args.page, args.offline)
-    print("\n".join(problems) if problems else f"OK {args.page}")
+    problems, limited = check(args.page, args.offline, args.retry_delay)
+    print("\n".join(problems + limited + ([] if problems else [f"OK {args.page}"])))
     return 1 if problems else 0
 
 

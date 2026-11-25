@@ -10,38 +10,80 @@
 <main class="notebook">
   <header class="nb-title">
     <h1>示例</h1>
-    <!-- 面包屑：回到索引页（如路线图），再写「以某项目为例」 -->
-    <p><a href="README.md">教程说明</a> › 示例章节　·　一页讲完一个知识点</p>
   </header>
   <nav class="nb-toc"></nav>
 
   <section class="cell text">
-    <h2 id="what">示例是什么</h2>
-    <p>一句话讲清楚它是什么，再配一个项目里的真实例子。代码格子的 Out 必须是真实运行结果：</p>
+    <h2 id="intro">简介</h2>
+    <p>既讲它是什么，也讲为什么需要它：示例把一个词拆开、合并，再查<a href="https://huggingface.co/learn/llm-course/zh-CN/chapter2/4#从%20tokens%20到%20inputs%20ID">词表</a>换成一串编号，因为后面的程序只认编号、不认文字。这讲的是一个机制，所以紧跟一个演示，不能只有文字：</p>
   </section>
+
+  <section class="cell demo" data-scene="example-flow"></section>
 
   <section class="cell code">
     <div class="cell-gutter">In</div>
-    <pre class="code-in" data-lang="python">print(list("hello"))</pre>
+    <pre class="code-in" data-lang="python">word = "hello"
+vocab = ["h", "e", "l", "o", "ll"]
+
+# 拆分与合并：拆成字母，挨着的两块拼起来在词表里就并成一块
+letters = list(word)
+pieces = []
+for ch in letters:
+    if pieces and pieces[-1] + ch in vocab:
+        pieces[-1] += ch
+    else:
+        pieces.append(ch)
+print(letters, pieces)
+
+# 词表共几项，演示画出的是哪几项
+print(len(vocab), {vocab.index(p): p for p in pieces})
+
+# 查表：每块换成编号，再按编号反查拼回
+ids = [vocab.index(p) for p in pieces]
+print(ids, "".join(vocab[i] for i in ids))</pre>
     <div class="cell-gutter">Out</div>
-    <pre class="code-out">['h', 'e', 'l', 'l', 'o']</pre>
+    <pre class="code-out">['h', 'e', 'l', 'l', 'o'] ['h', 'e', 'll', 'o']
+5 {0: 'h', 1: 'e', 4: 'll', 3: 'o'}
+[0, 1, 4, 3] hello</pre>
   </section>
 
   <section class="cell text">
-    <h2 id="why">目的和动机</h2>
-    <p>为什么需要它，不用它会怎样，取舍是什么。</p>
+    <h2 id="concepts">核心概念</h2>
+    <p>一张 3D 概念图列出学这个主题要接触的全部核心概念，连线写明谁产出谁、谁用到谁：</p>
   </section>
 
+  <section class="cell demo" data-scene="example-concepts" style="--stage-height: 600px"></section>
+
   <section class="cell text">
-    <h2 id="how">工作原理</h2>
-    <p>讲主流做法，配一个 3D 演示。点中演示后可以用方向键翻页、空格播放：</p>
+    <h2 id="pre-split">预分词</h2>
+    <h3 id="whitespace">按空格切块</h3>
+    <p>按空格切块是最直接的<a href="https://huggingface.co/learn/llm-course/zh-CN/chapter6/4">预分词</a>：遇到空格、换行这类空白就切开，空白本身扔掉，标点和字母留在同一块里。HuggingFace <code>tokenizers</code> 里对应 <a href="https://huggingface.co/docs/tokenizers/api/pre-tokenizers#tokenizers.pre_tokenizers.WhitespaceSplit"><code>pre_tokenizers.WhitespaceSplit</code></a>，常和别的预分词器串起来用。</p>
+    <p><b>使用场景</b></p>
+    <ul>
+      <li><a href="src/topics/example/steps.js">本示例</a></li>
+      <li><a href="https://github.com/huggingface/transformers/blob/main/src/transformers/convert_slow_tokenizer.py">Pegasus</a></li>
+    </ul>
   </section>
 
-  <section class="cell demo" data-scene="example"></section>
+  <section class="cell demo" data-scene="example-pre-split"></section>
 
   <section class="cell text">
-    <h2 id="parts">子主题</h2>
-    <p>同一主题下的其它知识点，每个单独一节，节内用三级标题分点。</p>
+    <h2 id="split-merge">拆分与合并</h2>
+    <h3 id="bpe">BPE</h3>
+    <p><a href="https://arxiv.org/abs/1508.07909">BPE</a>（字节对编码）本来是一种数据压缩算法，后来被用到分词上：反复把一起出现最多的相邻两块并成一块，常见组合成了一个 token，罕见的词拆成小片段也能表示，词表不用很大。HuggingFace <code>tokenizers</code> 里对应 <a href="https://huggingface.co/docs/tokenizers/api/models#tokenizers.models.BPE"><code>models.BPE</code></a>。</p>
+    <p><b>使用场景</b></p>
+    <ul>
+      <li><a href="src/topics/example/steps.js">本示例</a></li>
+      <li><a href="https://github.com/openai/gpt-2/blob/master/src/encoder.py">GPT-2</a></li>
+      <li><a href="https://github.com/meta-llama/llama3/blob/main/llama/tokenizer.py">Llama 3</a></li>
+    </ul>
+  </section>
+
+  <section class="cell demo" data-scene="example-merge"></section>
+
+  <section class="cell text">
+    <h2 id="markup">其它写法</h2>
+    <p>讲参考资料（某个文件里的键、某个库的组件）时可以用下面这些写法；讲怎么运作的内容一律放进演示。</p>
     <h3 id="diagram">结构图</h3>
     <p>方框用 <code>box</code>，本项目用到的加 <code>used</code>，可选的加 <code>optional</code>，连线用 <code>edge</code>：</p>
     <svg class="diagram" viewBox="0 0 1000 120" role="img" aria-label="示例结构图：输入经过拆分得到结果，合并是可选的一步">
@@ -52,7 +94,7 @@
       <line class="edge" x1="440" y1="60" x2="516" y2="60" marker-end="url(#example-arrow)"/>
       <line class="edge" x1="720" y1="60" x2="796" y2="60" marker-end="url(#example-arrow)"/>
       <g><rect class="end" x="0" y="30" width="160" height="60" rx="14"/><text x="80" y="60">输入</text></g>
-      <a href="#how"><g><rect class="box used" x="240" y="25" width="200" height="70" rx="8"/><text class="name" x="340" y="50">split</text><text class="role" x="340" y="74">拆成字母</text></g></a>
+      <a href="#split-merge"><g><rect class="box used" x="240" y="25" width="200" height="70" rx="8"/><text class="name" x="340" y="50">split</text><text class="role" x="340" y="74">拆成字母</text></g></a>
       <g><rect class="box optional" x="520" y="25" width="200" height="70" rx="8"/><text class="name" x="620" y="50">merge</text><text class="role" x="620" y="74">可选：合并</text></g>
       <g><rect class="end" x="800" y="30" width="200" height="60" rx="14"/><text x="900" y="60">结果</text></g>
     </svg>
@@ -93,7 +135,7 @@ print(json.dumps([{"字母": c, "次数": n} for c, n in Counter("hello").items(
 
   <section class="cell text">
     <h3 id="graph">组件图</h3>
-    <p>讲一个系统里几个组件怎么互相调用、读写、引用，而且每一步动的组件不同时，用组件图：上面一排是计算，下面一排是数据，虚线是引用。下面还是同一次拆分与合并。悬停看说明，点一下固定面板看这一步的全部数据，双击把镜头拉回来：</p>
+    <p>讲一个系统里几个组件怎么互相调用、读写、引用，而且每一步动的组件不同时，用组件图：上面一排是计算，下面一排是数据，虚线是引用。下面还是同一次拆分与合并：</p>
   </section>
 
   <section class="cell demo" data-scene="example-graph" style="--stage-height: 560px"></section>
