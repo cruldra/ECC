@@ -2,8 +2,8 @@
 name: building-interactive-tutorials
 description: '在用户要求制作讲解仓库代码的交互式 3D 页面时使用（3D 交互教程、笔记本式教程、可视化讲解、梳理现有机制、现状和方案、做一份像 tokenizer.html 这样的教程），或要求向此类页面添加章节或演示时使用。先问要做两种页面里的哪一种：学习页，讲清开源项目某一块的内部逻辑，像 MiniMind 的 viz/tokenizer.html 一样从上到下阅读（文字格子、输出为真实运行结果的代码格子、结构图、卡片、每个机制一段分步 three.js 演示）；或改造页，用于修复或优化现有代码：现状和解决方案各一段简短说明加一段组件图演示，现状录自一次真实运行，方案取自设计文档。产出一个用 esbuild 和 Shiki 构建的离线 HTML 文件。涵盖 assets/viz 中的脚手架、两种大纲、用 scripts/check_links.py 检查的官方链接、录制真实运行、两种 3D 画面（数据流转、组件图）动画所用的步骤数据，以及在 agent-browser 中逐步点击检查。'
 locale: zh-CN
-source_hash: b55bcc3e4764fea8bf10717c8626d802162b704b8c4530ad15c08efcd7e2fbb1
-translated_at: 2026-11-26T10:24:48Z
+source_hash: ecb0891a493312fd8aa6b515aa466e6ccf6db42f3c3d02fd29ee1fd3f4c48612
+translated_at: 2026-11-26T12:21:32Z
 translation_model: claude-opus-5-5
 ---
 
@@ -297,6 +297,7 @@ export const GRAPH = {
 
 - `x` 向右，`z` 朝向读者。组件宽 3.4、深 1.7：组件之间相隔约 5.5，并在每个分组第一个组件的左边给分组标题留出位置。分组标题沿平台后沿摆放：后沿和第一排组件之间至少留 3（`node.z ≥ group.z − group.d / 2 + 3`），不然名牌立起来会挡住标题。
 - 种类：`process` 是圆角方块，`store` 是圆柱，`table` 是带环的圆柱，`ref` 是紫色方块。在 `GRAPH.kinds` 里添加种类，在 `GRAPH.tones` 里添加状态色。
+- 一步里的 `edges` 按数据走的先后排。一步点亮两条以上的线时，每条线的标签前按这个顺序标上编号（1、2、3），读者顺着编号一条条跟着数据走。点亮的线在弧线中途还有两个正对屏幕、跟着镜头转的箭头，终点被组件挡住时也看得出方向。
 - 悬停组件显示它的 `desc`、`code` 和 `details` 的前四行，悬停连线显示它的 `label` 和 `desc`；单击固定一个显示全部行的面板；双击把镜头拉回这一步的取景。
 - 注册为 `createView: () => createGraphView(GRAPH)`，并给它的演示格子加上 `style="--stage-height: 560px"`，让名牌放得下。
 - 学习页用组件图画「核心概念」的概念图：一个核心概念一个组件，`sub` 写真实数字（6400 行、6108 条）；一种关系一条连线，标上这层关系（学出 token、按顺序套用、占 0–35 号）。每个组件写 `href`，即讲它的那一章的 `#id`；点开的面板里会多一个「去讲它的那一节 →」链接，悬停提示不放，因为鼠标够不着。

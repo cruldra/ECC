@@ -275,6 +275,12 @@ async function main() {
     assert.match(shared, /mouseButtons = \{ LEFT: THREE\.MOUSE\.PAN, MIDDLE: THREE\.MOUSE\.DOLLY, RIGHT: THREE\.MOUSE\.ROTATE \}/, "left drag pans, right drag rotates");
     assert.match(viewSource("player.js"), /拖动平移 · 右键旋转 · 双指缩放 · 双击复位/, "the corner hint names the swapped buttons and pinch zoom");
     assert.ok(!shared.includes("enableZoom = false"), "pinch zoom needs OrbitControls zoom on");
+    assert.match(graph, /lit\.map\(\(a, i\) => \[a\.id, \{ \.\.\.a, order: lit\.length > 1 \? i \+ 1 : null \}\]\)/, "a step lighting two or more edges numbers them in the order of its edges");
+    assert.match(graph, /function setPill\(sprite, text, color, order = null[\s\S]*?if \(order\) \{[\s\S]*?ctx\.arc\(/, "an edge label draws its number in a filled circle");
+    assert.match(graph, /const heads = \[0\.28, 0\.72\]\.map/, "a lit edge carries arrows along its arc, not only at its hidden end");
+    assert.match(graph, /function arrowSprite\(\)[\s\S]*?depthTest: false/, "the arc arrows face the screen and no node hides them");
+    assert.match(graph, /sprite\.material\.rotation = Math\.atan2\(b\.y - a\.y, \(b\.x - a\.x\) \* camera\.aspect\)/, "each arc arrow turns to the edge's direction on screen every frame");
+    assert.ok(body.includes("List a step's `edges` in the order the data moves"), "SKILL.md tells the author to list edges in flow order");
     assert.match(shared, /addEventListener\('wheel', \(event\) => \{ if \(!event\.ctrlKey\) event\.stopImmediatePropagation\(\); \}, \{ capture: true \}\)/, "a plain wheel skips the controls and scrolls the page; only a pinch, a wheel with ctrlKey, zooms");
     for (const copy of ["OrbitControls", "function canvasTexture", "function textWidth", "const measure ="]) {
       assert.ok(!graph.includes(copy), `graph-3d.js copies ${copy} from blocks-3d.js`);

@@ -67,6 +67,27 @@ function labelCanvas(name, sub, color, badge, badgeColor) {
   return canvas;
 }
 
+/** 连线中途的箭头：始终朝向镜头、不被别的物体挡住的一块白色三角，尖朝右，用的时候按连线走向转、按状态色染色。 */
+function arrowSprite() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64;
+  canvas.height = 64;
+  const ctx = canvas.getContext('2d');
+  ctx.beginPath();
+  ctx.moveTo(60, 32);
+  ctx.lineTo(6, 6);
+  ctx.lineTo(20, 32);
+  ctx.lineTo(6, 58);
+  ctx.closePath();
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: canvasTexture(canvas), transparent: true, depthWrite: false, depthTest: false }));
+  sprite.scale.set(0.5, 0.5, 1);
+  sprite.renderOrder = 9;
+  sprite.visible = false;
+  return sprite;
+}
+
 /** 连线中点的标签：始终朝向镜头、不被别的物体挡住的一块圆角文字。 */
 function pillSprite() {
   const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, depthWrite: false, depthTest: false }));
@@ -75,12 +96,18 @@ function pillSprite() {
   return sprite;
 }
 
-function setPill(sprite, text, color, size = 0.42) {
-  const key = `${text}|${color}|${size}`;
+/**
+ * 重画连线标签；给了 `order` 时文字左边多一个实心圆圈写着它，读者按 1、2、3 跟着数据走。
+ *
+ * @param order 这条线在这一步里的先后，从 1 数起；`null` 时不画圆圈
+ */
+function setPill(sprite, text, color, order = null, size = 0.42) {
+  const key = `${text}|${color}|${order}|${size}`;
   if (sprite.userData.key === key) return;
   const font = `600 40px ${MONO}`;
+  const lead = order ? 50 : 0;
   const canvas = document.createElement('canvas');
-  canvas.width = Math.ceil(measureText(text, font)) + 44;
+  canvas.width = Math.ceil(measureText(text, font)) + 44 + lead;
   canvas.height = 64;
   const ctx = canvas.getContext('2d');
   ctx.beginPath();
@@ -90,10 +117,21 @@ function setPill(sprite, text, color, size = 0.42) {
   ctx.lineWidth = 3;
   ctx.strokeStyle = color;
   ctx.stroke();
+  ctx.textBaseline = 'middle';
+  if (order) {
+    ctx.beginPath();
+    ctx.arc(32, canvas.height / 2, 22, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.font = `700 32px ${SANS}`;
+    ctx.fillStyle = '#12141a';
+    ctx.textAlign = 'center';
+    ctx.fillText(String(order), 32, canvas.height / 2 + 2);
+    ctx.textAlign = 'left';
+  }
   ctx.font = font;
   ctx.fillStyle = color;
-  ctx.textBaseline = 'middle';
-  ctx.fillText(text, 22, canvas.height / 2 + 1);
+  ctx.fillText(text, 22 + lead, canvas.height / 2 + 1);
   sprite.material.map?.dispose();
   sprite.material.map = canvasTexture(canvas);
   sprite.material.needsUpdate = true;
@@ -138,7 +176,7 @@ function escapeHtml(s) {
  * 3D 组件图：分组是地面上的平台，组件按种类画成方块或圆柱，连线是带箭头的弧线；每一步点亮涉及的组件和连线，点亮的连线上有点在流动。
  *
  * 名牌始终朝向镜头，第三行挂这一步的数据；鼠标悬停看说明和前几行数据，点击固定一个面板看全部数据，双击把镜头拉回这一步的取景。
- * 每一步的字段：`nodes`（组件 id → [TONES] 里的状态，没列出的变暗）、`edges`（点亮的连线 `{ id, label, tone }`）、
+ * 每一步的字段：`nodes`（组件 id → [TONES] 里的状态，没列出的变暗）、`edges`（点亮的连线 `{ id, label, tone }`，按数据走的先后排，亮两条以上时标签前按这个顺序编号）、
  * `badges`（组件 id → 名牌第三行的文字或 `{ text, tone }`）、`details`（组件 id → 点开后的几行数据）、`focus`（镜头要看全的组件 id）。
  * 返回的对象提供播放器要的 `mount(stage)`、`render(step, { reset })`、`setActive(active)`，见 [mountDemo](viz/src/notebook/player.js#mountDemo)。
  *
@@ -259,9 +297,9 @@ export function createGraphView(graph) {
     } else {
       parts.push(new THREE.Mesh(new THREE.TubeGeometry(curve, 48, 0.05, 8), mat));
     }
-    const cone = new THREE.Mesh(new THREE.ConeGeometry(0.17, 0.45, 12), mat);
+    const cone = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.5, 12), mat);
     const tangent = curve.getTangent(1).normalize();
-    cone.position.copy(end).addScaledVector(tangent, -0.2);
+    cone.position.copy(end).addScaledVector(tangent, -0.25);
     cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tangent);
     parts.push(cone);
     parts.forEach((p) => scene.add(p));
@@ -278,7 +316,14 @@ export function createGraphView(graph) {
       scene.add(dot);
       return dot;
     });
-    const entry = { e, curve, mat, label, dots, active: null, hover: false };
+    // 终点的箭头常被组件挡住，线朝纵深走时还被看扁；点亮时在弧线中途再放两个正对屏幕的箭头
+    const heads = [0.28, 0.72].map((t) => {
+      const sprite = arrowSprite();
+      sprite.position.copy(curve.getPoint(t));
+      scene.add(sprite);
+      return { t, sprite };
+    });
+    const entry = { e, curve, mat, label, dots, heads, active: null, hover: false };
     hit.userData.pick = { type: 'edge', entry };
     pickables.push(hit);
     edges.set(e.id, entry);
@@ -322,8 +367,12 @@ export function createGraphView(graph) {
       d.visible = !!a;
       d.material.color.set(color);
     });
+    entry.heads.forEach(({ sprite }) => {
+      sprite.visible = !!a;
+      sprite.material.color.set(color);
+    });
     entry.label.visible = !!a || entry.hover;
-    if (entry.label.visible) setPill(entry.label, a?.label ?? entry.e.label, a ? color : '#9aa3b6');
+    if (entry.label.visible) setPill(entry.label, a?.label ?? entry.e.label, a ? color : '#9aa3b6', a?.order ?? null);
   }
 
   /** 悬停提示和点开的面板共用的内容：名字、说明、这一步的数据；悬停只给前四行。 */
@@ -425,6 +474,12 @@ export function createGraphView(graph) {
     for (const entry of edges.values()) {
       if (!entry.active) continue;
       entry.dots.forEach((d, i) => d.position.copy(entry.curve.getPoint((now / 1500 + i / 3) % 1)));
+      // 箭头按这段线投到屏幕上的走向转过去，镜头怎么转都顺着线指
+      for (const { t, sprite } of entry.heads) {
+        const a = entry.curve.getPoint(t).project(camera);
+        const b = entry.curve.getPoint(t + 0.03).project(camera);
+        sprite.material.rotation = Math.atan2(b.y - a.y, (b.x - a.x) * camera.aspect);
+      }
     }
     controls.update();
     renderer.render(scene, camera);
@@ -493,7 +548,9 @@ export function createGraphView(graph) {
         const { text, tone } = typeof b === 'string' ? { text: b } : (b ?? {});
         setNodeLabel(entry, text ?? null, text ? (tones[tone] ?? tones[entry.state] ?? '#e8ecf3') : null);
       }
-      const active = new Map((next.edges ?? []).map((a) => [a.id, a]));
+      // 一步点亮两条以上的线时，按它们在 `edges` 里的先后编号
+      const lit = next.edges ?? [];
+      const active = new Map(lit.map((a, i) => [a.id, { ...a, order: lit.length > 1 ? i + 1 : null }]));
       for (const [id, entry] of edges) {
         entry.active = active.get(id) ?? null;
         paintEdge(entry);
