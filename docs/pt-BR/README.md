@@ -81,7 +81,7 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ### v2.2.78 — building-interactive-tutorials numbers the edges a component-graph step lights, 1, 2, 3 in the order the data moves, when it lights two or more; a lit edge also shows two arrows along its arc that face the screen and turn with the camera, so its direction shows even where a node hides its end (Nov 2026)
 
-### v2.2.77 — building-interactive-tutorials demos zoom with a pinch: a trackpad pinch or a two-finger touch zooms the camera, while a plain wheel or two-finger swipe still scrolls the page and a double click resets the view; the corner hint now reads 拖动平移 · 右键旋转 · 双指缩放 · 双击复位 (Nov 2026)
+### v2.2.78 — building-interactive-tutorials demos zoom with a pinch: a trackpad pinch or a two-finger touch zooms the camera, while a plain wheel or two-finger swipe still scrolls the page and a double click resets the view; the corner hint now reads 拖动平移 · 右键旋转 · 双指缩放 · 双击复位 (Nov 2026)
 
 ### v2.2.77 — building-interactive-tutorials brings a project's old copy of the shared scaffold up to date before building a new page: it replaces `src/notebook/` and `build.mjs` with the skill's, then rebuilds and steps through every page, so older projects gain fullscreen and left-drag panning too; the shared part is never edited inside a project, a page's own phase colors live in its `topic.css`, appended after the shared styles, and `node build.mjs <name>` rebuilds only the named pages (Nov 2026)
 
