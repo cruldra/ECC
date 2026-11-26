@@ -85,7 +85,7 @@ Bu repository yalnızca ham kodu içerir. Rehberler her şeyi açıklıyor.
 
 ### v2.2.77 — building-interactive-tutorials links companies and organizations, programming languages, and file names at their first mention on a learning page, and links a project's action to the source that does it; a third-party library gets a chapter that opens with a component map, and a component the project does not use runs on an official model that does; every component-graph plate leaves at least 3 behind its first row, so name tags never hide its title (Nov 2026)
 
-### v2.2.76 — building-interactive-tutorials commits a page as soon as it passes its checks: it stages only the tutorial's own files (the built HTML, the page sources, the `runs/` records, the README and index pages, and any scaffold file it changed), never `node_modules/`, and does not push; a brand-new page opens in the system's default browser (Nov 2026)
+### v2.2.77 — building-interactive-tutorials commits a page as soon as it passes its checks: it stages only the tutorial's own files (the built HTML, the page sources, the `runs/` records, the README and index pages, and any scaffold file it changed), never `node_modules/`, and does not push; a brand-new page opens in the system's default browser (Nov 2026)
 
 ### v2.2.76 — building-interactive-tutorials demos go fullscreen: a 全屏 button and the `F` key spread the header, stage, and caption over the screen, the view refits to the new shape, and an in-page link leaves fullscreen before it jumps; the mouse now pans with a left drag and rotates with a right drag; the change page, like the learning page, keeps only the `<h1>` under its title (Nov 2026)
 
