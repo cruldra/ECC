@@ -25,7 +25,7 @@ export function mountDemo(cell, demo, number) {
           <button data-act="fullscreen" title="全屏（F）">全屏</button>
         </div>
       </div>
-      <div class="demo-stage"><div class="demo-hint">拖动平移 · 右键旋转 · 双击复位</div></div>
+      <div class="demo-stage"><div class="demo-hint">拖动平移 · 右键旋转 · 双指缩放 · 双击复位</div></div>
       <div class="demo-caption">
         <div class="demo-meta"><span class="phase"></span><b class="step-title"></b><span class="count"></span></div>
         <div class="demo-text"></div>

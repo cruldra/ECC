@@ -273,7 +273,9 @@ async function main() {
     const graph = viewSource("graph-3d.js");
     assert.match(graph, /import \{ canvasTexture, makeControls, measureText \} from '\.\/blocks-3d\.js'/, "graph-3d.js must take text measuring and camera controls from blocks-3d.js");
     assert.match(shared, /mouseButtons = \{ LEFT: THREE\.MOUSE\.PAN, MIDDLE: THREE\.MOUSE\.DOLLY, RIGHT: THREE\.MOUSE\.ROTATE \}/, "left drag pans, right drag rotates");
-    assert.match(viewSource("player.js"), /拖动平移 · 右键旋转 · 双击复位/, "the corner hint names the swapped buttons");
+    assert.match(viewSource("player.js"), /拖动平移 · 右键旋转 · 双指缩放 · 双击复位/, "the corner hint names the swapped buttons and pinch zoom");
+    assert.ok(!shared.includes("enableZoom = false"), "pinch zoom needs OrbitControls zoom on");
+    assert.match(shared, /addEventListener\('wheel', \(event\) => \{ if \(!event\.ctrlKey\) event\.stopImmediatePropagation\(\); \}, \{ capture: true \}\)/, "a plain wheel skips the controls and scrolls the page; only a pinch, a wheel with ctrlKey, zooms");
     for (const copy of ["OrbitControls", "function canvasTexture", "function textWidth", "const measure ="]) {
       assert.ok(!graph.includes(copy), `graph-3d.js copies ${copy} from blocks-3d.js`);
     }

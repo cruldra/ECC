@@ -119,9 +119,10 @@ export function disposeMaterials(material) {
 }
 
 /**
- * 两种 3D 画面共用的镜头控制：左键拖动平移，右键拖动旋转。
+ * 两种 3D 画面共用的镜头控制：左键拖动平移，右键拖动旋转，双指捏合缩放。
  *
- * 滚轮不缩放，留给页面上下滚动；镜头最低降到略高于地面，不会转到地面下面。
+ * 普通滚轮和触控板双指滑动仍然用来上下滚动页面；只有触控板捏合（浏览器把它报成按住 Ctrl 的滚轮）和触屏双指才缩放镜头。
+ * 镜头最低降到略高于地面，不会转到地面下面。
  *
  * @param camera 要控制的镜头
  * @param dom 接收鼠标事件的画布
@@ -129,9 +130,10 @@ export function disposeMaterials(material) {
 export function makeControls(camera, dom) {
   const controls = new OrbitControls(camera, dom);
   controls.enableDamping = true;
-  controls.enableZoom = false;
   controls.maxPolarAngle = Math.PI / 2.1;
   controls.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
+  // 不带 Ctrl 的滚轮在 [OrbitControls] 收到之前截下，又不阻止默认动作，页面照常滚动
+  dom.addEventListener('wheel', (event) => { if (!event.ctrlKey) event.stopImmediatePropagation(); }, { capture: true });
   return controls;
 }
 
