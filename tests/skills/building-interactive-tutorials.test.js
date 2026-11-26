@@ -165,7 +165,7 @@ async function main() {
     const steps = body.split("\n").filter((line) => /^### \d\./.test(line));
     assert.deepStrictEqual(steps, [
       "### 1. Ask Which Page",
-      "### 2. Set Up viz/ Once",
+      "### 2. Set Up or Update viz/",
       "### 3. Study the Code and Run It",
       "### 4. Outline the Page",
       "### 5. Write the Cells",
@@ -197,6 +197,27 @@ async function main() {
     assert.ok(notebookHtml.includes("<script>{{SCRIPT}}</script>"));
     const ids = new Set([...notebookHtml.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
     for (const [, id] of notebookHtml.matchAll(/href="#([^"]+)"/g)) assert.ok(ids.has(id), `no id ${id}`);
+  });
+
+  await test("a page's own phase colors live in its topic.css, which build.mjs appends to the shared style", () => {
+    const shared = [...notebookCss.matchAll(/data-phase="([^"]+)"/g)].map((m) => m[1]);
+    assert.deepStrictEqual(shared, ["缺口", "方案"], "notebook.css colors only the two phases every change page uses");
+    const used = new Set([...fs.readFileSync(path.join(exampleDir, "steps.js"), "utf8").matchAll(/phase: '([^']+)'/g)].map((m) => m[1]));
+    const topicCss = fs.readFileSync(path.join(exampleDir, "topic.css"), "utf8");
+    const colored = [...topicCss.matchAll(/data-phase="([^"]+)"/g)].map((m) => m[1]);
+    assert.ok(colored.length > 0, "the learning example colors its phases in topic.css");
+    for (const phase of colored) assert.ok(used.has(phase), `topic.css colors ${phase}, which no step uses`);
+    const build = fs.readFileSync(path.join(vizDir, "build.mjs"), "utf8");
+    assert.ok(build.includes("`${dir}/topic.css`") && build.includes("style + topicStyle"), "build.mjs appends the page's topic.css");
+  });
+
+  await test("step 2 replaces an existing project's shared scaffold with the skill's before a new page", () => {
+    const setup = body.split("### 2. Set Up or Update viz/")[1].split("### 3.")[0];
+    assert.ok(setup.includes("rm -rf viz/src/notebook") && setup.includes("cp ${CLAUDE_SKILL_DIR}/assets/viz/build.mjs viz/"), "step 2 replaces the shared part");
+    assert.ok(setup.includes("never edited inside a project") && setup.includes("step through every page"), "the project never edits it, and every page is checked after the update");
+    assert.ok(!body.includes("needs a color in notebook.css"), "new phase colors go into the page's topic.css");
+    const mistakes = body.split("## Common Mistakes")[1];
+    assert.ok(mistakes.includes("old copy of the shared scaffold"), "Common Mistakes must cover a page built on an old copy");
   });
 
   await test("notebook.css styles every diagram and card class SKILL.md tells you to use", () => {
@@ -570,6 +591,51 @@ async function main() {
     assert.match(commit, /commit without pushing/);
     assert.match(body.slice(body.indexOf("## Before You Finish")), /- \[ \] The page's sources, runs, built HTML, and index changes are committed/);
     assert.match(translation, /### 10\. 提交/);
+  });
+
+  await test("organizations, languages, and file names are linked at their first mention, and a project action links to its source", () => {
+    const links = body.slice(body.indexOf("### 6. Link Every Term to an Official Page"), body.indexOf("### 7. Compute the Demo From Real Results"));
+    assert.match(links, /every technical term, outside product, company or organization, programming language, and file name links/);
+    assert.match(links, /\| Company or organization \(Hugging Face, Google\) \| Its official site, such as `https:\/\/huggingface\.co\/` \|/);
+    assert.match(links, /\| Programming language \(Rust, Python\) \| Its official site, the Chinese version when it has one/);
+    assert.match(links, /\| File in the repository, including a file name the text mentions \(tokenizer\.json\) \| A path relative to the built page, such as `\.\.\/model\/tokenizer\.json`/);
+    assert.match(links, /When the text says the project does something[^\n]*link the words for that action to the source file that does it/);
+    assert.match(body, /\| Links only on technical concepts, while organization, language, and file names stay plain \|/);
+    assert.match(translation, /\| 公司或组织（Hugging Face、Google） \|/);
+    assert.match(translation, /\| 只给技术概念加链接，组织名、语言名、文件名没链 \|/);
+    // 示例页：去掉属性后，组织名和库名第一次出现就在链接里
+    const text = notebookHtml.replace(/\s(?:href|class|id|style|title|data-[\w-]+)="[^"]*"/g, "");
+    for (const [name, linked] of [["Hugging Face", "<a>Hugging Face</a>"], ["<code>tokenizers</code>", "<a><code>tokenizers</code></a>"]]) {
+      assert.ok(text.indexOf(name) >= 0 && text.indexOf(name) === text.indexOf(linked) + 3, `the first ${name} on the example page is a link`);
+    }
+    assert.ok(!/HuggingFace/.test(notebookHtml), "the example spells Hugging Face the official way");
+  });
+
+  await test("a third-party library chapter opens with a component map, and every graph plate leaves room for its title", async () => {
+    const outline = body.slice(body.indexOf("### 4. Outline the Page"), body.indexOf("### 5. Write the Cells"));
+    assert.match(outline, /A third-party library the project depends on \(tokenizers\) gets a chapter in a fixed order: a short introduction; right under it, with no heading and no lead-in, a component map/);
+    assert.match(outline, /It is not the concept map/);
+    assert.match(outline, /replaces the old trio of an SVG structure diagram, a code cell that reads the components, and a set of component cards/);
+    assert.match(body, /run it on an official model that does use it, such as `bert-base-uncased`/);
+    const views = body.slice(body.indexOf("### 7. Compute the Demo From Real Results"), body.indexOf("### 8. Build and Click Through Every Step"));
+    assert.match(views, /A library's component map is a component graph too/);
+    assert.match(views, /`sub` is its module and whether it is required, such as `normalizers · 可选` or `models · 必须`/);
+    assert.match(views, /every component the project leaves unset badged 没设 and `off`/);
+    assert.match(views, /`node\.z ≥ group\.z − group\.d \/ 2 \+ 3`/);
+    assert.match(body, /\| A library chapter built from an SVG structure diagram, a code cell that reads the components, and component cards \|/);
+    assert.match(translation, /被讲解的项目依赖的第三方库（tokenizers）占一章，顺序固定/);
+    assert.match(translation, /第三方库的组件地图也用组件图画/);
+    // 学习页示例的组件图：每块平台的后沿离第一排组件至少 3
+    const steps = await loadSteps();
+    for (const [name, graph] of [["GRAPH", steps.GRAPH], ["CONCEPTS", steps.CONCEPTS]]) {
+      for (const group of graph.groups) {
+        const back = group.z - group.d / 2;
+        const inside = graph.nodes.filter((n) => Math.abs(n.x - group.x) <= group.w / 2 && n.z >= back && n.z <= group.z + group.d / 2);
+        assert.ok(inside.length, `${name} plate ${group.id} holds nodes`);
+        const gap = Math.min(...inside.map((n) => n.z)) - back;
+        assert.ok(gap >= 3 - 1e-9, `${name} plate ${group.id} leaves ${gap.toFixed(2)} behind its first row, under 3`);
+      }
+    }
   });
 
   await test("the zh-CN translation tracks the current SKILL.md", () => {

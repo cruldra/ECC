@@ -57,7 +57,7 @@ print(ids, "".join(vocab[i] for i in ids))</pre>
   <section class="cell text">
     <h2 id="pre-split">预分词</h2>
     <h3 id="whitespace">按空格切块</h3>
-    <p>按空格切块是最直接的<a href="https://huggingface.co/learn/llm-course/zh-CN/chapter6/4">预分词</a>：遇到空格、换行这类空白就切开，空白本身扔掉，标点和字母留在同一块里。HuggingFace <code>tokenizers</code> 里对应 <a href="https://huggingface.co/docs/tokenizers/api/pre-tokenizers#tokenizers.pre_tokenizers.WhitespaceSplit"><code>pre_tokenizers.WhitespaceSplit</code></a>，常和别的预分词器串起来用。</p>
+    <p>按空格切块是最直接的<a href="https://huggingface.co/learn/llm-course/zh-CN/chapter6/4">预分词</a>：遇到空格、换行这类空白就切开，空白本身扔掉，标点和字母留在同一块里。<a href="https://huggingface.co/">Hugging Face</a> 的 <a href="https://huggingface.co/docs/tokenizers"><code>tokenizers</code></a> 库里对应 <a href="https://huggingface.co/docs/tokenizers/api/pre-tokenizers#tokenizers.pre_tokenizers.WhitespaceSplit"><code>pre_tokenizers.WhitespaceSplit</code></a>，常和别的预分词器串起来用。</p>
     <p><b>使用场景</b></p>
     <ul>
       <li><a href="src/topics/example/steps.js">本示例</a></li>
@@ -70,7 +70,7 @@ print(ids, "".join(vocab[i] for i in ids))</pre>
   <section class="cell text">
     <h2 id="split-merge">拆分与合并</h2>
     <h3 id="bpe">BPE</h3>
-    <p><a href="https://arxiv.org/abs/1508.07909">BPE</a>（字节对编码）本来是一种数据压缩算法，后来被用到分词上：反复把一起出现最多的相邻两块并成一块，常见组合成了一个 token，罕见的词拆成小片段也能表示，词表不用很大。HuggingFace <code>tokenizers</code> 里对应 <a href="https://huggingface.co/docs/tokenizers/api/models#tokenizers.models.BPE"><code>models.BPE</code></a>。</p>
+    <p><a href="https://arxiv.org/abs/1508.07909">BPE</a>（字节对编码）本来是一种数据压缩算法，后来被用到分词上：反复把一起出现最多的相邻两块并成一块，常见组合成了一个 token，罕见的词拆成小片段也能表示，词表不用很大。Hugging Face <code>tokenizers</code> 库里对应 <a href="https://huggingface.co/docs/tokenizers/api/models#tokenizers.models.BPE"><code>models.BPE</code></a>。</p>
     <p><b>使用场景</b></p>
     <ul>
       <li><a href="src/topics/example/steps.js">本示例</a></li>

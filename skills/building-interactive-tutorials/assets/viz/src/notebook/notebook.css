@@ -117,15 +117,8 @@ b a, a b { font-weight: 600; }
 .demo-hint { position: absolute; right: 12px; bottom: 8px; color: var(--muted); font-size: 12px; pointer-events: none; }
 .demo-caption { padding: 10px 16px 14px; border-top: 1px solid var(--line); }
 .demo-meta { display: flex; align-items: center; gap: 10px; font-size: 13px; }
-/* 每一步的阶段标签：没配颜色的阶段用默认的蓝色，新阶段名在这里加一行 */
+/* 每一步的阶段标签：没配颜色的阶段用默认的蓝色；一页自己的阶段名，颜色写在那一页的 topic.css */
 .demo-meta .phase { padding: 1px 8px; border-radius: 4px; background: #2e4a7a; }
-.demo-meta .phase[data-phase="合并"] { background: var(--done); }
-.demo-meta .phase[data-phase="对比"] { background: #7a4a2e; }
-.demo-meta .phase[data-phase="总览"] { background: #3a4460; }
-.demo-meta .phase[data-phase="训练"] { background: #6b5a1f; }
-.demo-meta .phase[data-phase="编码"] { background: #2e5f8a; }
-.demo-meta .phase[data-phase="预分词"] { background: #5a3e7a; }
-.demo-meta .phase[data-phase="查表"] { background: #5b3f8f; }
 /* 改造页：现状演示里的问题标「缺口」，方案演示里改过的地方标「方案」 */
 .demo-meta .phase[data-phase="缺口"] { background: #b23a3e; }
 .demo-meta .phase[data-phase="方案"] { background: #2e6a5a; }

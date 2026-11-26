@@ -142,8 +142,8 @@ const CODE = 'src/topics/example/steps.js';
  */
 export const GRAPH = {
   groups: [
-    { id: 'steps', label: '计算', color: '#6aa8ff', x: 0, z: -3.5, w: 25, d: 5.2 },
-    { id: 'data', label: '数据', color: '#e2b93b', x: 0, z: 3.5, w: 25, d: 5.2 },
+    { id: 'steps', label: '计算', color: '#6aa8ff', x: 0, z: -3.9, w: 25, d: 5.2 },
+    { id: 'data', label: '数据', color: '#e2b93b', x: 0, z: 3.1, w: 25, d: 5.2 },
   ],
   nodes: [
     { id: 'split', kind: 'process', label: '拆分', sub: '[...word]', x: -8.25, z: -3.5, desc: '把词拆成字母，一个字母一块。', code: CODE },
@@ -316,8 +316,8 @@ export const CONCEPTS = (() => {
   const ids = joined.map((t) => vocab.indexOf(t.text));
   return {
     groups: [
-      { id: 'use', label: '使用', color: '#6aa8ff', x: 0, z: -3.5, w: 22, d: 5.2 },
-      { id: 'build', label: '词表从哪来', color: '#e2b93b', x: 0, z: 3.5, w: 22, d: 5.2 },
+      { id: 'use', label: '使用', color: '#6aa8ff', x: 0, z: -3.9, w: 22, d: 5.2 },
+      { id: 'build', label: '词表从哪来', color: '#e2b93b', x: 0, z: 3.1, w: 22, d: 5.2 },
     ],
     nodes: [
       { id: 'word', kind: 'store', label: '词', sub: WORD, x: -7.7, z: -3.5, href: '#intro', desc: '要换成编号的一段文字。' },

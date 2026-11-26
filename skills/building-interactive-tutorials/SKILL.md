@@ -37,9 +37,24 @@ Before anything else, ask the user with `AskUserQuestion` which page to build. S
 
 Put the option that fits the request first and mark it recommended. When the project's `viz/README.md` says which kind its pages are, recommend that kind. The choice decides steps 4 and 7; every other step is the same for both.
 
-### 2. Set Up viz/ Once
+### 2. Set Up or Update viz/
 
-If the project already has the scaffold (`viz/README.md`, sometimes under `docs/`), read that README first: it is the project's copy of these rules and lists the pages already built. Otherwise copy the scaffold and add the dependencies with commands, without versions:
+If the project already has the scaffold (`viz/README.md`, sometimes under `docs/`), bring its shared part up to date before anything else. A project keeps the copy it was set up with, so a new page built on it lacks what the skill has gained since, such as fullscreen and left-drag panning. The shared part belongs to this skill and is never edited inside a project:
+
+1. Diff the project's `src/notebook/` and `build.mjs` against `assets/viz`. Move a page's own styles, such as the phase colors an old `notebook.css` holds, into that page's `topic.css`; port a change every page could use into the skill.
+2. Replace `src/notebook/` and `build.mjs` with the copies in `assets/viz`, which drops the files the skill no longer has. Leave `src/topics/` alone.
+3. Keep the project's `README.md`: it lists the pages and how each one is rebuilt. Where its writing rules differ from this skill's, this skill wins.
+4. Run `pnpm build` and step through every page (step 8): an older page may rely on something the update changed.
+
+```bash
+rm -rf viz/src/notebook
+cp -R ${CLAUDE_SKILL_DIR}/assets/viz/src/notebook viz/src/
+cp ${CLAUDE_SKILL_DIR}/assets/viz/build.mjs viz/
+```
+
+A change every page needs, such as a new control or a fix in a view, goes into the skill, not into the project's copy.
+
+If the project has no scaffold yet, copy it and add the dependencies with commands, without versions:
 
 ```bash
 cp -R ${CLAUDE_SKILL_DIR}/assets/viz ./viz
@@ -63,7 +78,7 @@ viz/
     │   ├── blocks-3d.js      what the block views share: blocks, labels, transitions, stage, camera
     │   ├── flow-3d.js        3D view: data blocks moving across plates joined by arrows
     │   ├── graph-3d.js       3D view: a component graph whose parts light up step by step
-    │   ├── notebook.css      cell layout, diagram and card styles, phase colors
+    │   ├── notebook.css      cell layout, diagram and card styles, the 缺口 and 方案 phase colors
     │   ├── pipeline-flow.js  layout for data passing station by station in a straight line
     │   ├── player.js         demo player: paging, autoplay, fullscreen, pauses off-screen
     │   └── runtime.js        mounts demos, builds the two-level TOC, opens repo links in VS Code
@@ -71,7 +86,8 @@ viz/
         ├── example/          a learning page
         │   ├── notebook.html     the cells
         │   ├── main.js           registers each demo under its scene name
-        │   └── steps.js          computes each demo step
+        │   ├── steps.js          computes each demo step
+        │   └── topic.css         this page's own styles: the colors of its phases
         └── example-change/   a change page
             ├── notebook.html     现状 and 解决方案, a paragraph and a demo each
             ├── main.js           gives each demo its own graph
@@ -87,7 +103,8 @@ Browsers refuse to load local ES modules from a `file://` page, so `build.mjs` b
 3. Record the installed versions of the libraries you will link (`uv pip show <package>`), so the doc links match them.
 4. Take every fact the page states (counts, ids, sizes, ranges) from those runs or from the repository files.
 5. When a stage cannot be recorded (no model weights on this machine, no access to the server), feed it the nearest real data and say so in the text next to the demo. MiniMind has no weights locally, so its decode step reuses the ids that encoding produced, and the caption says that a real chat would decode the ids the model generates.
-6. Back every conclusion the text states with the real Out of a code cell. When the text says a round trip loses nothing, the cell prints the decoded string next to the input (`print(text, ids, tok.decode(ids))`); when no Out shows it, drop the claim.
+6. A library component the project does not use (MiniMind sets no Normalizer) still shows real data: run it on an official model that does use it, such as `bert-base-uncased`, and name that model in the caption.
+7. Back every conclusion the text states with the real Out of a code cell. When the text says a round trip loses nothing, the cell prints the decoded string next to the input (`print(text, ids, tok.decode(ids))`); when no Out shows it, drop the claim.
 
 When the concept is a system whose state changes as you act on it, write three scripts under `viz/runs/` that record one run, and take everything from it, so the Out blocks, the numbers in the text, and the demo cannot disagree:
 
@@ -116,7 +133,7 @@ A **learning page** has three parts, in this order:
 
 - Every section or item that explains a mechanism (data going in and coming out changed, parts acting on each other) has a demo cell. Text alone does not count, nor two bullet points that say "encoding turns text into ids, decoding turns them back".
 - `<h2>` and `<h3>` feed the left TOC, `<h3>` indented under its `<h2>`. Give an `id` to every heading that another cell links to; generated ids change when headings move.
-- A library's files and components (tokenizer.json) are core concepts too: each gets a chapter whose demo shows how they are made and used (train → save → load → encode), not an appendix of key tables or diagrams.
+- A third-party library the project depends on (tokenizers) gets a chapter in a fixed order: a short introduction; right under it, with no heading and no lead-in, a component map (step 7); then a section for each of its files and components that no other chapter teaches, such as tokenizer.json, whose demo shows how it is made and used (train → save → load → encode). The component map shows how the library splits the work: its classes and modules, which are required and which optional, and the path encoding, training, and decoding each take. It is not the concept map, which is about the domain's concepts; the component map is about this library's API. It replaces the old trio of an SVG structure diagram, a code cell that reads the components, and a set of component cards, and no appendix of key tables or diagrams follows it.
 
 A **change page** has two parts and nothing else: no code cells, tables, cards, or subtopics unless the user asks for them.
 
@@ -168,15 +185,19 @@ A **change page** has two parts and nothing else: no code cells, tables, cards, 
 
 ### 6. Link Every Term to an Official Page
 
-On a learning page this is required: every technical term, and every outside product, links to its official page at its first mention. An unlinked term is a defect, like a wrong number. Where each kind links:
+On a learning page this is required: every technical term, outside product, company or organization, programming language, and file name links to its official page at its first mention. An unlinked term is a defect, like a wrong number. Where each kind links:
 
 | Term | Link to |
 | --- | --- |
 | Machine-learning concept | The [Google ML glossary](https://developers.google.com/machine-learning/glossary?hl=zh-cn) in Chinese, with its anchor, such as `#token` |
 | NLP concept | The [Hugging Face LLM course](https://huggingface.co/learn/llm-course/zh-CN/chapter1/1) in Chinese |
 | Library, model, tool | Its official docs, site, or repository; docs for the installed version |
+| Company or organization (Hugging Face, Google) | Its official site, such as `https://huggingface.co/` |
+| Programming language (Rust, Python) | Its official site, the Chinese version when it has one, such as `https://www.rust-lang.org/zh-CN/` |
 | Paper | Its arXiv abstract page |
-| File in the repository | A path relative to the built page, such as `../trainer/train_tokenizer.py`; opened from `file://`, the runtime turns it into a `vscode://` link |
+| File in the repository, including a file name the text mentions (tokenizer.json) | A path relative to the built page, such as `../model/tokenizer.json`; opened from `file://`, the runtime turns it into a `vscode://` link |
+
+When the text says the project does something (MiniMind 用它训练分词器), link the words for that action to the source file that does it: 训练分词器 links to `../trainer/train_tokenizer.py`.
 
 Never link a blog, tutorial, Q&A answer, or mirror. When the installed version has no docs (a 404), use the nearest published version and keep it for every link into the same docs. When an anchor does not exist, link a nearby anchor that does, or the page itself.
 
@@ -198,7 +219,7 @@ A demo is a list of steps, and one step shows one change. A learning page draws 
 | --- | --- | --- |
 | Data flow in a straight line, `createFlowView(pipelineFlow({ stages, rows, arrows, labels }))` with `pipeline-flow.js` | One piece of data passes station by station and changes form at each, one sequence turning into another included | ByteLevel: text → chunks → bytes; a decoder: ids → tokens → text; tokenizer.json: train → save → load → encode |
 | Data flow in two rows, `createFlowView(FLOW)` in `flow-3d.js`, laid out by hand or by a shared function such as `trainEncodeFlow` | A process in stages that share a product, or two trips over one table | The four tokenizer algorithms, training along the back and encoding along the front; encode and decode reading the same vocabulary |
-| Component graph, `createGraphView(GRAPH)` in `graph-3d.js` | Several components call, write, or point at each other, and the ones at work change step by step; on a learning page, the 核心概念 concept map | A sync process, a Git server, and a database during one turn; the ten concepts of a tokenizer and what produces what |
+| Component graph, `createGraphView(GRAPH)` in `graph-3d.js` | Several components call, write, or point at each other, and the ones at work change step by step; on a learning page, the 核心概念 concept map and a library's component map | A sync process, a Git server, and a database during one turn; the ten concepts of a tokenizer and what produces what; the components of tokenizers hung on one `Tokenizer` |
 
 Whatever the view, split the picture into zones. A process in stages (training, then use) is two rows: the first stage along the back, the second along the front, and what both share (the merge rules, the vocabulary) on one plate that spans both rows, written by the first and read by the second. Every plate carries a title. Never crowd several kinds of information into one oblique view without zones, and never leave an intermediate product, such as the rules training writes, only in the captions: put it on a plate as blocks.
 
@@ -208,7 +229,7 @@ Every step carries these fields, whatever the view:
 
 ```js
 {
-  phase: '合并',                       // caption tag; a new phase needs a color in notebook.css
+  phase: '合并',                       // caption tag; a new phase needs a color in the page's topic.css
   title: '并成一块',
   text: '把挨着的两个 <code>l</code> 并成 <code>ll</code>。',  // HTML, one to three sentences
 }
@@ -270,12 +291,16 @@ export const GRAPH = {
 }
 ```
 
-- `x` runs right and `z` toward the reader. A node is 3.4 wide and 1.7 deep: space nodes about 5.5 apart, and leave room left of a group's first node for its title.
+- `x` runs right and `z` toward the reader. A node is 3.4 wide and 1.7 deep: space nodes about 5.5 apart, and leave room left of a group's first node for its title. A group's title lies along its back edge: leave at least 3 between that edge and the group's first row of nodes (`node.z ≥ group.z − group.d / 2 + 3`), or the name tags standing up cover it.
 - Kinds: `process` a rounded box, `store` a cylinder, `table` a ringed cylinder, `ref` a purple box. Add a kind in `GRAPH.kinds` and a tone in `GRAPH.tones`.
 - Hovering a node shows its `desc`, `code`, and the first four lines of `details`, and hovering an edge its `label` and `desc`; a click pins a panel with every line; a double click reframes the step.
 - Register it as `createView: () => createGraphView(GRAPH)`, and give its demo cell `style="--stage-height: 560px"` so the name tags fit.
 - On a learning page the component graph draws the 核心概念 concept map: one node per core concept with a real number in its `sub` (6400 行, 6108 条), and one edge per relation, labelled with it (学出 token, 按顺序套用, 占 0–35 号). Give each node an `href`, the `#id` of the chapter that teaches it; the pinned panel then shows a 去讲它的那一节 → link, which the hover tip leaves out because the pointer cannot reach it.
 - A concept map's first step shows the whole map, every node `base` and `focus` on all of them. Each later step lights one block, in the order of the page's chapters, and ends its caption with `→ <a href="#chapter">name</a>`. Every chapter has its step, so adding a chapter adds a step. Give its cell `style="--stage-height: 600px"`, and size each group plate to its nodes: the camera frames the nodes, so a plate much wider than them puts its title out of frame.
+- A library's component map is a component graph too; `library-map.js` in MiniMind's tokenizer tutorial is the reference.
+  - Layout: one plate titled with the class the components hang on (`Tokenizer`). Its first row is the encoding pipeline in order (AddedToken → Normalizer → PreTokenizer → Model → PostProcessor), its second row the rest (Decoder). The input text sits left of the plate, the result (Encoding) right of it, the decoded text below on the left. Plates along the back hold training (语料 → Trainer → Model) and the file (tokenizer.json).
+  - Name tags: `label` is the class name; `sub` is its module and whether it is required, such as `normalizers · 可选` or `models · 必须`; `desc` says what it handles and names its common implementations. `href` points at the chapter that teaches it; a component no chapter teaches (Normalizer, PostProcessor, Encoding) has none.
+  - Steps: an overview, where the components hang on the class and only Model is required; the encoding pipeline on one real sentence of this project, with each station's real intermediate result as its badge and every component the project leaves unset badged 没设 and `off`; the optional components, run on an official model that uses them (step 3) and linked to their API anchors; training; decoding; saving the file. Each caption ends with `→ <a href="#chapter">name</a>` for the chapter that teaches it.
 - When neither view can show the concept, write another view that returns `mount(stage)`, `render(step, { reset })`, and `setActive(active)`, and keep the player. A view made of blocks builds on `createBlockScene` in `blocks-3d.js`, which already holds the stage, the camera, the transitions, and `syncBlocks`.
 
 A change page draws two graphs, `GRAPH_NOW` for the current mechanism and `GRAPH_NEXT` for the solution, as `example-change/steps.js` does:
@@ -320,7 +345,7 @@ Commit as soon as a new or changed page passes step 8, on both page kinds. Do no
 - `viz/<name>.html` and `viz/src/topics/<name>/`
 - The page's files under `viz/runs/`: the scripts, the template, and `out/`
 - `viz/README.md` and any index page from step 9
-- The shared scaffold (`viz/src/notebook/`, `build.mjs`, `package.json`, the lockfile) when this page added or changed it
+- The shared scaffold (`viz/src/notebook/`, `build.mjs`, `package.json`, the lockfile) when step 2 set it up or updated it, and every page the update rebuilt
 
 Never stage `node_modules/`. Write the message in the repository's commit style, commit without pushing, and name the commit in the reply instead of walking through the diff.
 
@@ -345,7 +370,7 @@ tokenizer.json    one pipeline demo: train → save → load → encode
 1. Read where the token lists are defined in `train_tokenizer.py`, then where they are used: the dataset code, the chat template, the inference server.
 2. Run three snippets: the 36 added tokens in their three groups, one registered marker against an unregistered look-alike, and a chat-template round trip through encode and decode.
 3. Add `<h2 id="special-tokens">`: a short introduction and a list of the categories, then `<h3>` 整段认出 and 聊天模板.
-4. Copy the real chat-template pieces into `special-tokens.js`, lay each demo out with `pipelineFlow`, and compute its steps from them; add colors for the new phases `模板` and `解码`, and a step on the concept map for the chapter.
+4. Copy the real chat-template pieces into `special-tokens.js`, lay each demo out with `pipelineFlow`, and compute its steps from them; add colors for the new phases `模板` and `解码` to the page's `topic.css`, and a step on the concept map for the chapter.
 5. Build, run `check_links.py`, step through all eight steps, and add the module to the tree in `viz/README.md`.
 
 **A change page.** Request: "用户问出图模型是什么，智能体说出了真实型号；先梳理现有机制，再给方案".
@@ -364,7 +389,9 @@ tokenizer.json    one pipeline demo: train → save → load → encode
 | A link to a blog, or to an anchor nobody opened | Official pages only; run `check_links.py` |
 | Docs for the installed version return 404 | Use the nearest published version, the same one everywhere |
 | `<` left unescaped in a code cell, so the browser eats it as a tag | Write `&lt;`, `&gt;`, `&amp;` |
-| A new phase name with no color | Add `.demo-meta .phase[data-phase="…"]` to `notebook.css` |
+| A new phase name with no color | Add `.demo-meta .phase[data-phase="…"]` to the page's `topic.css` |
+| A new page built on the project's old copy of the shared scaffold, so it lacks fullscreen or the current mouse controls | Replace `src/notebook/` and `build.mjs` with the skill's copies first, then rebuild and step through every page (step 2) |
+| A page's phase colors or a shared fix written into the project's `notebook.css` or `player.js` | Put page styles in the page's `topic.css`; put a change every page needs into the skill |
 | Block ids that change between steps, so blocks jump instead of sliding | Give each piece one id for the whole demo |
 | Several changes in one step | Split it; one step, one change |
 | A screenshot caught mid-scroll | Scroll with `behavior: 'instant'` first |
@@ -401,15 +428,18 @@ tokenizer.json    one pipeline demo: train → save → load → encode
 | A 使用场景 link to a page that never names the method | Open the page, search it for the method's name, and link one that says so |
 | A concept on the concept map with no chapter of its own | Add the chapter, then its step on the map |
 | Plates left empty by the last step, so the chain is gone | Keep every station's blocks; grow the next station's blocks out of them |
+| A library chapter built from an SVG structure diagram, a code cell that reads the components, and component cards | One component map right under the library's introduction, then a section per file or component (steps 4 and 7) |
+| Links only on technical concepts, while organization, language, and file names stay plain | Link each at its first mention: an organization or a language to its official site, a file to its path in the repository (step 6) |
 | A finished page left uncommitted for the user to review its source | Commit it right after step 8 passes; the user reads the built page (step 10) |
 | A lead-in or a preview around a code cell ("reproduce it like this", "later sections explain"), or a code cell that neither backs a demo nor is its section's content | Delete them; a cell that backs a demo sits right under it, one commented part per part of the demo (step 5) |
 
 ## Before You Finish
 
 - [ ] The user chose the page kind, or named it in the request.
+- [ ] The project's `src/notebook/` and `build.mjs` match the skill's, and every page built on them steps through.
 - [ ] Every Out block is a real run, pasted verbatim, and every number in the text matches the runs or the repository.
 - [ ] On both pages: only the `<h1>` under the title.
-- [ ] On a learning page: an introduction that says what it is and why it is needed, no separate motivation chapter, a 核心概念 concept map whose nodes link to their chapters and a chapter for every concept on it, method subtopics in the order general introduction, 使用场景, how it works, no operating instructions, a demo for every mechanism, an official link on every technical term, evidence in an Out for every conclusion, and every stage the run could not record named in the text.
+- [ ] On a learning page: an introduction that says what it is and why it is needed, no separate motivation chapter, a 核心概念 concept map whose nodes link to their chapters and a chapter for every concept on it, method subtopics in the order general introduction, 使用场景, how it works, no operating instructions, a component map right under each third-party library's introduction, a demo for every mechanism, a link on the first mention of every technical term, organization, language, and file name, evidence in an Out for every conclusion, and every stage the run could not record named in the text.
 - [ ] Every code cell backs the demo above it or is its section's content, has no lead-in or preview around it, and its Out shows every number its demo uses.
 - [ ] On a change page: two paragraphs and two demos only, shared components sit in the same place in both graphs, and every 待确认 choice is named in the reply.
 - [ ] `check_links.py` prints `OK` for the built page, and every `LIMITED` link loads in a browser.

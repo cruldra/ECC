@@ -1,0 +1,7 @@
+/* 这一页演示用到的阶段名和它们的标签颜色 */
+.demo-meta .phase[data-phase="合并"] { background: var(--done); }
+.demo-meta .phase[data-phase="总览"] { background: #3a4460; }
+.demo-meta .phase[data-phase="训练"] { background: #6b5a1f; }
+.demo-meta .phase[data-phase="编码"] { background: #2e5f8a; }
+.demo-meta .phase[data-phase="预分词"] { background: #5a3e7a; }
+.demo-meta .phase[data-phase="查表"] { background: #5b3f8f; }
