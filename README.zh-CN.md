@@ -80,6 +80,8 @@
 
 ## 最新动态
 
+### v2.2.79 — 新增 transcribing-audio：在 Apple Silicon 本机用 mlx-whisper 跑 Whisper large-v3，把音频、视频转成每句一行的 Markdown 逐字稿和 SRT 字幕，不上传任何内容；脚本用 PEP 723 头写依赖，`uv run --script` 自动建环境，先用 Silero VAD 找出人声，再切成不超过 30 秒的小块逐块识别，长录音不再卡在一个词上反复输出，也不会在静音里编出字幕台词；普通话用 OpenCC 转简体、统一全角标点，从不覆盖已有逐字稿。改编自 MIT 许可的 pamler1004/whisper-transcribe（2026年11月）
+
 ### v2.2.78 — building-interactive-tutorials 组件图里一步点亮两条以上的连线时，标签前按先后标上编号 1、2、3，读者顺着编号跟着数据走；点亮的连线在弧线中途多两个正对屏幕、跟着镜头转的箭头，终点被组件挡住也看得出方向（2026年11月）
 
 ### v2.2.78 — building-interactive-tutorials 演示支持双指捏合缩放：触控板捏合和触屏双指缩放镜头，普通滚轮和双指滑动照常滚动页面，双击复位；角落提示改为「拖动平移 · 右键旋转 · 双指缩放 · 双击复位」（2026年11月）
@@ -363,7 +365,7 @@ Copy-Item -Recurse rules/typescript "$HOME/.claude/rules/"
 /plugin list ecc@ecc
 ```
 
-**完成！** 你现在可以使用 70 个代理、327 个技能和 97 个命令。
+**完成！** 你现在可以使用 70 个代理、328 个技能和 97 个命令。
 
 ### multi-* 命令需要额外配置
 

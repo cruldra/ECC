@@ -882,7 +882,8 @@
         "skills/tasteforge-video",
         "skills/taste-distillation",
         "skills/taste-application",
-        "skills/building-interactive-tutorials"
+        "skills/building-interactive-tutorials",
+        "skills/transcribing-audio"
       ],
       "targets": [
         "claude",
