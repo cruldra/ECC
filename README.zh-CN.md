@@ -82,7 +82,7 @@
 
 ### v2.2.81 — writing-requirements-spec 的文档抬头改为固定来源：乙方取 closing-custom-dev-deals 保险箱里的 company-profile.md（只解这一份），甲方取项目 README 的“客户：”一行，缺了先问用户再写回 README；文档编号统一为 HK-<项目代号>-SRS-<序号>，同一项目沿用原编号，不再留【待填写】（2026年11月）
 
-### v2.2.80 — 新增 writing-requirements-spec：把客户会议录音、逐字稿或笔记整理成交给甲方确认的需求规格说明书，章节按 ISO/IEC/IEEE 29148:2018 第 9.6 节排列，AI 项目另加“模型与数据需求”一章；先写内部版，每条需求标出已确认、推断或待提供，以及出自会议第几分钟，再用脚本生成甲方版，删掉标注、标准名称和口头报价；附录给每个待确认问题附建议答案，写明分工和甲方要交的资料；自带脚本把 SRT 压成每分钟一行，并用 pandoc 导出表格带框线、占满版心的 Word。closing-custom-dev-deals 写需求书时改用它（2026年11月）
+### v2.2.81 — 新增 writing-requirements-spec：把客户会议录音、逐字稿或笔记整理成交给甲方确认的需求规格说明书，章节按 ISO/IEC/IEEE 29148:2018 第 9.6 节排列，AI 项目另加“模型与数据需求”一章；先写内部版，每条需求标出已确认、推断或待提供，以及出自会议第几分钟，再用脚本生成甲方版，删掉标注、标准名称和口头报价；附录给每个待确认问题附建议答案，写明分工和甲方要交的资料；自带脚本把 SRT 压成每分钟一行，并用 pandoc 导出表格带框线、占满版心的 Word。closing-custom-dev-deals 写需求书时改用它（2026年11月）
 
 ### v2.2.80 — 新增 transcribing-audio：在 Apple Silicon 本机用 mlx-whisper 跑 Whisper large-v3，把音频、视频转成每句一行的 Markdown 逐字稿和 SRT 字幕，不上传任何内容；脚本用 PEP 723 头写依赖，`uv run --script` 自动建环境，先用 Silero VAD 找出人声，再切成不超过 30 秒的小块逐块识别，长录音不再卡在一个词上反复输出，也不会在静音里编出字幕台词；普通话用 OpenCC 转简体、统一全角标点，从不覆盖已有逐字稿。改编自 MIT 许可的 pamler1004/whisper-transcribe（2026年11月）
 
