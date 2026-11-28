@@ -34,7 +34,16 @@ Bundled files:
   ```
 
 - Read the whole transcript, not a sample. Speech recognition swaps homophones; fix them from context (自由化部署 → 私有化部署, PTF → PDF) and keep a list of words you could not resolve for the report.
-- Read the project files that name the two parties (company profile, README) for the document header.
+- Fill the document header from fixed sources; never leave 【待填写】 in these three fields:
+  - 乙方: the company's full name from the `closing-custom-dev-deals` vault. Decrypt only this file; the pricing in the vault has no place here.
+
+    ```bash
+    bash ${CLAUDE_PLUGIN_ROOT}/skills/closing-custom-dev-deals/scripts/vault.sh show company-profile.md
+    ```
+
+    If it reports that no passphrase is cached, ask the user to run `vault.sh unlock` once. Do not guess the name from the project folder.
+  - 甲方: the `客户：` line of the project's `README.md`, written the way the user refers to the client. If the README or that line is missing, ask the user once, then add the line (creating the README if needed) so the next version finds it.
+  - 文档编号: `HK-<项目代号>-SRS-<序号>`. 项目代号 is the project directory name in capitals with hyphens removed (`ai-civics` → `AICIVICS`); 序号 counts this project's requirement specs from `001`. If the project already has one (`docs/*_需求规格说明书_*.md`), keep its number; a new version does not change it.
 
 ### 2. Sort What Was Said
 

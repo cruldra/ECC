@@ -2,8 +2,8 @@
 name: writing-requirements-spec
 description: '用于把客户会议、录音、聊天记录或笔记整理成交给甲方确认的软件需求规格说明书：需求说明书、需求规格说明书、软件需求文档、SRS、梳理需求给甲方确认、根据会议录音整理需求、出第一版需求。章节按 ISO/IEC/IEEE 29148:2018 第 9.6 节排列，AI 项目另加“模型与数据需求”一章。先写内部版，每条需求标出状态（已确认 / 推断 / 待提供）和出自会议第几分钟；再生成甲方版，去掉这些标注、标准名称和口头报过的价格。附录给每个待确认问题附上建议答案，写明双方分工和甲方要交的资料。自带脚本把 SRT 压成每分钟一行、删除标注，并用 pandoc 导出表格带框线、占满版心的 Word。不用于设计文档和实施计划（spec、writing-plans），也不用于报价和合同（closing-custom-dev-deals）。'
 locale: zh-CN
-source_hash: af25c7c757f81df3578d4ebb52644e4bbb3618fd59307dce3cab1ef8fb63905d
-translated_at: 2026-11-28T13:52:31Z
+source_hash: 7014c243589a76c77e60c94ba213d43e48f4995e019a85865073ae0e510fefb1
+translated_at: 2026-11-28T19:01:09Z
 translation_model: claude-opus-5-5
 ---
 
@@ -38,7 +38,16 @@ translation_model: claude-opus-5-5
   ```
 
 - 读完整份逐字稿，不要抽读。语音识别会出同音错字，按上下文改正（自由化部署 → 私有化部署，PTF → PDF），改不了的词记下来，写进最后的汇报。
-- 读项目里写明双方名称的文件（公司介绍、README），用来填文档抬头。
+- 文档抬头从固定来源取，这三项不留【待填写】：
+  - 乙方：取 `closing-custom-dev-deals` 保险箱里的公司全称。只解出这一份，保险箱里的报价数据与本文无关。
+
+    ```bash
+    bash ${CLAUDE_PLUGIN_ROOT}/skills/closing-custom-dev-deals/scripts/vault.sh show company-profile.md
+    ```
+
+    报“还没存口令”时，让用户跑一次 `vault.sh unlock`。不要按项目目录名猜公司名。
+  - 甲方：取项目 `README.md` 里“客户：”那一行，用用户对客户的叫法。没有 README 或没有这一行时问用户一次，再把这一行写进 README（没有就新建），下一版直接读到。
+  - 文档编号：`HK-<项目代号>-SRS-<序号>`。项目代号是项目目录名去掉连字符后转大写（`ai-civics` → `AICIVICS`）；序号按本项目第几份需求说明书从 `001` 起。项目里已有需求说明书（`docs/*_需求规格说明书_*.md`）的沿用原编号，升版本不换编号。
 
 ### 2. 把内容分类
 

@@ -164,6 +164,19 @@ if (pandoc.status === 0) {
   console.log("  - skipped the Word export test: pandoc is not installed");
 }
 
+test("the header takes 乙方 from the vault, 甲方 from the README and numbers the document HK-…-SRS-…", () => {
+  const command = "bash ${CLAUDE_PLUGIN_ROOT}/skills/closing-custom-dev-deals/scripts/vault.sh show company-profile.md";
+  const vault = fs.readFileSync(path.join(skillDir, "..", "closing-custom-dev-deals", "scripts", "vault.sh"), "utf8");
+  assert.ok(vault.includes("vault.sh show [name.md]"), "vault.sh can decrypt a single file");
+  for (const text of [body, translation]) {
+    assert.ok(text.includes(command), "乙方 from company-profile.md only");
+    assert.ok(text.includes("`HK-<项目代号>-SRS-<序号>`"), "numbering rule");
+    assert.ok(text.includes("`ai-civics` → `AICIVICS`"), "project code example");
+  }
+  assert.ok(body.includes("the `客户：` line of the project's `README.md`"), "甲方 from the README");
+  assert.ok(!body.includes("(company profile, README)"), "the old open-ended rule is gone");
+});
+
 test("the zh-CN translation tracks the current SKILL.md", () => {
   const digest = crypto.createHash("sha256").update(fs.readFileSync(skillFile)).digest("hex");
   assert.match(translation, /^---\nname: writing-requirements-spec\ndescription: '[^'\n]+'\nlocale: zh-CN\n/);
