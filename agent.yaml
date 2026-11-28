@@ -184,6 +184,7 @@ skills:
   - visa-doc-translate
   - wechat-developing
   - writing-code-comments
+  - writing-requirements-spec
   - x-api
 commands:
   - aside
