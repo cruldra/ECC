@@ -82,7 +82,7 @@
 
 ### v2.2.80 — 新增 writing-requirements-spec：把客户会议录音、逐字稿或笔记整理成交给甲方确认的需求规格说明书，章节按 ISO/IEC/IEEE 29148:2018 第 9.6 节排列，AI 项目另加“模型与数据需求”一章；先写内部版，每条需求标出已确认、推断或待提供，以及出自会议第几分钟，再用脚本生成甲方版，删掉标注、标准名称和口头报价；附录给每个待确认问题附建议答案，写明分工和甲方要交的资料；自带脚本把 SRT 压成每分钟一行，并用 pandoc 导出表格带框线、占满版心的 Word。closing-custom-dev-deals 写需求书时改用它（2026年11月）
 
-### v2.2.79 — 新增 transcribing-audio：在 Apple Silicon 本机用 mlx-whisper 跑 Whisper large-v3，把音频、视频转成每句一行的 Markdown 逐字稿和 SRT 字幕，不上传任何内容；脚本用 PEP 723 头写依赖，`uv run --script` 自动建环境，先用 Silero VAD 找出人声，再切成不超过 30 秒的小块逐块识别，长录音不再卡在一个词上反复输出，也不会在静音里编出字幕台词；普通话用 OpenCC 转简体、统一全角标点，从不覆盖已有逐字稿。改编自 MIT 许可的 pamler1004/whisper-transcribe（2026年11月）
+### v2.2.80 — 新增 transcribing-audio：在 Apple Silicon 本机用 mlx-whisper 跑 Whisper large-v3，把音频、视频转成每句一行的 Markdown 逐字稿和 SRT 字幕，不上传任何内容；脚本用 PEP 723 头写依赖，`uv run --script` 自动建环境，先用 Silero VAD 找出人声，再切成不超过 30 秒的小块逐块识别，长录音不再卡在一个词上反复输出，也不会在静音里编出字幕台词；普通话用 OpenCC 转简体、统一全角标点，从不覆盖已有逐字稿。改编自 MIT 许可的 pamler1004/whisper-transcribe（2026年11月）
 
 ### v2.2.79 — building-interactive-tutorials 组件图里一步点亮两条以上的连线时，标签前按先后标上编号 1、2、3，读者顺着编号跟着数据走；点亮的连线在弧线中途多两个正对屏幕、跟着镜头转的箭头，终点被组件挡住也看得出方向（2026年11月）
 
