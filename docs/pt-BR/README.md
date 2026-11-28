@@ -81,7 +81,7 @@ Este repositório contém apenas o código. Os guias explicam tudo.
 
 ### v2.2.79 — New transcribing-audio skill: runs Whisper large-v3 locally on Apple Silicon through mlx-whisper and turns audio or video into a line-per-sentence Markdown transcript and SRT subtitles, with nothing uploaded; the script declares its dependencies in a PEP 723 header so `uv run --script` builds the environment, Silero VAD finds the speech and Whisper reads it in chunks of up to 30 seconds, so long recordings no longer get stuck repeating a word or fill silences with invented caption lines; Mandarin comes out in simplified characters through OpenCC with full-width punctuation, and no transcript is ever overwritten. Adapted from the MIT-licensed pamler1004/whisper-transcribe (Nov 2026)
 
-### v2.2.78 — building-interactive-tutorials numbers the edges a component-graph step lights, 1, 2, 3 in the order the data moves, when it lights two or more; a lit edge also shows two arrows along its arc that face the screen and turn with the camera, so its direction shows even where a node hides its end (Nov 2026)
+### v2.2.79 — building-interactive-tutorials numbers the edges a component-graph step lights, 1, 2, 3 in the order the data moves, when it lights two or more; a lit edge also shows two arrows along its arc that face the screen and turn with the camera, so its direction shows even where a node hides its end (Nov 2026)
 
 ### v2.2.78 — building-interactive-tutorials demos zoom with a pinch: a trackpad pinch or a two-finger touch zooms the camera, while a plain wheel or two-finger swipe still scrolls the page and a double click resets the view; the corner hint now reads 拖动平移 · 右键旋转 · 双指缩放 · 双击复位 (Nov 2026)
 

@@ -83,7 +83,7 @@
 
 ### v2.2.79 — 新增 transcribing-audio：在 Apple Silicon 本机用 mlx-whisper 跑 Whisper large-v3，把音频、视频转成每句一行的 Markdown 逐字稿和 SRT 字幕，不上传任何内容；脚本用 PEP 723 头写依赖，`uv run --script` 自动建环境，先用 Silero VAD 找出人声，再切成不超过 30 秒的小块逐块识别，长录音不再卡在一个词上反复输出，也不会在静音里编出字幕台词；普通话用 OpenCC 转简体、统一全角标点，从不覆盖已有逐字稿。改编自 MIT 许可的 pamler1004/whisper-transcribe（2026年11月）
 
-### v2.2.78 — building-interactive-tutorials 组件图里一步点亮两条以上的连线时，标签前按先后标上编号 1、2、3，读者顺着编号跟着数据走；点亮的连线在弧线中途多两个正对屏幕、跟着镜头转的箭头，终点被组件挡住也看得出方向（2026年11月）
+### v2.2.79 — building-interactive-tutorials 组件图里一步点亮两条以上的连线时，标签前按先后标上编号 1、2、3，读者顺着编号跟着数据走；点亮的连线在弧线中途多两个正对屏幕、跟着镜头转的箭头，终点被组件挡住也看得出方向（2026年11月）
 
 ### v2.2.78 — building-interactive-tutorials 演示支持双指捏合缩放：触控板捏合和触屏双指缩放镜头，普通滚轮和双指滑动照常滚动页面，双击复位；角落提示改为「拖动平移 · 右键旋转 · 双指缩放 · 双击复位」（2026年11月）
 
@@ -1443,7 +1443,7 @@ ECC 是**第一个最大化利用每个主要 AI 编码工具的插件**。以�
 | **上下文文件** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
 | **秘密检测** | 基于钩子                  | beforeSubmitPrompt 钩子 | 基于沙箱 | 基于钩子 |
 | **自动格式化** | PostToolUse 钩子        | afterFileEdit 钩子 | N/A | file.edited 钩子 |
-| **版本** | 插件 | 插件 | 参考配置 | 2.2.78 |
+| **版本** | 插件 | 插件 | 参考配置 | 2.2.79 |
 
 **关键架构决策：**
 
